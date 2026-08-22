@@ -1,0 +1,51 @@
+(* LoomQ bounded OpenQASM 2.0 source grammar. Semantic gate and arity rules
+   are defined in gates.json. Comments and whitespace may separate tokens. *)
+
+program          = version, include, declaration, { declaration }, statement, { statement } ;
+
+version          = "OPENQASM", "2.0", ";" ;
+include          = "include", '"qelib1.inc"', ";" ;
+
+declaration      = qreg_decl | creg_decl ;
+qreg_decl        = "qreg", identifier, "[", positive_integer, "]", ";" ;
+creg_decl        = "creg", identifier, "[", positive_integer, "]", ";" ;
+
+statement        = gate_call | measure ;
+gate_call        = identifier, [ "(", expression_list, ")" ], indexed_ref,
+                   { ",", indexed_ref }, ";" ;
+
+measure          = "measure", reference, "->", reference, ";" ;
+reference        = identifier | indexed_ref ;
+indexed_ref      = identifier, "[", integer, "]" ;
+
+expression_list  = expression, { ",", expression } ;
+expression       = additive ;
+additive         = multiplicative, { ( "+" | "-" ), multiplicative } ;
+multiplicative   = power, { ( "*" | "/" ), power } ;
+power            = unary, [ "^", power ] ;
+unary            = [ "+" | "-" ], primary ;
+primary          = number
+                 | "pi"
+                 | function, "(", expression, ")"
+                 | "(", expression, ")" ;
+function         = "sin" | "cos" | "tan" | "exp" | "ln" | "sqrt" ;
+
+identifier       = lowercase, { letter | digit | "_" } ;
+positive_integer = nonzero_digit, { digit } ;
+integer          = digit, { digit } ;
+number           = digits, [ ".", [ digits ] ], [ exponent ]
+                 | ".", digits, [ exponent ] ;
+exponent         = ( "e" | "E" ), [ "+" | "-" ], digits ;
+digits           = digit, { digit } ;
+
+lowercase        = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i"
+                 | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r"
+                 | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" ;
+uppercase        = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I"
+                 | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R"
+                 | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z" ;
+letter           = lowercase | uppercase ;
+digit            = "0" | nonzero_digit ;
+nonzero_digit    = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+(* Lexical comment rule: "//" consumes through the next newline or EOF. *)

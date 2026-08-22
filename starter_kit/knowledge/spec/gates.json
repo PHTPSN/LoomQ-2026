@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "source_language": "OpenQASM 2.0",
+  "case_sensitive": true,
+  "gate_count": 12,
+  "gates": [
+    {"name": "h", "parameter_count": 0, "qubit_count": 1, "category": "single_qubit"},
+    {"name": "x", "parameter_count": 0, "qubit_count": 1, "category": "single_qubit"},
+    {"name": "s", "parameter_count": 0, "qubit_count": 1, "category": "single_qubit_phase"},
+    {"name": "sdg", "parameter_count": 0, "qubit_count": 1, "category": "single_qubit_phase"},
+    {"name": "t", "parameter_count": 0, "qubit_count": 1, "category": "single_qubit_phase"},
+    {"name": "tdg", "parameter_count": 0, "qubit_count": 1, "category": "single_qubit_phase"},
+    {"name": "rz", "parameter_count": 1, "qubit_count": 1, "category": "single_qubit_rotation"},
+    {"name": "ry", "parameter_count": 1, "qubit_count": 1, "category": "single_qubit_rotation"},
+    {"name": "cx", "parameter_count": 0, "qubit_count": 2, "category": "two_qubit"},
+    {"name": "cu1", "parameter_count": 1, "qubit_count": 2, "category": "two_qubit_phase"},
+    {"name": "swap", "parameter_count": 0, "qubit_count": 2, "category": "two_qubit"},
+    {"name": "ccx", "parameter_count": 0, "qubit_count": 3, "category": "three_qubit"}
+  ]
+}

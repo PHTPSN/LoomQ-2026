@@ -6,6 +6,8 @@ AWS Braket 原生支持 OpenQASM 3.0，对 2.0 标准也可以通过语法调整
 """
 
 import json
+from datetime import datetime, timezone
+
 from braket.devices import LocalSimulator
 from braket.ir.openqasm import Program
 
@@ -52,7 +54,7 @@ def main():
         "shots": shots,
         "counts": dict(counts),
         "bit_order": "little",
-        "timestamp": result.additional_metadata.action.startTime if hasattr(result, 'additional_metadata') else "2026-07-06T10:00:00Z",
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "meta": {
             "qubits_count": 2,
             "depth": len(result.measured_qubits)

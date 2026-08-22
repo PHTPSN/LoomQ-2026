@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0",
+  "retrieved_at": "2026-08-23",
+  "policy": "Primary specifications and official vendor sources only; retrieval output remains advisory until locally verified.",
+  "sources": [
+    {
+      "id": "openqasm-2-spec",
+      "kind": "language_specification",
+      "version": "2.0",
+      "authority": "OpenQASM project",
+      "url": "https://github.com/openqasm/openqasm/tree/OpenQASM2.x",
+      "used_for": ["source grammar", "shared statement semantics", "expression semantics"]
+    },
+    {
+      "id": "openqasm-live-spec",
+      "kind": "language_specification",
+      "version": "live",
+      "authority": "OpenQASM project",
+      "url": "https://openqasm.com/",
+      "used_for": ["OpenQASM 3 emission reference"]
+    },
+    {
+      "id": "qiskit-qasm2-parser",
+      "kind": "sdk_documentation",
+      "version": "2.5.2 local pin",
+      "authority": "IBM Quantum",
+      "url": "https://quantum.cloud.ibm.com/docs/en/api/qiskit/qasm2",
+      "used_for": ["strict OpenQASM 2 parsing", "qelib1 compatibility", "syntax diagnostics"]
+    },
+    {
+      "id": "spinqit-docs",
+      "kind": "vendor_documentation",
+      "version": "0.2.4 local pin",
+      "authority": "SpinQ Technology",
+      "url": "https://doc.spinq.cn/doc/spinqit/index.html",
+      "used_for": ["QASM compiler", "BasicSimulator", "execution configuration"]
+    },
+    {
+      "id": "spinqit-source",
+      "kind": "vendor_repository",
+      "version": "0.2.4 local pin",
+      "authority": "SpinQ Technology",
+      "url": "https://github.com/SpinQTech/SpinQit",
+      "used_for": ["examples", "API behavior", "release review"]
+    },
+    {
+      "id": "spinqit-package",
+      "kind": "official_package_registry",
+      "version": "0.2.4",
+      "authority": "PyPI package published by SpinQ",
+      "url": "https://pypi.org/project/spinqit/0.2.4/",
+      "used_for": ["package artifact", "version metadata"]
+    },
+    {
+      "id": "pyqpanda-docs",
+      "kind": "vendor_documentation",
+      "version": "3.8.5 local pin",
+      "authority": "Origin Quantum",
+      "url": "https://pyqpanda-toturial.readthedocs.io/zh/latest/",
+      "used_for": ["CPUQVM", "QASM conversion", "measurement execution"]
+    },
+    {
+      "id": "originir-spec",
+      "kind": "vendor_documentation",
+      "version": "QPanda3 current reference; LoomQ subset is narrower",
+      "authority": "Origin Quantum",
+      "url": "https://github.com/OriginQ/QPanda3-doc/blob/main/tutorials/tutorial_04_compilation/tutorial_OriginIR_cn.markdown.in",
+      "used_for": ["OriginIR syntax", "instruction spelling"]
+    },
+    {
+      "id": "pyqpanda-package",
+      "kind": "official_package_registry",
+      "version": "3.8.5",
+      "authority": "PyPI package published by OriginQ",
+      "url": "https://pypi.org/project/pyqpanda/3.8.5/",
+      "used_for": ["package artifact", "version metadata"]
+    },
+    {
+      "id": "pyqpanda-context7",
+      "kind": "retrieval_index",
+      "version": "/originq/pyqpanda-toturial",
+      "authority": "Secondary index of OriginQ documentation",
+      "url": "https://context7.com/originq/pyqpanda-toturial/llms.txt",
+      "used_for": ["focused development-time retrieval"],
+      "advisory_only": true
+    },
+    {
+      "id": "braket-openqasm",
+      "kind": "vendor_documentation",
+      "version": "Amazon Braket current documentation",
+      "authority": "Amazon Web Services",
+      "url": "https://docs.aws.amazon.com/braket/latest/developerguide/braket-openqasm.html",
+      "used_for": ["OpenQASM 3 task model"]
+    },
+    {
+      "id": "braket-supported-openqasm",
+      "kind": "vendor_documentation",
+      "version": "Amazon Braket current documentation",
+      "authority": "Amazon Web Services",
+      "url": "https://docs.aws.amazon.com/braket/latest/developerguide/braket-openqasm-supported-features.html",
+      "used_for": ["supported statements", "measurement", "gate behavior"]
+    },
+    {
+      "id": "braket-local-simulator",
+      "kind": "vendor_documentation",
+      "version": "SDK 1.110.1 and default simulator 1.33.0 local pins",
+      "authority": "Amazon Web Services",
+      "url": "https://docs.aws.amazon.com/braket/latest/developerguide/braket-send-to-local-simulator.html",
+      "used_for": ["credential-free local execution"]
+    },
+    {
+      "id": "braket-sdk-source",
+      "kind": "vendor_repository",
+      "version": "1.110.1 local pin",
+      "authority": "Amazon Web Services",
+      "url": "https://github.com/amazon-braket/amazon-braket-sdk-python",
+      "used_for": ["Program", "LocalSimulator", "measurement_counts"]
+    },
+    {
+      "id": "braket-sdk-package",
+      "kind": "official_package_registry",
+      "version": "1.110.1",
+      "authority": "PyPI package published by Amazon Web Services",
+      "url": "https://pypi.org/project/amazon-braket-sdk/1.110.1/",
+      "used_for": ["package artifact", "version metadata"]
+    }
+  ]
+}

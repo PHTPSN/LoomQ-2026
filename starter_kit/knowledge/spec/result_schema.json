@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loomq.local/schemas/run-result-1.0.json",
+  "title": "LoomQ normalized sampled execution result",
+  "type": "object",
+  "required": ["backend", "job_id", "shots", "counts", "bit_order", "timestamp", "meta"],
+  "properties": {
+    "backend": {"type": "string", "minLength": 1},
+    "job_id": {"type": "string", "minLength": 1},
+    "shots": {"type": "integer", "minimum": 1},
+    "counts": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"pattern": "^[01]+$"},
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "bit_order": {"const": "little"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "meta": {"type": "object"}
+  },
+  "additionalProperties": false,
+  "$comment": "The sum of counts must equal shots for completed sampled execution; JSON Schema cannot express that aggregate invariant. The rightmost bit in each counts key is c[0]."
+}

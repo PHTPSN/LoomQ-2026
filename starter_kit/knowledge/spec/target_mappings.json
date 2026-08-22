@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0",
+  "verified_at": "2026-08-22",
+  "source_gates": ["h", "x", "s", "sdg", "t", "tdg", "rz", "ry", "cx", "cu1", "swap", "ccx"],
+  "targets": {
+    "spinq": {
+      "language": "OpenQASM 2.0",
+      "default_profile": "spinqit_0_2_4",
+      "profiles": {
+        "spinqit_0_2_4": {
+          "header": "OPENQASM 2.0;",
+          "include": "include \"qelib1.inc\";",
+          "quantum_declaration": "qreg {name}[{size}];",
+          "classical_declaration": "creg {name}[{size}];",
+          "indexed_measurement": "measure {qreg}[{qindex}] -> {creg}[{cindex}];",
+          "gate_map": {
+            "h": "h", "x": "x", "s": "s", "sdg": "sdg", "t": "t", "tdg": "tdg",
+            "rz": "rz", "ry": "ry", "cx": "cx", "cu1": "cu1", "swap": "swap", "ccx": "ccx"
+          },
+          "verification": "compiled_and_executed_complete_gate_matrix"
+        }
+      }
+    },
+    "originq": {
+      "language": "OriginIR",
+      "default_profile": "local_pyqpanda_3_8_5",
+      "profiles": {
+        "formal_contract": {
+          "header": ["QINIT {qubit_count}", "CREG {classical_count}"],
+          "indexed_measurement": "MEASURE q[{qindex}],c[{cindex}]",
+          "gate_map": {
+            "h": "H", "x": "X", "s": "S", "sdg": "SDAG", "t": "T", "tdg": "TDAG",
+            "rz": "RZ", "ry": "RY", "cx": "CNOT", "cu1": "CU1", "swap": "SWAP", "ccx": "TOFFOLI"
+          },
+          "authority": "starter_kit/target_ir_contract.md"
+        },
+        "local_pyqpanda_3_8_5": {
+          "header": ["QINIT {qubit_count}", "CREG {classical_count}"],
+          "indexed_measurement": "MEASURE q[{qindex}],c[{cindex}]",
+          "gate_templates": {
+            "h": "H {q0}",
+            "x": "X {q0}",
+            "s": "S {q0}",
+            "sdg": "RZ {q0},(-1.5707963267948966)",
+            "t": "T {q0}",
+            "tdg": "RZ {q0},(-0.7853981633974483)",
+            "rz": "RZ {q0},({p0})",
+            "ry": "RY {q0},({p0})",
+            "cx": "CNOT {q0},{q1}",
+            "cu1": "CR {q0},{q1},({p0})",
+            "swap": "SWAP {q0},{q1}",
+            "ccx": "TOFFOLI {q0},{q1},{q2}"
+          },
+          "verification": "parsed_and_executed_complete_lowered_gate_matrix"
+        }
+      }
+    },
+    "braket": {
+      "language": "OpenQASM 3.0",
+      "default_profile": "local_sdk_1_110_1",
+      "profiles": {
+        "standard_openqasm3": {
+          "header": "OPENQASM 3.0;",
+          "include": "include \"stdgates.inc\";",
+          "quantum_declaration": "qubit[{size}] {name};",
+          "classical_declaration": "bit[{size}] {name};",
+          "whole_measurement": "{creg} = measure {qreg};",
+          "gate_map": {
+            "h": "h", "x": "x", "s": "s", "sdg": "sdg", "t": "t", "tdg": "tdg",
+            "rz": "rz", "ry": "ry", "cx": "cx", "cu1": "cp", "swap": "swap", "ccx": "ccx"
+          },
+          "authority": "OpenQASM standard and starter_kit/target_ir_contract.md"
+        },
+        "local_sdk_1_110_1": {
+          "header": "OPENQASM 3.0;",
+          "include": null,
+          "quantum_declaration": "qubit[{size}] {name};",
+          "classical_declaration": "bit[{size}] {name};",
+          "whole_measurement": "{creg} = measure {qreg};",
+          "gate_map": {
+            "h": "h", "x": "x", "s": "s", "sdg": "si", "t": "t", "tdg": "ti",
+            "rz": "rz", "ry": "ry", "cx": "cnot", "cu1": "cphaseshift", "swap": "swap", "ccx": "ccnot"
+          },
+          "compatibility_note": "The pinned default simulator resolves stdgates.inc as a filesystem include; omit it for local execution.",
+          "verification": "executed_complete_mapped_gate_matrix"
+        }
+      }
+    }
+  }
+}

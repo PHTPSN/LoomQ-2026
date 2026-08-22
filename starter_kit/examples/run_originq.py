@@ -56,12 +56,18 @@ def run_on_originq_simulator(qasm_str: str, shots: int = 1024) -> dict:
     # 获取比特总数，以便将十进制格式化为对应长度的二进制串
     num_bits = len(creg)
     for key, val in raw_counts.items():
-        # 如果 key 本身是十进制整数，转为二进制字符串
-        if isinstance(key, int) or key.isdigit():
-            bin_str = bin(int(key))[2:].zfill(num_bits)
-            formatted_counts[bin_str] = val
+        # 整数 key 按十进制状态编号转换；字符串 key 通常已经是二进制位串。
+        if isinstance(key, int):
+            bin_str = bin(key)[2:].zfill(num_bits)
         else:
-            formatted_counts[key] = val
+            key_str = str(key)
+            if key_str and set(key_str) <= {"0", "1"}:
+                bin_str = key_str.zfill(num_bits)
+            elif key_str.isdigit():
+                bin_str = bin(int(key_str))[2:].zfill(num_bits)
+            else:
+                raise ValueError(f"Unsupported pyqpanda count key: {key!r}")
+        formatted_counts[bin_str] = val
 
     # 5. 释放量子虚拟机器资源
     machine.finalize()
