@@ -25,6 +25,7 @@ starter_kit/
 ├── requirements.txt
 ├── backend_requirements/     # 当前已提交平台的隔离 SDK 依赖锁
 ├── loomq_l1/                 # 解析、规范电路、发射器与可执行参考语义
+├── loomq_l2/                 # 模型解释、QASM 自验与静态后端筛选
 ├── hardware/                 # 可选真机证据脚本；不进入自动评测运行路径
 ├── Dockerfile
 ├── evidence/
@@ -142,6 +143,8 @@ python3 starter_kit/prepare_submission.py --team-id <GITHUB_USERNAME>
 正式限制为每个 case 时限 120 秒；两组固定私有种子共 12 个 case。机器可读版本见 `l2_policy.json`。
 
 `llm_client.py` 是可选的无依赖传输示例，不包含 Prompt、Agent 策略或参考答案。使用自己的 DeepSeek Key 调试时可设置：
+
+本提交的 L2 实现位于 [`loomq_l2/`](loomq_l2/README.md)。它先完成规定的模型调用，再由本地确定性代码验证 QASM 或按 `backend_capabilities.json` 筛选后端；开发期的实时云状态不会进入正式评分路径。
 
 ```bash
 export LOOMQ_LLM_BASE_URL=https://api.deepseek.com

@@ -6,9 +6,11 @@ from typing import Any, Dict, List, Tuple
 try:
     from .loomq_l1 import emit_target, parse_qasm2
     from .loomq_l1.originq_runner import run_originq_isolated
+    from .loomq_l2 import agent_chat as _agent_chat
 except ImportError:
     from loomq_l1 import emit_target, parse_qasm2
     from loomq_l1.originq_runner import run_originq_isolated
+    from loomq_l2 import agent_chat as _agent_chat
 
 
 SUPPORTED_TARGETS = ("spinq", "originq", "braket")
@@ -33,8 +35,8 @@ def run(qasm_str: str, target: str, shots: int) -> Dict[str, Any]:
 
 
 def agent_chat(prompt: str) -> str:
-    """Optional L2 entry point using the documented LOOMQ_LLM_* environment."""
-    raise NotImplementedError("L2 is optional; implement agent_chat(prompt) to enter")
+    """Run the model-assisted, locally verified Level 2 agent."""
+    return _agent_chat(prompt)
 
 
 def compile_hybrid(hybrid_qasm_str: str) -> Tuple[List[str], str]:
