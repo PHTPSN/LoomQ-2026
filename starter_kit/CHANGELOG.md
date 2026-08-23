@@ -4,6 +4,7 @@
 
 - Use the importable `starter_kit/` name for the submission root.
 - Add `__init__.py` so tests can use `from starter_kit import adapter` directly.
+- Implement the L1 OpenQASM 2 frontend, canonical circuit, formal target emitters, and executable reference semantics.
 
 ## 1.1.0 - 2026-07-27
 

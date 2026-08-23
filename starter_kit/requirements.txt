@@ -1,5 +1,10 @@
-# Public evaluator baseline: no third-party dependencies.
-# Add project dependencies below and pin every version exactly, for example:
-# amazon-braket-sdk==<tested-version>
-# spinqit==<tested-version>
-# pyqpanda==<tested-version>
+# Core parser and executable reference semantics. Every transitive dependency
+# is pinned. Backend SDK locks live in backend_requirements/ because SpinQit and
+# Braket require incompatible ANTLR runtime versions.
+dill==0.4.1
+numpy==2.2.6
+qiskit==2.5.2
+rustworkx==0.18.1
+scipy==1.15.3
+stevedore==5.8.0
+typing_extensions==4.16.0

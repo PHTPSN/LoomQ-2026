@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""LoomQ submission adapter contract v1.0.
-
-This file intentionally contains no scoring implementation. Teams may implement
-the functions directly or delegate to another language/runtime with subprocess.
-"""
+"""LoomQ submission adapter contract v1.0."""
 
 from typing import Any, Dict, List, Tuple
+
+try:
+    from .loomq_l1 import emit_target, parse_qasm2
+except ImportError:
+    from loomq_l1 import emit_target, parse_qasm2
 
 
 SUPPORTED_TARGETS = ("spinq", "originq", "braket")
@@ -13,12 +14,14 @@ SUPPORTED_TARGETS = ("spinq", "originq", "braket")
 
 def transpile(qasm_str: str, target: str) -> str:
     """Translate OpenQASM 2.0 into the target backend's native representation."""
-    raise NotImplementedError("Implement transpile(qasm_str, target)")
+    if target not in SUPPORTED_TARGETS:
+        raise ValueError("unsupported target: %s" % target)
+    return emit_target(parse_qasm2(qasm_str), target)
 
 
 def run(qasm_str: str, target: str, shots: int) -> Dict[str, Any]:
     """Execute a circuit and return the unified result schema from the rules."""
-    raise NotImplementedError("Implement run(qasm_str, target, shots)")
+    raise NotImplementedError("Backend execution infrastructure is committed separately")
 
 
 def agent_chat(prompt: str) -> str:

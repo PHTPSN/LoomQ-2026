@@ -18,10 +18,12 @@ starter_kit/
 ├── riscv_emulator.py
 ├── backend_capabilities.md
 ├── backend_capabilities.json
+├── knowledge/                 # 编译器知识、SDK 适配说明、机器规范与权威链接索引
 ├── QUANTUM_101.md
 ├── gate_identities.md
 ├── target_ir_contract.md
 ├── requirements.txt
+├── loomq_l1/                 # 解析、规范电路、发射器与可执行参考语义
 ├── Dockerfile
 ├── evidence/
 │   ├── README.md
@@ -31,6 +33,12 @@ starter_kit/
 │   └── ghz3.qasm
 └── examples/
 ```
+
+## 编译器知识库
+
+实现 OpenQASM 解析、目标转译或 SDK 适配前，先阅读 [`knowledge/README.md`](knowledge/README.md)。知识库明确区分大赛契约、语言标准、供应商 API 与本地版本兼容行为；机器可读的 12 门白名单、目标映射和结果 Schema 位于 `knowledge/spec/`。
+
+外部文档只用于开发期核验。正式评测不得依赖网络、Context7 或其他文档服务；运行时决策必须来自随提交归档的本地版本化文件。
 
 在正式 fork 中，本 `starter_kit/` 目录就是构建与评测根目录，必须保留并填写 `submission.yaml`，同时提供 `adapter.py`。非 Python 项目可以在 `adapter.py` 中通过 `subprocess` 调用自己的 CLI 或二进制。
 
@@ -42,13 +50,14 @@ from starter_kit import adapter
 
 ## 环境
 
-公开 evaluator 只使用 Python 标准库，无需安装依赖。推荐 Python 3.10，与官方基础镜像一致（spinqit 最高只提供 cp310 wheel）：
+L1 通用 IR 实现使用精确锁定的 `qiskit==2.5.2` 解析 OpenQASM 2。推荐 Python 3.10，与官方基础镜像一致。在 `starter_kit/` 构建根目录先安装核心依赖：
 
 ```bash
-python3 evaluator.py --level l1 --target spinq,originq --json-out report.json
+python3 -m pip install -r requirements.txt
+python3 evaluator.py --level l1 --target spinq,originq,braket --json-out report.json
 ```
 
-参赛项目使用第三方 SDK 时，必须把依赖写入 `requirements.txt` 并精确锁定版本，例如 `package==1.2.3`。不要提交 `package>=1.2`，正式评测不会替参赛队选择依赖版本。
+核心依赖在 `requirements.txt` 中完整锁定。各厂商 SDK 的运行环境和证据工作流按平台分别提交，避免把平台基础设施混入通用 IR。
 
 也可以先验证基础容器：
 
