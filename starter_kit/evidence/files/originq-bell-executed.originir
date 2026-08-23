@@ -1,0 +1,6 @@
+QINIT 2
+CREG 2
+H q[0]
+CNOT q[0], q[1]
+MEASURE q[0], c[0]
+MEASURE q[1], c[1]

@@ -1,0 +1,12 @@
+{
+  "provider": "origin_quantum",
+  "device": "WK_C180",
+  "job_id": "FF2950C304E23CFA40F7887CDB1C14CA",
+  "shots": 512,
+  "submitted_at": "2026-08-23T10:16:19.847926Z",
+  "status": "finished",
+  "task_name": "LoomQ L1 Bell evidence",
+  "source_qasm": "starter_kit/circuits/bell.qasm",
+  "executed_ir": "starter_kit/evidence/files/originq-bell-executed.originir",
+  "collected_at": "2026-08-23T10:25:15.192306Z"
+}

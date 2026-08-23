@@ -1,0 +1,22 @@
+{
+  "backend": "WK_C180",
+  "job_id": "FF2950C304E23CFA40F7887CDB1C14CA",
+  "shots": 512,
+  "counts": {
+    "00": 244,
+    "01": 0,
+    "10": 0,
+    "11": 268
+  },
+  "bit_order": "little",
+  "timestamp": "2026-08-23T10:25:15.192306Z",
+  "meta": {
+    "hardware": true,
+    "provider": "origin_quantum",
+    "provider_value_kind": "probabilities",
+    "count_normalization": "largest-remainder conversion from provider probabilities",
+    "top_k_bell_pass": true,
+    "provider_result": "originq-sdk-result.json",
+    "timestamp_source": "local collection time; verify platform time in task screenshot"
+  }
+}

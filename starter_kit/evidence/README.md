@@ -8,7 +8,7 @@
 
 把要申报项目的方框改成 `[x]`，并填写对应内容：
 
-- [ ] L1 真机
+- [x] L1 真机
 - [ ] L2 交互体验
 - [ ] 工程与产品化
 - [ ] 自定义量子 RISC-V Bonus
@@ -18,15 +18,27 @@
 
 每个有效真机平台计 5 分，最多两个平台。模拟器不计真机分。每个平台复制并填写一次下面的信息：
 
+### 平台 1：本源量子
+
 ```text
-平台名称：[填写]
-平台 job ID：[填写]
-运行时间：[填写，带时区]
-shots：[填写]
-实际执行的 QASM：[填写仓库内路径]
-平台返回的原始结果：[填写仓库内路径]
-任务页截图：[选填，填写仓库内路径]
+平台名称：本源量子 本源悟空 180（WK_C180）
+平台 job ID：FF2950C304E23CFA40F7887CDB1C14CA
+运行时间：2026-08-23T18:16:22.804+08:00 至 2026-08-23T18:17:46.433+08:00（平台任务页）
+shots：512
+实际执行的 QASM：starter_kit/circuits/bell.qasm
+云端提交的 OriginIR：starter_kit/evidence/files/originq-bell-executed.originir
+平台返回的原始结果：starter_kit/evidence/files/originq-sdk-result.json
+规范化结果：starter_kit/evidence/files/originq-normalized-result.json
+任务记录：starter_kit/evidence/files/originq-task.json
+任务页截图：starter_kit/evidence/files/originq-task.png
 ```
+
+核验摘要：任务页显示“计算成功”、本源悟空 180、2 个量子比特、512 次重复试验、
+任务耗时 0.471 秒、芯片运行时间 0.171 秒，物理量子比特映射为 `q[157]` 和
+`q[166]`。截图 job ID 与 SDK 原始结果一致。平台返回概率为
+`00=0.4763031`、`01=0.0001217`、`10=0.0004937`、`11=0.5230812`；
+最大概率的两个态为 `00` 和 `11`，符合 Bell 态预期。规范化结果遵循大赛统一
+结果 Schema，并明确标注整数 counts 由平台概率按最大余数法确定性换算。
 
 建议把文件放进 `evidence/files/`，比如：
 

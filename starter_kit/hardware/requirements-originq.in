@@ -1,0 +1,2 @@
+# Hardware-only SDK. This is deliberately isolated from the formal L1 image.
+pyqpanda3==0.4.0

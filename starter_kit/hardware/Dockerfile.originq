@@ -1,0 +1,15 @@
+FROM python:3.10-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcurl4 \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY starter_kit/hardware/requirements-originq.lock.txt /tmp/requirements-originq.lock.txt
+RUN pip install --no-cache-dir -r /tmp/requirements-originq.lock.txt
+
+WORKDIR /workspace/repo
+ENTRYPOINT ["python", "starter_kit/hardware/originq_hardware.py"]

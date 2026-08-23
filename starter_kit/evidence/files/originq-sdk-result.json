@@ -1,0 +1,38 @@
+{
+  "provider": "origin_quantum",
+  "job_id": "FF2950C304E23CFA40F7887CDB1C14CA",
+  "queried_at": "2026-08-23T10:25:13.745733Z",
+  "status_code": 3,
+  "status_name": "FINISHED",
+  "result": {
+    "00": 0.4763031,
+    "01": 0.0001217,
+    "10": 0.0004937,
+    "11": 0.5230812
+  },
+  "raw_fields": {
+    "result_origin_data": "{\"success\":true,\"code\":10000,\"message\":\"success\",\"obj\":{\"taskId\":\"FF2950C304E23CFA40F7887CDB1C14CA\",\"chipId\":\"WK_C180\",\"taskCalMethod\":\"1\",\"taskFrom\":\"4\",\"pilotTaskId\":\"6B0B7A5C0E744556A8C51A07923F1A3F\",\"errCode\":0,\"startTime\":1787480182889,\"taskState\":\"3\",\"measureQubitSize\":[2],\"aioTimeStamp\":\"9:1787480266288;8:1787480189768;7:1787480189502;2:1787480264955;\",\"requiredCore\":\"0\",\"taskType\":\"0\",\"taskResult\":[\"{\\\"value\\\":[0.4763031,0.0001217,0.0004937,0.5230812],\\\"key\\\":[\\\"0x0\\\",\\\"0x1\\\",\\\"0x2\\\",\\\"0x3\\\"]}\"],\"totalTime\":83515,\"qpuRunTime\":171,\"pulseTime\":null,\"cirExecuteTime\":null,\"measureQubits\":[],\"QMachineType\":null,\"QProg\":[null]}}",
+    "result_measure_qubits": "[]",
+    "result_timing_info": {
+      "aioTimeStamp": "9:1787480266288;8:1787480189768;7:1787480189502;2:1787480264955;",
+      "cirExecuteTime": "null",
+      "pulseTime": "null",
+      "qpuRunTime": "171",
+      "startTime": "1787480182889",
+      "totalTime": "83515"
+    },
+    "metadata_origin_data": "{\"success\":true,\"code\":10000,\"message\":\"success\",\"obj\":{\"taskId\":\"FF2950C304E23CFA40F7887CDB1C14CA\",\"chipId\":\"WK_C180\",\"taskCalMethod\":\"1\",\"taskFrom\":\"4\",\"pilotTaskId\":\"6B0B7A5C0E744556A8C51A07923F1A3F\",\"errCode\":0,\"startTime\":1787480182889,\"taskState\":\"3\",\"convertQProg\":[[{\"RPhi\":[158,270.0,90.0,0]},{\"RPhi\":[167,270.0,90.0,0]},{\"CZ\":[158,167,40]},{\"RPhi\":[167,27.59475867195414,90.0,80]},{\"Measure\":[[167,158],120]}]],\"mappingQProg\":[\"QINIT 2\\nCREG 2\\nH q[0]\\nCNOT q[0],q[1]\\nMEASURE q[0],c[0]\\nMEASURE q[1],c[1]\\n\"],\"mappingQubit\":[[\"{\\\"MappingQubits\\\":[157,166]}\"]],\"aioTimeStamp\":\"9:1787480266288;8:1787480189768;7:1787480189502;2:1787480264955;\",\"requiredCore\":\"0\",\"taskType\":\"0\",\"totalTime\":83515,\"qpuRunTime\":171,\"pulseTime\":null,\"cirExecuteTime\":null,\"measureQubits\":[],\"QMachineType\":null,\"QProg\":[null]}}",
+    "metadata_instructions": "[[{\"RPhi\":[158,270.0,90.0,0]},{\"RPhi\":[167,270.0,90.0,0]},{\"CZ\":[158,167,40]},{\"RPhi\":[167,27.59475867195414,90.0,80]},{\"Measure\":[[167,158],120]}]]",
+    "metadata_mapping_qprog": "[\"QINIT 2\\nCREG 2\\nH q[0]\\nCNOT q[0],q[1]\\nMEASURE q[0],c[0]\\nMEASURE q[1],c[1]\\n\"]",
+    "metadata_mapping_qubit": "[[\"{\\\"MappingQubits\\\":[157,166]}\"]]",
+    "metadata_measure_qubits": "[]",
+    "metadata_timing_info": {
+      "aioTimeStamp": "9:1787480266288;8:1787480189768;7:1787480189502;2:1787480264955;",
+      "cirExecuteTime": "null",
+      "pulseTime": "null",
+      "qpuRunTime": "171",
+      "startTime": "1787480182889",
+      "totalTime": "83515"
+    }
+  }
+}

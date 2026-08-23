@@ -23,7 +23,9 @@ starter_kit/
 ├── gate_identities.md
 ├── target_ir_contract.md
 ├── requirements.txt
+├── backend_requirements/     # 当前已提交平台的隔离 SDK 依赖锁
 ├── loomq_l1/                 # 解析、规范电路、发射器与可执行参考语义
+├── hardware/                 # 可选真机证据脚本；不进入自动评测运行路径
 ├── Dockerfile
 ├── evidence/
 │   ├── README.md
@@ -57,7 +59,9 @@ python3 -m pip install -r requirements.txt
 python3 evaluator.py --level l1 --target spinq,originq,braket --json-out report.json
 ```
 
-核心依赖在 `requirements.txt` 中完整锁定。各厂商 SDK 的运行环境和证据工作流按平台分别提交，避免把平台基础设施混入通用 IR。
+核心依赖在 `requirements.txt` 中完整锁定。本源量子的 pyQPanda 依赖图位于
+`backend_requirements/originq.lock.txt`，并安装到独立解释器中。其他平台的运行
+基础设施按平台分别提交，避免混入通用 IR 或本源量子提交。
 
 也可以先验证基础容器：
 
@@ -101,6 +105,14 @@ python3 evaluator.py --level l3
 退出码：全部公开测试通过为 `0`，存在失败为 `1`。`report.json` 只表示公开契约自测结果，不是正式分数。
 
 正式评测由组织方在隔离环境运行：每个 case 使用独立进程、私有随机种子和私有期望值；提交进程不会获得理想分布文件。组织方还会分别验证目标原生 IR、真机证据、架构与交互体验。
+
+## L1 真机证据
+
+真机任务与离线 `adapter.run()` 严格分离。使用本源悟空提交 Bell 电路并保存
+task ID、SDK 原始结果和规范化结果的安全流程见
+[`hardware/README.md`](hardware/README.md)。脚本只从
+`LOOMQ_ORIGINQ_API_TOKEN` 读取本地凭证，只有显式传入
+`--confirm-real-hardware` 才会创建消耗真实算力额度的任务。
 
 ## 最终提交
 
