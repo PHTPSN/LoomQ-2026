@@ -1,0 +1,18 @@
+{
+  "backend": "gemini_vp",
+  "job_id": "G-260823-0018",
+  "shots": 1000,
+  "counts": {"00": 75, "01": 180, "10": 75, "11": 670},
+  "bit_order": "little",
+  "timestamp": "2026-08-23T15:51:12Z",
+  "meta": {
+    "hardware": true,
+    "provider": "spinq",
+    "diagnostic": "xcx-reverse",
+    "expected_dominant_state": "11",
+    "expected_state_probability": 0.67038918,
+    "dominant_state_pass": true,
+    "count_normalization": "largest-remainder conversion from provider probabilities",
+    "provider_result": "spinq-diag-xcx-reverse-sdk-result.json"
+  }
+}

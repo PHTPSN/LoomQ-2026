@@ -1,0 +1,41 @@
+{
+  "platform": "gemini_vp",
+  "date": "2026-08-23",
+  "purpose": "Localize the Bell discrepancy within the SpinQ-specific execution path",
+  "human_report": "starter_kit/evidence/SPINQ_DIAGNOSTICS.md",
+  "task_list_screenshot": "starter_kit/evidence/files/spinq-diagnostics/spinq-diagnostics-task-list.jpg",
+  "tests": [
+    {
+      "name": "xx",
+      "task_code": "G-260823-0015",
+      "task_screenshot": "starter_kit/evidence/files/spinq-diagnostics/spinq-diag-xx-task.png",
+      "operations": ["x q[0]", "x q[1]"],
+      "expected": {"11": 1.0},
+      "observed": {"00": 0.25, "01": 0.25, "10": 0.25, "11": 0.25},
+      "pass": false,
+      "interpretation": "Failure occurs without CNOT or superposition; this is not ordinary 1000-shot sampling noise."
+    },
+    {
+      "name": "xcx-forward",
+      "task_code": "G-260823-0017",
+      "task_screenshot": "starter_kit/evidence/files/spinq-diagnostics/spinq-diag-xcx-forward-task.png",
+      "operations": ["x q[0]", "cx q[0],q[1]"],
+      "expected": {"11": 1.0},
+      "observed": {"00": 0.07692335, "01": 0.12225454, "10": 0.07692335, "11": 0.72389876},
+      "pass": true,
+      "interpretation": "The forward CNOT direction drives the expected state but has substantial error."
+    },
+    {
+      "name": "xcx-reverse",
+      "task_code": "G-260823-0018",
+      "task_screenshot": "starter_kit/evidence/files/spinq-diagnostics/spinq-diag-xcx-reverse-task.png",
+      "operations": ["x q[1]", "cx q[1],q[0]"],
+      "expected": {"11": 1.0},
+      "observed": {"00": 0.07492235, "01": 0.17976612, "10": 0.07492235, "11": 0.67038918},
+      "pass": true,
+      "interpretation": "The reverse CNOT direction also drives the expected state; operand reversal is not the Bell root cause."
+    }
+  ],
+  "conclusion": "The submitted QASM gate names and CNOT operand directions are functioning. The anomaly is already present in the X-only baseline, localizing the discrepancy after LoomQ emission to SpinQ Cloud compilation/scheduling, NMR state preparation, calibration, measurement, or result reconstruction.",
+  "limitations": "The cloud API does not expose the compiled native circuit, pulse schedule, qubit mapping, calibration record, or raw readout, so these SpinQ-internal causes cannot be separated with the available interface."
+}

@@ -1,0 +1,13 @@
+{
+  "provider": "origin_quantum",
+  "device": "WK_C180",
+  "job_id": "98E7A7BD5F53323E2B373DCF4286C497",
+  "shots": 512,
+  "submitted_at": "2026-08-23T15:22:56.753134Z",
+  "status": "finished",
+  "task_name": "LoomQ L1 GHZ-3 evidence",
+  "profile": "ghz3",
+  "source_qasm": "starter_kit/circuits/ghz3.qasm",
+  "executed_ir": "starter_kit/evidence/files/originq-ghz3/originq-ghz3-executed.originir",
+  "collected_at": "2026-08-23T15:24:11.151230Z"
+}

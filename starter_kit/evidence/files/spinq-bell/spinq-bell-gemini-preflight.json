@@ -1,0 +1,36 @@
+{
+  "retrieved_at": "2026-08-23",
+  "source": "SpinQ MCP get_platforms",
+  "status": 200,
+  "msg": "",
+  "items": [
+    {
+      "pcode": "gemini_vp",
+      "pname": "2Qubit核磁量子计算机",
+      "simu": false,
+      "maxBitNum": 2,
+      "pstatus": "ACTIVE",
+      "countOnlineMachine": 1,
+      "system": "nmr",
+      "supportGateName": [
+        "I",
+        "Y",
+        "ZCON",
+        "Ry",
+        "H",
+        "Barrier",
+        "Rz",
+        "Rx",
+        "CNOT",
+        "U",
+        "Z",
+        "X90",
+        "Y90",
+        "X",
+        "Z90"
+      ],
+      "couplingMap": [[1, 2], [2, 1]],
+      "couplingTag": null
+    }
+  ]
+}

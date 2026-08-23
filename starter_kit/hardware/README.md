@@ -1,4 +1,9 @@
-# Origin Quantum real-hardware evidence
+# Real-hardware evidence workflows
+
+- Origin Quantum: continue with this document.
+- SpinQ Cloud: follow [`SPINQ.md`](SPINQ.md).
+
+## Origin Quantum
 
 This optional workflow is separate from `adapter.run()` and is never used by
 the offline automatic evaluator. It submits the public Bell circuit to an
@@ -42,7 +47,7 @@ docker run --rm --network none `
   python starter_kit/hardware/originq_hardware.py prepare
 ```
 
-Inspect `starter_kit/evidence/files/originq-bell-executed.originir` before any
+Inspect `starter_kit/evidence/files/originq-bell/originq-bell-executed.originir` before any
 real submission.
 
 ## 2. Check credentials and availability without consuming quota
@@ -67,7 +72,7 @@ docker run --rm --env-file .env `
 ```
 
 The task ID is immediately written to
-`starter_kit/evidence/files/originq-task.json`.
+`starter_kit/evidence/files/originq-bell/originq-bell-task.json`.
 
 ## 4. Poll safely by saved task ID
 
@@ -78,12 +83,35 @@ docker run --rm --env-file .env `
 ```
 
 The collector preserves the exact SDK-returned status and result in
-`originq-sdk-result.json`, then creates `originq-normalized-result.json`. For
+`originq-bell-sdk-result.json`, then creates
+`originq-bell-normalized-result.json`. For
 Bell, `meta.top_k_bell_pass` must be `true`; the two largest counts must be
 `00` and `11`.
 
 Finally, download or screenshot the Origin Quantum workbench task page showing
 the real device, task ID, platform execution time, shots, and completion status.
-Store it as `starter_kit/evidence/files/originq-task.png`, then fill the L1
+Store it as `starter_kit/evidence/files/originq-bell/originq-bell-task.png`, then fill the L1
 hardware section in `starter_kit/evidence/README.md`. The screenshot supplies
 the provider-side timestamp that the SDK result does not expose.
+
+## Optional GHZ-3 evidence profile
+
+The same safety workflow supports the second public circuit without
+overwriting Bell evidence. Add `--profile ghz3` to the `prepare`, `submit`, and
+`poll` commands. The GHZ-3 files use the `originq-ghz3-*` prefix. For example:
+
+```powershell
+docker run --rm --network none `
+  --mount type=bind,source=${PWD},target=/workspace/repo `
+  -w /workspace/repo loomq-submission:l1 `
+  python starter_kit/hardware/originq_hardware.py prepare --profile ghz3
+
+docker run --rm --env-file .env `
+  --mount type=bind,source=${PWD},target=/workspace/repo `
+  loomq-originq-hardware:0.4.0 submit --profile ghz3 `
+    --shots 512 --confirm-real-hardware
+
+docker run --rm --env-file .env `
+  --mount type=bind,source=${PWD},target=/workspace/repo `
+  loomq-originq-hardware:0.4.0 poll --profile ghz3 --wait
+```

@@ -1,0 +1,69 @@
+{
+  "request": "SpinQ MCP get_platforms",
+  "purpose": "Check for an online real-hardware backend capable of running the public 3-qubit GHZ circuit",
+  "checked_at_start": "2026-08-24T00:40:25.6726800+08:00",
+  "checked_at_end": "2026-08-24T00:40:35.6756938+08:00",
+  "timezone": "China Standard Time",
+  "raw_response": {
+    "status": 200,
+    "msg": "",
+    "items": [
+      {
+        "pcode": "gemini_vp",
+        "pname": "2Qubit核磁量子计算机",
+        "simu": false,
+        "maxBitNum": 2,
+        "pstatus": "ACTIVE",
+        "countOnlineMachine": 1,
+        "system": "nmr",
+        "supportGateName": ["U", "Z90", "H", "Barrier", "Y", "Ry", "CNOT", "X", "Z", "Y90", "Rz", "I", "Rx", "ZCON", "X90"],
+        "couplingMap": [[1, 2], [2, 1]],
+        "couplingTag": null
+      },
+      {
+        "pcode": "superconductor_vp",
+        "pname": "8Qubit超导量子计算机",
+        "simu": false,
+        "maxBitNum": 8,
+        "pstatus": "ACTIVE",
+        "countOnlineMachine": 0,
+        "system": "superconduct",
+        "supportGateName": ["Y90dg", "U", "Z90", "H", "S", "Barrier", "Y", "X90dg", "Ry", "Z90dg", "T", "X", "Z", "Y90", "Rz", "I", "Rx", "ZCON", "X90"],
+        "couplingMap": [[1, 2], [2, 1], [2, 3], [3, 2], [3, 4], [4, 3], [4, 5], [5, 4], [5, 6], [6, 5], [6, 7], [7, 6], [7, 8], [8, 7]],
+        "couplingTag": null
+      },
+      {
+        "pcode": "triangulum_vp",
+        "pname": "3Qubit核磁量子计算机",
+        "simu": false,
+        "maxBitNum": 3,
+        "pstatus": "ACTIVE",
+        "countOnlineMachine": 0,
+        "system": "nmr",
+        "supportGateName": ["U", "Z90", "Td", "H", "Barrier", "Y", "Ry", "CNOT", "T", "X", "Z", "Y90", "CCNOT", "Rz", "I", "Rx", "ZCON", "X90"],
+        "couplingMap": [[1, 2], [1, 3], [2, 1], [2, 3], [3, 1], [3, 2]],
+        "couplingTag": null
+      },
+      {
+        "pcode": "hercules_vp",
+        "pname": "5Qubit核磁量子计算机",
+        "simu": false,
+        "maxBitNum": 5,
+        "pstatus": "ACTIVE",
+        "countOnlineMachine": 0,
+        "system": "nmr",
+        "supportGateName": ["U", "Z90", "Td", "H", "Barrier", "Y", "Ry", "CNOT", "T", "X", "Z", "Y90", "CCNOT", "Rz", "YCON", "I", "Rx", "ZCON", "X90"],
+        "couplingMap": [[1, 2], [1, 3], [1, 4], [1, 5], [2, 1], [2, 3], [2, 4], [2, 5], [3, 1], [3, 2], [3, 4], [3, 5], [4, 1], [4, 2], [4, 3], [4, 5], [5, 1], [5, 2], [5, 3], [5, 4]],
+        "couplingTag": null
+      }
+    ]
+  },
+  "observation": {
+    "online_but_too_small": ["gemini_vp"],
+    "qubit_count_compatible_but_offline": ["triangulum_vp", "hercules_vp", "superconductor_vp"],
+    "fully_compatible_but_offline": ["triangulum_vp", "hercules_vp"],
+    "qubit_count_sufficient_but_required_gate_not_advertised": ["superconductor_vp"],
+    "selected_if_online": "triangulum_vp",
+    "job_submitted": false
+  }
+}

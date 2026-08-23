@@ -1,0 +1,33 @@
+{
+  "backend": "WK_C180",
+  "job_id": "98E7A7BD5F53323E2B373DCF4286C497",
+  "shots": 512,
+  "counts": {
+    "000": 249,
+    "001": 0,
+    "010": 0,
+    "011": 0,
+    "100": 0,
+    "101": 0,
+    "110": 1,
+    "111": 262
+  },
+  "bit_order": "little",
+  "timestamp": "2026-08-23T15:24:11.151230Z",
+  "meta": {
+    "hardware": true,
+    "provider": "origin_quantum",
+    "provider_value_kind": "probabilities",
+    "count_normalization": "largest-remainder conversion from provider probabilities",
+    "top_k_pass": true,
+    "expected_top_states": [
+      "000",
+      "111"
+    ],
+    "expected_support_probability": 0.998496,
+    "ideal_distribution_fidelity": 0.9983384188428284,
+    "competition_hellinger_similarity": 0.9711705710759329,
+    "provider_result": "originq-ghz3-sdk-result.json",
+    "timestamp_source": "local collection time; verify platform time in task screenshot"
+  }
+}

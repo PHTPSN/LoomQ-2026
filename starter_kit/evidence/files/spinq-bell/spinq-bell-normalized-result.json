@@ -1,0 +1,25 @@
+{
+  "backend": "gemini_vp",
+  "job_id": "G-260823-0014",
+  "shots": 1000,
+  "counts": {
+    "00": 396,
+    "01": 276,
+    "10": 52,
+    "11": 276
+  },
+  "bit_order": "little",
+  "timestamp": "2026-08-23T14:35:07Z",
+  "meta": {
+    "hardware": true,
+    "provider": "spinq",
+    "provider_task_id": 61451,
+    "provider_value_kind": "probabilities",
+    "count_normalization": "largest-remainder conversion from provider probabilities",
+    "bell_expected_support_probability": 0.67215403,
+    "ideal_bell_distribution_fidelity": 0.6667892113380465,
+    "top_k_bell_pass": false,
+    "provider_result": "spinq-bell-sdk-result.json",
+    "timestamp_source": "SpinQ task detail page end time"
+  }
+}

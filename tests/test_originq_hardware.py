@@ -2,7 +2,9 @@ import unittest
 
 from starter_kit.hardware.originq_hardware import (
     _safe_error,
+    _top_k_pass,
     probabilities_to_counts,
+    profile_config,
     result_measurements,
 )
 
@@ -41,6 +43,17 @@ class OriginQHardwareEvidenceTests(unittest.TestCase):
             result_measurements(_ProbabilityOnlyResult()),
             {"00": 0.48, "11": 0.52},
         )
+
+    def test_ghz3_profile_is_isolated_from_bell_evidence(self):
+        bell = profile_config("bell")
+        ghz3 = profile_config("ghz3")
+        for key in ("executed_ir", "task_record", "sdk_result", "normalized_result"):
+            self.assertNotEqual(bell[key], ghz3[key])
+        self.assertEqual(ghz3["expected_top_states"], {"000", "111"})
+
+    def test_top_k_supports_ghz3(self):
+        counts = {"000": 480, "001": 2, "110": 3, "111": 515}
+        self.assertTrue(_top_k_pass(counts, {"000", "111"}))
 
 
 if __name__ == "__main__":
