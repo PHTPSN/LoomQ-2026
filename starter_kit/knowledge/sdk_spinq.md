@@ -52,3 +52,24 @@ The complete 12-gate whitelist was compiled and executed successfully with SpinQ
 - relying on a remote compiler during formal L1 evaluation.
 
 Consult `WEB_LINKS.md` before adding cloud support, and keep credentials only in ignored environment variables.
+
+## Development-only visitor access
+
+SpinQ Cloud's web client was inspected and directly verified on 2026-08-24.
+Visitor Login does not require browser automation:
+
+- method: `POST`;
+- URL: `https://cloud.spinq.cn/prod/api/user/loginAsVisitor`;
+- request body: none;
+- useful request headers: `Accept: application/json` and `lang: en`;
+- response fields: `status`, `msg`, `token`, `name`, and `hasPassword`;
+- follow-up web API authentication: request header `token: <temporary-token>`.
+
+Run `python scripts/spinq_visitor.py` to verify the flow. Its CLI output is
+redacted by default; Python callers can import `create_visitor_session()` and
+keep the token in memory. Do not commit, print, or cache a returned token.
+
+This is an observed internal web endpoint, not a documented stable public API.
+It may change without notice. It is suitable for development-time access to
+visitor-permitted resources only; it does not grant real-machine execution,
+and it must never replace `backend_capabilities.json` during L2 evaluation.
