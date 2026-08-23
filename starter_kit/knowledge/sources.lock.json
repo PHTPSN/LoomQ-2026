@@ -52,6 +52,33 @@
       "used_for": ["package artifact", "version metadata"]
     },
     {
+      "id": "spinq-cloud-docs",
+      "kind": "authenticated_vendor_documentation",
+      "version": "retrieved 2026-08-23",
+      "authority": "SpinQ Technology",
+      "url": "https://cloud.spinq.cn/circuitDesign/docs",
+      "used_for": ["cloud task lifecycle", "result export", "SSH public-key setup", "account workflow"],
+      "advisory_only": true
+    },
+    {
+      "id": "spinq-cloud-qasm-editor",
+      "kind": "authenticated_vendor_documentation",
+      "version": "retrieved 2026-08-23",
+      "authority": "SpinQ Technology",
+      "url": "https://cloud.spinq.cn/circuitDesign/docs?page=qasmDoc",
+      "used_for": ["cloud QASM restrictions", "automatic measurement", "platform gate tables", "topology restrictions"],
+      "advisory_only": true
+    },
+    {
+      "id": "spinq-cloud-mcp",
+      "kind": "authenticated_vendor_documentation",
+      "version": "retrieved 2026-08-23; package behavior 0.0.1",
+      "authority": "SpinQ Technology",
+      "url": "https://cloud.spinq.cn/circuitDesign/docs?page=MCP",
+      "used_for": ["MCP installation", "server command", "authentication variables", "hardware discovery and submission workflow"],
+      "advisory_only": true
+    },
+    {
       "id": "pyqpanda-docs",
       "kind": "vendor_documentation",
       "version": "3.8.5 local pin",

@@ -5,10 +5,10 @@ from typing import Any, Dict, List, Tuple
 
 try:
     from .loomq_l1 import emit_target, parse_qasm2
-    from .loomq_l1.originq_runner import run_originq_isolated
+    from .loomq_l1.runner import run_isolated
 except ImportError:
     from loomq_l1 import emit_target, parse_qasm2
-    from loomq_l1.originq_runner import run_originq_isolated
+    from loomq_l1.runner import run_isolated
 
 
 SUPPORTED_TARGETS = ("spinq", "originq", "braket")
@@ -25,11 +25,9 @@ def run(qasm_str: str, target: str, shots: int) -> Dict[str, Any]:
     """Execute a circuit and return the unified result schema from the rules."""
     if target not in SUPPORTED_TARGETS:
         raise ValueError("unsupported target: %s" % target)
-    if target != "originq":
-        raise NotImplementedError("%s execution infrastructure is not committed yet" % target)
     if not isinstance(shots, int) or isinstance(shots, bool) or shots <= 0:
         raise ValueError("shots must be a positive integer")
-    return run_originq_isolated(parse_qasm2(qasm_str), shots)
+    return run_isolated(parse_qasm2(qasm_str), target, shots)
 
 
 def agent_chat(prompt: str) -> str:

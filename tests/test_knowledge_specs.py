@@ -56,6 +56,18 @@ class KnowledgeSpecificationTests(unittest.TestCase):
                     f"{target_name}/{profile_name} does not cover the whitelist",
                 )
 
+    def test_spinq_formal_and_cloud_profiles_do_not_conflict(self):
+        mapping_spec = load_json(SPEC / "target_mappings.json")
+        spinq = mapping_spec["targets"]["spinq"]
+        formal = spinq["profiles"][spinq["default_profile"]]
+        cloud = spinq["hardware_submission_profiles"]["spinq_cloud_mcp_0_0_1"]
+
+        self.assertIn("measure", formal["indexed_measurement"])
+        self.assertFalse(cloud["formal_transpile_profile"])
+        self.assertIn("omit_explicit_measurements", cloud["measurement_policy"])
+        self.assertEqual(cloud["maximum_quantum_registers"], 1)
+        self.assertIn("get_platforms", cloud["capability_policy"])
+
     def test_pinned_sdk_versions_match_direct_requirements(self):
         expected = {
             "spinq": "spinqit==0.2.4",

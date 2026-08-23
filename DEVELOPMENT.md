@@ -65,4 +65,19 @@ $env:LOOMQ_RUN_SDK_TESTS = "1"
 .\.venv-braket\Scripts\python.exe starter_kit\examples\run_braket.py
 ```
 
-The repository also includes `starter_kit/Dockerfile` for the official Linux/Python 3.10 baseline. It creates three isolated SDK environments under `/opt/loomq-backends/` from the locks shipped inside `starter_kit/backend_requirements/`. Docker is not required for local compiler development, but the final submission should be built and tested with that file on a machine where Docker is available.
+The repository also includes `starter_kit/Dockerfile` for the official Linux/Python 3.10 baseline. It creates three isolated SDK environments under `/opt/loomq-backends/` from the locks shipped inside `starter_kit/backend_requirements/`. The SpinQ environment uses PyTorch's exact CPU wheel (`torch==2.13.0+cpu`) to avoid bundling unused CUDA libraries. Docker is not required for local compiler development, but the final submission should be built and tested with that file on a machine where Docker is available.
+
+The competition-shaped L1 acceptance suite covers Bell, GHZ-3, GHZ-5, QFT-4,
+Grover-3, and three seeded random circuits. It validates all three exact target-IR
+artifacts, runs the real SDKs with the official 8192 shots and 0.97 fidelity
+threshold, and enforces the complete normalized result contract. Run it in the
+offline judging profile from the repository root:
+
+```powershell
+docker build -t loomq-submission:l1 starter_kit
+docker run --rm --network none `
+  -e LOOMQ_RUN_SDK_TESTS=1 `
+  --mount type=bind,source=${PWD},target=/workspace/repo,readonly `
+  -w /workspace/repo loomq-submission:l1 `
+  python -m unittest tests.test_l1_acceptance -v
+```
