@@ -1,0 +1,18 @@
+{
+  "backend": "gemini_vp",
+  "job_id": "G-260823-0017",
+  "shots": 1000,
+  "counts": {"00": 77, "01": 122, "10": 77, "11": 724},
+  "bit_order": "little",
+  "timestamp": "2026-08-23T15:49:23Z",
+  "meta": {
+    "hardware": true,
+    "provider": "spinq",
+    "diagnostic": "xcx-forward",
+    "expected_dominant_state": "11",
+    "expected_state_probability": 0.72389876,
+    "dominant_state_pass": true,
+    "count_normalization": "largest-remainder conversion from provider probabilities",
+    "provider_result": "spinq-diag-xcx-forward-sdk-result.json"
+  }
+}

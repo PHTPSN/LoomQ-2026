@@ -6,6 +6,8 @@
 - Add `__init__.py` so tests can use `from starter_kit import adapter` directly.
 - Implement the L1 OpenQASM 2 frontend, canonical circuit, formal target emitters, and executable reference semantics.
 - Add isolated pyQPanda execution plus a credential-safe, resumable Origin Quantum real-hardware evidence workflow.
+- Add exact SpinQit and Braket dependency locks plus cross-platform real-SDK regression coverage for L1.
+- Add an offline eight-circuit L1 acceptance suite at the official 8192-shot and 0.97-fidelity settings, including strict target-IR and normalized-result validation.
 
 ## 1.1.0 - 2026-07-27
 

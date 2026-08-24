@@ -1,0 +1,42 @@
+{
+  "provider": "origin_quantum",
+  "job_id": "98E7A7BD5F53323E2B373DCF4286C497",
+  "queried_at": "2026-08-23T15:24:09.588393Z",
+  "status_code": 3,
+  "status_name": "FINISHED",
+  "result": {
+    "000": 0.4867053,
+    "001": 4.7e-06,
+    "010": 0.0005196,
+    "011": 0.0001264,
+    "100": 0.0001095,
+    "101": 0.0,
+    "110": 0.0007435,
+    "111": 0.5117907
+  },
+  "raw_fields": {
+    "result_origin_data": "{\"success\":true,\"code\":10000,\"message\":\"success\",\"obj\":{\"taskId\":\"98E7A7BD5F53323E2B373DCF4286C497\",\"chipId\":\"WK_C180\",\"taskCalMethod\":\"1\",\"taskFrom\":\"4\",\"pilotTaskId\":\"9B4F16FE2F2C4785A89725203144658B\",\"errCode\":0,\"startTime\":1787498579963,\"taskState\":\"3\",\"measureQubitSize\":[3],\"aioTimeStamp\":\"9:1787498641571;8:1787498640324;7:1787498640054;2:1787498640326;\",\"requiredCore\":\"0\",\"taskType\":\"0\",\"taskResult\":[\"{\\\"value\\\":[0.4867053,0.0000047,0.0005196,0.0001264,0.0001095,0,0.0007435,0.5117907],\\\"key\\\":[\\\"0x0\\\",\\\"0x1\\\",\\\"0x2\\\",\\\"0x3\\\",\\\"0x4\\\",\\\"0x5\\\",\\\"0x6\\\",\\\"0x7\\\"]}\"],\"totalTime\":61729,\"qpuRunTime\":169,\"pulseTime\":null,\"cirExecuteTime\":null,\"measureQubits\":[],\"QMachineType\":null,\"QProg\":[null]}}",
+    "result_measure_qubits": "[]",
+    "result_timing_info": {
+      "aioTimeStamp": "9:1787498641571;8:1787498640324;7:1787498640054;2:1787498640326;",
+      "cirExecuteTime": "null",
+      "pulseTime": "null",
+      "qpuRunTime": "169",
+      "startTime": "1787498579963",
+      "totalTime": "61729"
+    },
+    "metadata_origin_data": "{\"success\":true,\"code\":10000,\"message\":\"success\",\"obj\":{\"taskId\":\"98E7A7BD5F53323E2B373DCF4286C497\",\"chipId\":\"WK_C180\",\"taskCalMethod\":\"1\",\"taskFrom\":\"4\",\"pilotTaskId\":\"9B4F16FE2F2C4785A89725203144658B\",\"errCode\":0,\"startTime\":1787498579963,\"taskState\":\"3\",\"convertQProg\":[[{\"RPhi\":[158,270.0,90.0,0]},{\"RPhi\":[167,270.0,90.0,0]},{\"RPhi\":[177,270.0,90.0,0]},{\"CZ\":[158,167,40]},{\"RPhi\":[167,27.59475867195414,90.0,80]},{\"CZ\":[167,177,120]},{\"RPhi\":[177,311.5612618867576,90.0,160]},{\"Measure\":[[177,167,158],200]}]],\"mappingQProg\":[\"QINIT 3\\nCREG 3\\nH q[0]\\nCNOT q[0],q[1]\\nCNOT q[1],q[2]\\nMEASURE q[0],c[0]\\nMEASURE q[1],c[1]\\nMEASURE q[2],c[2]\\n\"],\"mappingQubit\":[[\"{\\\"MappingQubits\\\":[157,166,176]}\"]],\"aioTimeStamp\":\"9:1787498641571;8:1787498640324;7:1787498640054;2:1787498640326;\",\"requiredCore\":\"0\",\"taskType\":\"0\",\"totalTime\":61729,\"qpuRunTime\":169,\"pulseTime\":null,\"cirExecuteTime\":null,\"measureQubits\":[],\"QMachineType\":null,\"QProg\":[null]}}",
+    "metadata_instructions": "[[{\"RPhi\":[158,270.0,90.0,0]},{\"RPhi\":[167,270.0,90.0,0]},{\"RPhi\":[177,270.0,90.0,0]},{\"CZ\":[158,167,40]},{\"RPhi\":[167,27.59475867195414,90.0,80]},{\"CZ\":[167,177,120]},{\"RPhi\":[177,311.5612618867576,90.0,160]},{\"Measure\":[[177,167,158],200]}]]",
+    "metadata_mapping_qprog": "[\"QINIT 3\\nCREG 3\\nH q[0]\\nCNOT q[0],q[1]\\nCNOT q[1],q[2]\\nMEASURE q[0],c[0]\\nMEASURE q[1],c[1]\\nMEASURE q[2],c[2]\\n\"]",
+    "metadata_mapping_qubit": "[[\"{\\\"MappingQubits\\\":[157,166,176]}\"]]",
+    "metadata_measure_qubits": "[]",
+    "metadata_timing_info": {
+      "aioTimeStamp": "9:1787498641571;8:1787498640324;7:1787498640054;2:1787498640326;",
+      "cirExecuteTime": "null",
+      "pulseTime": "null",
+      "qpuRunTime": "169",
+      "startTime": "1787498579963",
+      "totalTime": "61729"
+    }
+  }
+}

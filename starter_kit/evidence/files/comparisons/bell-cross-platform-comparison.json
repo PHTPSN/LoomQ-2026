@@ -1,0 +1,49 @@
+{
+  "circuit": "starter_kit/circuits/bell.qasm",
+  "ideal_distribution": {
+    "00": 0.5,
+    "01": 0.0,
+    "10": 0.0,
+    "11": 0.5
+  },
+  "logical_operations": [
+    "H q[0]",
+    "controlled-X q[0] -> q[1]",
+    "terminal measurement of q[0] and q[1]"
+  ],
+  "origin_quantum": {
+    "job_id": "FF2950C304E23CFA40F7887CDB1C14CA",
+    "backend": "WK_C180",
+    "executed_program": "starter_kit/evidence/files/originq-bell/originq-bell-executed.originir",
+    "raw_result": "starter_kit/evidence/files/originq-bell/originq-bell-sdk-result.json",
+    "expected_support_probability": 0.9993843,
+    "wrong_parity_probability": 0.0006157,
+    "ideal_distribution_fidelity": 0.9988366151718778,
+    "total_variation_distance": 0.02369675
+  },
+  "spinq": {
+    "job_id": "G-260823-0014",
+    "backend": "gemini_vp",
+    "executed_program": "starter_kit/evidence/files/spinq-bell/spinq-bell-executed.qasm",
+    "raw_result": "starter_kit/evidence/files/spinq-bell/spinq-bell-sdk-result.json",
+    "expected_support_probability": 0.67215403,
+    "wrong_parity_probability": 0.32784597,
+    "ideal_distribution_fidelity": 0.6667892113380465,
+    "total_variation_distance": 0.32784597
+  },
+  "differences": {
+    "expected_support_probability": 0.32723027,
+    "wrong_parity_probability": 0.32723027,
+    "ideal_distribution_fidelity": 0.3320474038338313,
+    "total_variation_distance": 0.30414922
+  },
+  "verification": {
+    "formal_spinq_and_origin_translator_tests": "passed",
+    "spinqit_0_2_4_integration_tests": "3 passed",
+    "originq_pyqpanda_3_8_5_integration_tests": "3 passed on 2026-08-23",
+    "origin_real_hardware_result": "matches Bell expectation closely",
+    "spinq_real_hardware_result": "large wrong-parity component"
+  },
+  "conclusion": "The shared LoomQ source and canonical semantics are strongly disfavored as the cause. The discrepancy is localized to the SpinQ-specific execution path.",
+  "limitation": "This comparison cannot distinguish a SpinQ cloud-compiler or qubit-mapping issue from calibration, gate, state-preparation, or measurement error on the SpinQ device. It does not by itself prove a defect in the physical machine."
+}

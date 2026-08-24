@@ -18,7 +18,7 @@ If two layers disagree, preserve the higher-priority contract, document the disc
 |---|---|---|
 | Parse or validate source QASM | `qasm2_subset.md` | `spec/qasm2_subset.ebnf`, `spec/gates.json` |
 | Design or review translation | `translation_method.md` | `spec/target_mappings.json`, `../gate_identities.md` |
-| Integrate SpinQit | `sdk_spinq.md` | `.venv-spinq`, `../examples/run_spinq.py` |
+| Integrate SpinQit or prepare SpinQ Cloud hardware validation | `sdk_spinq.md` | `spec/target_mappings.json`, `.venv-spinq`, `../examples/run_spinq.py`; refresh live cloud capabilities before submission |
 | Integrate pyQPanda / OriginIR | `sdk_originq.md` | `.venv-originq`, `../examples/run_originq.py` |
 | Integrate Amazon Braket | `sdk_braket.md` | `.venv-braket`, `../examples/run_braket.py` |
 | Review current backend availability | `backend_observations.md` | `backend_sources.json`, `../../scripts/backend_observations.py` |

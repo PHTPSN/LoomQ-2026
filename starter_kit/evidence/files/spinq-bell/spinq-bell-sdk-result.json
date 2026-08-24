@@ -1,0 +1,40 @@
+{
+  "provider": "spinq",
+  "task_id": 61451,
+  "task_code": "G-260823-0014",
+  "queried_at": "2026-08-23T14:37:07.2744404Z",
+  "status_code": "S",
+  "status_name": "Success",
+  "platform_code": "gemini",
+  "platform_submission_code": "gemini_vp",
+  "qubits": 2,
+  "shots": 1000,
+  "start_time": "2026-08-23T14:33:33Z",
+  "end_time": "2026-08-23T14:35:07Z",
+  "result_kind": "probabilities",
+  "result": {
+    "00": 0.39588674,
+    "01": 0.27626729,
+    "10": 0.05157868,
+    "11": 0.27626729
+  },
+  "raw_mcp_result": {
+    "status": 200,
+    "msg": "",
+    "simulation": {
+      "realMatrix": null,
+      "imagMatrix": null,
+      "module": null
+    },
+    "run": {
+      "realMatrix": null,
+      "imagMatrix": null,
+      "module": {
+        "00": 0.39588674,
+        "11": 0.27626729,
+        "01": 0.27626729,
+        "10": 0.05157868
+      }
+    }
+  }
+}

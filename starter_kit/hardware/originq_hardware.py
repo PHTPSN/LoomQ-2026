@@ -25,12 +25,35 @@ from typing import Any, Dict, Mapping
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SOURCE = ROOT / "starter_kit" / "circuits" / "bell.qasm"
 DEFAULT_EVIDENCE = ROOT / "starter_kit" / "evidence" / "files"
-EXECUTED_IR = DEFAULT_EVIDENCE / "originq-bell-executed.originir"
-TASK_RECORD = DEFAULT_EVIDENCE / "originq-task.json"
-SDK_RESULT = DEFAULT_EVIDENCE / "originq-sdk-result.json"
-NORMALIZED_RESULT = DEFAULT_EVIDENCE / "originq-normalized-result.json"
+BELL_EVIDENCE = DEFAULT_EVIDENCE / "originq-bell"
+GHZ3_EVIDENCE = DEFAULT_EVIDENCE / "originq-ghz3"
+EXECUTED_IR = BELL_EVIDENCE / "originq-bell-executed.originir"
+TASK_RECORD = BELL_EVIDENCE / "originq-bell-task.json"
+SDK_RESULT = BELL_EVIDENCE / "originq-bell-sdk-result.json"
+NORMALIZED_RESULT = BELL_EVIDENCE / "originq-bell-normalized-result.json"
 FINISHED_STATUS = 3
 FAILED_STATUS = 4
+
+PROFILES = {
+    "bell": {
+        "source": DEFAULT_SOURCE,
+        "executed_ir": EXECUTED_IR,
+        "task_record": TASK_RECORD,
+        "sdk_result": SDK_RESULT,
+        "normalized_result": NORMALIZED_RESULT,
+        "expected_top_states": {"00", "11"},
+        "default_task_name": "LoomQ L1 Bell evidence",
+    },
+    "ghz3": {
+        "source": ROOT / "starter_kit" / "circuits" / "ghz3.qasm",
+        "executed_ir": GHZ3_EVIDENCE / "originq-ghz3-executed.originir",
+        "task_record": GHZ3_EVIDENCE / "originq-ghz3-task.json",
+        "sdk_result": GHZ3_EVIDENCE / "originq-ghz3-sdk-result.json",
+        "normalized_result": GHZ3_EVIDENCE / "originq-ghz3-normalized-result.json",
+        "expected_top_states": {"000", "111"},
+        "default_task_name": "LoomQ L1 GHZ-3 evidence",
+    },
+}
 
 
 def _utc_now() -> str:
@@ -101,9 +124,18 @@ def result_measurements(result: Any) -> Mapping[str, Any]:
     raise ValueError("provider result contains no measurement probabilities or counts")
 
 
-def _top_k_pass(counts: Mapping[str, int]) -> bool:
+def _top_k_pass(counts: Mapping[str, int], expected_top_states=None) -> bool:
+    if expected_top_states is None:
+        expected_top_states = {"00", "11"}
     top = sorted(counts, key=lambda key: (-counts[key], key))[:2]
-    return set(top) == {"00", "11"}
+    return set(top) == set(expected_top_states)
+
+
+def profile_config(profile: str) -> Dict[str, Any]:
+    try:
+        return PROFILES[profile]
+    except KeyError as exc:
+        raise ValueError("unknown evidence profile: %s" % profile) from exc
 
 
 def prepare(source_path: Path = DEFAULT_SOURCE, output_path: Path = EXECUTED_IR) -> Path:
@@ -153,13 +185,22 @@ def preflight(backend_name: str) -> Dict[str, Any]:
         raise RuntimeError(_safe_error(exc, token)) from None
 
 
-def submit(shots: int, backend_name: str, task_name: str, confirm: bool) -> Dict[str, Any]:
+def submit(
+    shots: int,
+    backend_name: str,
+    task_name: str,
+    confirm: bool,
+    profile: str = "bell",
+) -> Dict[str, Any]:
+    config = profile_config(profile)
+    executed_ir = config["executed_ir"]
+    task_record = config["task_record"]
     if not confirm:
         raise RuntimeError("refusing real-hardware submission without --confirm-real-hardware")
-    if not EXECUTED_IR.is_file():
+    if not executed_ir.is_file():
         raise RuntimeError("executed OriginIR is missing; run the prepare command first")
-    if TASK_RECORD.exists():
-        existing = _read_json(TASK_RECORD)
+    if task_record.exists():
+        existing = _read_json(task_record)
         raise RuntimeError(
             "a task record already exists for job %s; archive it before another submission"
             % existing.get("job_id", "unknown")
@@ -176,7 +217,7 @@ def submit(shots: int, backend_name: str, task_name: str, confirm: bool) -> Dict
         if not available[backend_name]:
             raise RuntimeError("backend %s is currently unavailable" % backend_name)
         backend = service.backend(backend_name)
-        program = convert_originir_string_to_qprog(EXECUTED_IR.read_text(encoding="utf-8"))
+        program = convert_originir_string_to_qprog(executed_ir.read_text(encoding="utf-8"))
         options = QCloudOptions()
         options.set_amend(True)
         options.set_mapping(True)
@@ -195,15 +236,20 @@ def submit(shots: int, backend_name: str, task_name: str, confirm: bool) -> Dict
         "submitted_at": _utc_now(),
         "status": "submitted",
         "task_name": task_name,
-        "source_qasm": "starter_kit/circuits/bell.qasm",
-        "executed_ir": "starter_kit/evidence/files/originq-bell-executed.originir",
+        "profile": profile,
+        "source_qasm": str(config["source"].relative_to(ROOT)).replace("\\", "/"),
+        "executed_ir": str(executed_ir.relative_to(ROOT)).replace("\\", "/"),
     }
-    _write_json(TASK_RECORD, record)
+    _write_json(task_record, record)
     return record
 
 
-def poll(wait: bool, timeout: int, interval: int) -> Dict[str, Any]:
-    record = _read_json(TASK_RECORD)
+def poll(wait: bool, timeout: int, interval: int, profile: str = "bell") -> Dict[str, Any]:
+    config = profile_config(profile)
+    task_record = config["task_record"]
+    sdk_result = config["sdk_result"]
+    normalized_result = config["normalized_result"]
+    record = _read_json(task_record)
     token = _secret()
     deadline = time.monotonic() + timeout
     try:
@@ -254,7 +300,7 @@ def poll(wait: bool, timeout: int, interval: int) -> Dict[str, Any]:
                 counts_or_probs = result_measurements(result)
                 provider_result["result"] = counts_or_probs
                 provider_result["raw_fields"] = raw_fields
-            _write_json(SDK_RESULT, provider_result)
+            _write_json(sdk_result, provider_result)
             if status_code in (FINISHED_STATUS, FAILED_STATUS) or not wait:
                 break
             if time.monotonic() >= deadline:
@@ -293,25 +339,29 @@ def poll(wait: bool, timeout: int, interval: int) -> Dict[str, Any]:
                     if provider_value_kind == "counts"
                     else "largest-remainder conversion from provider probabilities"
                 ),
-                "top_k_bell_pass": _top_k_pass(counts),
-                "provider_result": "originq-sdk-result.json",
+                "top_k_pass": _top_k_pass(counts, config["expected_top_states"]),
+                "expected_top_states": sorted(config["expected_top_states"]),
+                "provider_result": sdk_result.name,
                 "timestamp_source": "local collection time; verify platform time in task screenshot",
             },
         }
-        _write_json(NORMALIZED_RESULT, normalized)
+        if profile == "bell":
+            normalized["meta"]["top_k_bell_pass"] = normalized["meta"]["top_k_pass"]
+        _write_json(normalized_result, normalized)
         record.update({"status": "finished", "collected_at": completed_at})
-        _write_json(TASK_RECORD, record)
+        _write_json(task_record, record)
     elif int(provider_result["status_code"]) == FAILED_STATUS:
         record["status"] = "failed"
-        _write_json(TASK_RECORD, record)
+        _write_json(task_record, record)
     return provider_result
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Origin Quantum real-hardware evidence tool")
     commands = parser.add_subparsers(dest="command", required=True)
-    prepare_parser = commands.add_parser("prepare", help="offline: emit exact Bell OriginIR")
-    prepare_parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
+    prepare_parser = commands.add_parser("prepare", help="offline: emit exact OriginIR")
+    prepare_parser.add_argument("--profile", choices=tuple(PROFILES), default="bell")
+    prepare_parser.add_argument("--source", type=Path)
     preflight_parser = commands.add_parser(
         "preflight", help="read-only: verify credentials and backend availability"
     )
@@ -319,13 +369,15 @@ def main() -> int:
         "--backend", default=os.environ.get("LOOMQ_ORIGINQ_BACKEND", "WK_C180")
     )
     submit_parser = commands.add_parser("submit", help="create one real-chip task")
+    submit_parser.add_argument("--profile", choices=tuple(PROFILES), default="bell")
     submit_parser.add_argument("--shots", type=int, default=512)
     submit_parser.add_argument(
         "--backend", default=os.environ.get("LOOMQ_ORIGINQ_BACKEND", "WK_C180")
     )
-    submit_parser.add_argument("--task-name", default="LoomQ L1 Bell evidence")
+    submit_parser.add_argument("--task-name")
     submit_parser.add_argument("--confirm-real-hardware", action="store_true")
     poll_parser = commands.add_parser("poll", help="query the saved task ID")
+    poll_parser.add_argument("--profile", choices=tuple(PROFILES), default="bell")
     poll_parser.add_argument("--wait", action="store_true")
     poll_parser.add_argument("--timeout", type=int, default=1800)
     poll_parser.add_argument("--interval", type=int, default=10)
@@ -333,7 +385,8 @@ def main() -> int:
 
     try:
         if args.command == "prepare":
-            path = prepare(args.source)
+            config = profile_config(args.profile)
+            path = prepare(args.source or config["source"], config["executed_ir"])
             print("prepared %s" % path.relative_to(ROOT))
         elif args.command == "preflight":
             status = preflight(args.backend)
@@ -344,16 +397,24 @@ def main() -> int:
         elif args.command == "submit":
             if args.shots <= 0:
                 raise RuntimeError("shots must be positive")
-            record = submit(args.shots, args.backend, args.task_name, args.confirm_real_hardware)
+            config = profile_config(args.profile)
+            record = submit(
+                args.shots,
+                args.backend,
+                args.task_name or config["default_task_name"],
+                args.confirm_real_hardware,
+                args.profile,
+            )
             print("submitted Origin Quantum task %s" % record["job_id"])
-            print("task record: %s" % TASK_RECORD.relative_to(ROOT))
+            print("task record: %s" % config["task_record"].relative_to(ROOT))
         else:
-            provider_result = poll(args.wait, args.timeout, args.interval)
+            config = profile_config(args.profile)
+            provider_result = poll(args.wait, args.timeout, args.interval, args.profile)
             print(
                 "Origin Quantum task %s status=%s"
                 % (provider_result["job_id"], provider_result["status_code"])
             )
-            print("provider result: %s" % SDK_RESULT.relative_to(ROOT))
+            print("provider result: %s" % config["sdk_result"].relative_to(ROOT))
     except Exception as exc:
         print("error: %s" % _safe_error(exc), file=sys.stderr)
         return 1

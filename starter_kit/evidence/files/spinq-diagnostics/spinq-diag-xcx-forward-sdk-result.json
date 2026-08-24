@@ -1,0 +1,16 @@
+{
+  "provider": "spinq",
+  "task_id": 61455,
+  "task_code": "G-260823-0017",
+  "queried_at": "2026-08-23T15:51:41.7853698Z",
+  "status_name": "Success",
+  "platform_code": "gemini_vp",
+  "shots": 1000,
+  "result_kind": "probabilities",
+  "result": {
+    "00": 0.07692335,
+    "01": 0.12225454,
+    "10": 0.07692335,
+    "11": 0.72389876
+  }
+}

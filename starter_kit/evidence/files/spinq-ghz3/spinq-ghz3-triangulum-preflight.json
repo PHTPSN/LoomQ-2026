@@ -1,0 +1,47 @@
+{
+  "checked_at_start": "2026-08-24T00:40:25.6726800+08:00",
+  "checked_at_end": "2026-08-24T00:40:35.6756938+08:00",
+  "platform_status_record": "starter_kit/evidence/files/spinq-ghz3/spinq-ghz3-platform-status.json",
+  "source_circuit": "starter_kit/circuits/ghz3.qasm",
+  "selected_platform": {
+    "pcode": "triangulum_vp",
+    "pname": "3Qubit核磁量子计算机",
+    "simu": false,
+    "maxBitNum": 3,
+    "pstatus": "ACTIVE",
+    "countOnlineMachine": 0,
+    "system": "nmr",
+    "supportGateName": [
+      "U",
+      "X",
+      "CCNOT",
+      "Z",
+      "Rx",
+      "Td",
+      "CNOT",
+      "H",
+      "Z90",
+      "Y",
+      "Ry",
+      "ZCON",
+      "X90",
+      "T",
+      "Y90",
+      "Rz",
+      "Barrier",
+      "I"
+    ],
+    "couplingMap": [[1, 2], [1, 3], [2, 1], [2, 3], [3, 1], [3, 2]]
+  },
+  "compatibility": {
+    "qubit_count": true,
+    "h_gate": true,
+    "cnot_gate": true,
+    "required_couplings": [[1, 2], [2, 3]],
+    "required_couplings_supported": true,
+    "real_hardware": true,
+    "online_machine_available": false,
+    "submission_ready": false,
+    "blocking_reason": "triangulum_vp reported countOnlineMachine=0"
+  }
+}

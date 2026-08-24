@@ -1,0 +1,18 @@
+{
+  "backend": "gemini_vp",
+  "job_id": "G-260823-0015",
+  "shots": 1000,
+  "counts": {"00": 250, "01": 250, "10": 250, "11": 250},
+  "bit_order": "little",
+  "timestamp": "2026-08-23T15:45:46Z",
+  "meta": {
+    "hardware": true,
+    "provider": "spinq",
+    "diagnostic": "xx",
+    "expected_dominant_state": "11",
+    "expected_state_probability": 0.25,
+    "dominant_state_pass": false,
+    "count_normalization": "largest-remainder conversion from provider probabilities",
+    "provider_result": "spinq-diag-xx-sdk-result.json"
+  }
+}

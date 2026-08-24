@@ -43,6 +43,8 @@ Important distinctions:
 
 - The competition target contract is authoritative for formal output acceptance.
 - A pinned vendor parser may support a narrower spelling. Use a local-runner profile when necessary, without changing the formal semantic contract.
+- A cloud hardware API may impose submission-only rules that conflict with the formal artifact. For SpinQ, keep measurements in the formal output but omit them in a separate cloud adapter after validation because the cloud measures active qubits automatically.
+- Discover live hardware capabilities at submission time. Gate lowering and topology routing for one SpinQ machine must not be generalized to every SpinQ platform.
 - Global-phase-equivalent substitutions are allowed only where they preserve all measurement distributions, including later interference and controlled use.
 
 ### Emit

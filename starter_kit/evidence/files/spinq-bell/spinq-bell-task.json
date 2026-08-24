@@ -1,0 +1,19 @@
+{
+  "provider": "SpinQ Cloud",
+  "task_id": 61451,
+  "task_code": "G-260823-0014",
+  "task_name": "loomq-l1-bell-20260823",
+  "platform_code": "gemini_vp",
+  "platform_name": "2Qubit核磁量子计算机",
+  "simulator": false,
+  "qubits": 2,
+  "shots": 1000,
+  "submitted_status": "Q",
+  "created_time": "2026-08-23T14:33:33.899+00:00",
+  "queue_size_at_submission": 1,
+  "submitted_qasm": "starter_kit/evidence/files/spinq-bell/spinq-bell-executed.qasm",
+  "final_status": "S",
+  "final_status_name": "Success",
+  "start_time": "2026-08-23T14:33:33+00:00",
+  "end_time": "2026-08-23T14:35:07+00:00"
+}

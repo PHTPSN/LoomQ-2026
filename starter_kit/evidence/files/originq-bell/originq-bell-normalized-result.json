@@ -16,7 +16,7 @@
     "provider_value_kind": "probabilities",
     "count_normalization": "largest-remainder conversion from provider probabilities",
     "top_k_bell_pass": true,
-    "provider_result": "originq-sdk-result.json",
+    "provider_result": "originq-bell-sdk-result.json",
     "timestamp_source": "local collection time; verify platform time in task screenshot"
   }
 }

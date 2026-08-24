@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "verified_at": "2026-08-22",
+  "verified_at": "2026-08-23",
   "source_gates": ["h", "x", "s", "sdg", "t", "tdg", "rz", "ry", "cx", "cu1", "swap", "ccx"],
   "targets": {
     "spinq": {
@@ -18,6 +18,22 @@
             "rz": "rz", "ry": "ry", "cx": "cx", "cu1": "cu1", "swap": "swap", "ccx": "ccx"
           },
           "verification": "compiled_and_executed_complete_gate_matrix"
+        }
+      },
+      "hardware_submission_profiles": {
+        "spinq_cloud_mcp_0_0_1": {
+          "purpose": "optional_real_hardware_validation_only",
+          "inherits_semantics_from": "spinqit_0_2_4",
+          "formal_transpile_profile": false,
+          "qasm_version": "2.0-derived vendor subset",
+          "maximum_quantum_registers": 1,
+          "classical_register_behavior": "ignored_by_cloud_editor",
+          "measurement_policy": "omit_explicit_measurements; platform automatically measures active qubits",
+          "capability_policy": "query get_platforms immediately before submission and validate qubit count, gates, parameters, and coupling edges",
+          "topology_policy": "platform-specific; never assume all-to-all connectivity",
+          "unsupported_constructs": ["user-defined gates", "opaque", "control flow", "reset"],
+          "authority": "authenticated SpinQ Cloud QASM and MCP documentation retrieved 2026-08-23",
+          "advisory_only": true
         }
       }
     },

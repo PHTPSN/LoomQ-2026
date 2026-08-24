@@ -20,6 +20,11 @@ These links are for development and review. Formal evaluation must use the local
 | [SpinQit official documentation](https://doc.spinq.cn/doc/spinqit/index.html) | Compiler, circuit, simulator, and backend API reference. |
 | [SpinQit official repository](https://github.com/SpinQTech/SpinQit) | Source examples, getting-started material, and release history. |
 | [SpinQit 0.2.4 package](https://pypi.org/project/spinqit/0.2.4/) | Package artifact and pinned release metadata. |
+| [SpinQ Cloud documentation](https://cloud.spinq.cn/circuitDesign/docs) | Authentication-required cloud UI, circuit execution, task history, result export, SSH-key setup, and account workflow. |
+| [SpinQ Cloud QASM Editor documentation](https://cloud.spinq.cn/circuitDesign/docs?page=qasmDoc) | Authentication-required cloud OpenQASM restrictions, per-platform gate tables, automatic measurement, and topology requirements. |
+| [SpinQ Cloud MCP documentation](https://cloud.spinq.cn/circuitDesign/docs?page=MCP) | Authentication-required installation, server command, credential variables, and MCP tools. |
+
+The cloud links are advisory for real-machine validation and may require an active signed-in browser session. Live `get_platforms` output overrides stale platform tables. They do not change the formal L1 target contract.
 
 ## OriginQ and pyQPanda
 

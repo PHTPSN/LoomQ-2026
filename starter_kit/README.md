@@ -23,8 +23,8 @@ starter_kit/
 ├── gate_identities.md
 ├── target_ir_contract.md
 ├── requirements.txt
-├── backend_requirements/     # 当前已提交平台的隔离 SDK 依赖锁
-├── loomq_l1/                 # 解析、规范电路、发射器与可执行参考语义
+├── backend_requirements/     # 三个互相隔离的 SDK 完整依赖锁
+├── loomq_l1/                 # 解析、规范电路、发射器、语义与 SDK 运行器
 ├── loomq_l2/                 # 模型解释、QASM 自验与静态后端筛选
 ├── hardware/                 # 可选真机证据脚本；不进入自动评测运行路径
 ├── Dockerfile
@@ -60,9 +60,9 @@ python3 -m pip install -r requirements.txt
 python3 evaluator.py --level l1 --target spinq,originq,braket --json-out report.json
 ```
 
-核心依赖在 `requirements.txt` 中完整锁定。本源量子的 pyQPanda 依赖图位于
-`backend_requirements/originq.lock.txt`，并安装到独立解释器中。其他平台的运行
-基础设施按平台分别提交，避免混入通用 IR 或本源量子提交。
+核心依赖在 `requirements.txt` 中完整锁定；三个 SDK 的完整依赖图分别位于
+`backend_requirements/*.lock.txt`。它们不能安装进同一环境，因为 SpinQit 和
+Braket 要求互不兼容的 ANTLR 运行时版本。
 
 也可以先验证基础容器：
 
@@ -108,6 +108,15 @@ python3 evaluator.py --level l3
 正式评测由组织方在隔离环境运行：每个 case 使用独立进程、私有随机种子和私有期望值；提交进程不会获得理想分布文件。组织方还会分别验证目标原生 IR、真机证据、架构与交互体验。
 
 ## L1 真机证据
+
+评委统一入口为 [`evidence/README.md`](evidence/README.md)，其中列出两个正式申报
+平台的 job ID、运行时间、shots、实际执行线路、原始结果、规范化结果与截图。
+SpinQ Bell 结果的补充定位实验和完整证据链见
+[`evidence/SPINQ_DIAGNOSTICS.md`](evidence/SPINQ_DIAGNOSTICS.md)。
+SpinQ GHZ-3 已完成线路准备，但检查时兼容的三量子比特及以上真机均不在线；带 UTC+8
+时间戳的完整平台返回见
+[`evidence/files/spinq-ghz3/spinq-ghz3-platform-status.json`](evidence/files/spinq-ghz3/spinq-ghz3-platform-status.json)。
+因此没有把状态检查冒充为成功真机运行。
 
 真机任务与离线 `adapter.run()` 严格分离。使用本源悟空提交 Bell 电路并保存
 task ID、SDK 原始结果和规范化结果的安全流程见
