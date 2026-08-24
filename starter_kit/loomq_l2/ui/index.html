@@ -55,24 +55,26 @@
         <section class="content-view" id="view-learn" data-view-panel="learn" aria-labelledby="learn-title">
           <header class="view-heading compact">
             <p class="eyebrow" data-i18n="learn.eyebrow">02 · Quantum basics</p>
-            <h2 id="learn-title"><span data-i18n="learn.title1">Six ideas are enough</span><br><em data-i18n="learn.title2">to read your first circuit.</em></h2>
-            <p class="view-lede" data-i18n="learn.lede">Think like a programmer: a circuit is an ordered instruction list that transforms a state and then samples an answer.</p>
+            <h2 id="learn-title"><span data-i18n="learn.title1">Eight ideas take you</span><br><em data-i18n="learn.title2">from vectors to circuits.</em></h2>
+            <p class="view-lede" data-i18n="learn.lede">Start with linear algebra: a quantum circuit multiplies a complex vector by matrices. Measurement then returns a bit string at random, using the squared magnitudes of the vector coordinates as probabilities.</p>
           </header>
           <div class="concept-grid">
-            <article><span>01 / DATA</span><h3 data-i18n="learn.qubitTitle">Qubit</h3><p data-i18n="learn.qubitBody">A quantum bit. Before measurement, its state can contain weighted |0⟩ and |1⟩ components.</p></article>
-            <article><span>02 / STATE</span><h3 data-i18n="learn.superTitle">Superposition</h3><p data-i18n="learn.superBody">A combination of basis states. Squared amplitude magnitudes become measurement probabilities.</p></article>
-            <article><span>03 / CODE</span><h3 data-i18n="learn.gateTitle">Gate and circuit</h3><p data-i18n="learn.gateBody">A gate is one reversible transformation; a circuit is the ordered list of those instructions.</p></article>
-            <article><span>04 / OUTPUT</span><h3 data-i18n="learn.measureTitle">Measurement</h3><p data-i18n="learn.measureBody">Converts quantum information into classical bits such as 00 or 11.</p></article>
-            <article><span>05 / SAMPLE</span><h3 data-i18n="learn.shotsTitle">Shots</h3><p data-i18n="learn.shotsBody">How many times the circuit is prepared and measured. More shots make the histogram steadier.</p></article>
-            <article><span>06 / LINK</span><h3 data-i18n="learn.entangleTitle">Entanglement</h3><p data-i18n="learn.entangleBody">A shared state with correlated outcomes. A Bell pair returns matching bits even though each bit is random.</p></article>
+            <article><span>01 / VECTOR</span><h3 data-i18n="learn.vectorTitle">A qubit is a vector</h3><p data-i18n="learn.vectorBody">One qubit is represented by a length-2 complex vector called its state. |ψ⟩ is simply a name for that vector. The fixed vectors |0⟩=[1,0]ᵀ and |1⟩=[0,1]ᵀ form the computational basis: the two results a measurement can report.</p><code class="concept-formula">|ψ⟩ = α|0⟩ + β|1⟩ = [α, β]ᵀ</code></article>
+            <article><span>02 / NUMBER</span><h3 data-i18n="learn.amplitudeTitle">Amplitudes become probabilities</h3><p data-i18n="learn.amplitudeBody">The complex numbers α and β are called amplitudes. They are not probabilities. Measuring 0 has probability |α|²; measuring 1 has probability |β|². A valid state has total probability one. A state with multiple nonzero amplitudes is called a superposition of those basis vectors.</p><code class="concept-formula">|α|² + |β|² = 1</code></article>
+            <article><span>03 / MEMORY</span><h3 data-i18n="learn.registerTitle">More qubits mean more coordinates</h3><p data-i18n="learn.registerBody">Two qubits use a length-4 vector whose coordinates are named |00⟩, |01⟩, |10⟩, and |11⟩. Combining independent qubits uses the Kronecker product, written ⊗: multiply every coordinate of the first vector by every coordinate of the second. Each added qubit doubles the vector length.</p><code class="concept-formula">[a,b]ᵀ ⊗ [c,d]ᵀ = [ac,ad,bc,bd]ᵀ</code></article>
+            <article><span>04 / PROGRAM</span><h3 data-i18n="learn.gateTitle">A gate is a matrix</h3><p data-i18n="learn.gateBody">A gate updates the state by matrix multiplication. Its matrix is unitary: U†U=I, where U† is the conjugate transpose. This preserves vector length, and applying U† undoes U. A circuit is the ordered program of these matrix operations.</p><code class="concept-formula">|ψ′⟩ = U|ψ⟩</code></article>
+            <article><span>05 / COMBINE</span><h3 data-i18n="learn.phaseTitle">Phase controls interference</h3><p data-i18n="learn.phaseBody">A complex amplitude has a magnitude and an angle; the angle is its phase. Phase does not change that coordinate's probability by itself. Later gates can add coordinates: aligned amplitudes reinforce, while opposite amplitudes cancel. This is interference.</p><code class="concept-formula">1/√2 + (−1/√2) = 0</code></article>
+            <article><span>06 / READ</span><h3 data-i18n="learn.measureTitle">Measurement chooses one result</h3><p data-i18n="learn.measureBody">Measurement randomly selects one computational-basis label, such as 00 or 11. The probability is the squared magnitude of that label's coordinate. It returns the selected label as an ordinary bit string; after that read, the state equals the selected basis vector.</p><code class="concept-formula">coordinate a₁₁ → P(11) = |a₁₁|²</code></article>
+            <article><span>07 / REPEAT</span><h3 data-i18n="learn.shotsTitle">One shot is one complete run</h3><p data-i18n="learn.shotsBody">For one shot, the program creates fresh qubits in |0…0⟩, applies every gate in order, and measures once. N shots restart this whole process N times. “Counts” is the map from each returned bit string to how often it appeared.</p><code class="concept-formula">counts = { "00": 503, "11": 521 }</code></article>
+            <article><span>08 / JOINT</span><h3 data-i18n="learn.entangleTitle">Entanglement is non-factorability</h3><p data-i18n="learn.entangleBody">A multi-qubit state is entangled when it cannot be written as a Kronecker product of separate single-qubit states. In the Bell state below, neither qubit has its own independent vector, so measuring one bit constrains the other.</p><code class="concept-formula">|Φ⁺⟩ = (|00⟩ + |11⟩)/√2</code></article>
           </div>
           <div class="circuit-story">
-            <div><p class="eyebrow" data-i18n="learn.storyEyebrow">A two-gate story</p><h3 data-i18n="learn.storyTitle">How a Bell pair is made</h3><p data-i18n="learn.storyBody">Start with two zeroes. H creates two paths; CX links them. Measurement then returns mostly 00 or 11.</p></div>
+            <div><p class="eyebrow" data-i18n="learn.storyEyebrow">The definitions in action</p><h3 data-i18n="learn.storyTitle">Calculate a Bell pair</h3><p data-i18n="learn.storyBody">A Bell pair is an entangled two-qubit state whose measured bits are perfectly correlated: this example returns only 00 or 11, each with probability 1/2. To calculate it, write labels in |q₁q₀⟩ order. H gives q₀ two amplitudes of 1/√2, and CX flips q₁ only in the coordinate where q₀=1.</p></div>
             <ol class="state-flow">
-              <li><span data-i18n="learn.start">START</span><code>|00⟩</code><small data-i18n="learn.known">Known input</small></li>
-              <li><span data-i18n="learn.gate">GATE</span><code>h q[0]</code><small data-i18n="learn.paths">Two paths</small></li>
-              <li><span data-i18n="learn.link">LINK</span><code>cx q[0],q[1]</code><small data-i18n="learn.entangle">Entangle</small></li>
-              <li><span data-i18n="learn.measure">MEASURE</span><code>00 ≈ 11</code><small data-i18n="learn.correlated">Correlated counts</small></li>
+              <li><span data-i18n="learn.start">INITIALIZE</span><code>|q₁q₀⟩ = |00⟩</code><small data-i18n="learn.known">Both qubits start at 0</small></li>
+              <li><span data-i18n="learn.gate">APPLY H TO q₀</span><code>(|00⟩+|01⟩)/√2</code><small data-i18n="learn.paths">Two nonzero coordinates</small></li>
+              <li><span data-i18n="learn.link">APPLY CX</span><code>(|00⟩+|11⟩)/√2</code><small data-i18n="learn.entangle">Cannot factor into two vectors</small></li>
+              <li><span data-i18n="learn.measure">MEASURE</span><code>P(00)=P(11)=1/2</code><small data-i18n="learn.correlated">Only matching bits appear</small></li>
             </ol>
           </div>
           <div class="bit-order-note"><strong data-i18n="learn.bitOrderTitle">One important convention</strong><p data-i18n="learn.bitOrderBody">In result key “10”, the rightmost character is c[0]. LoomQ normalizes every backend to this little-endian convention.</p></div>
@@ -104,7 +106,7 @@
         <section class="content-view" id="view-simulator" data-view-panel="simulator" aria-labelledby="simulator-title">
           <header class="view-heading compact">
             <p class="eyebrow" data-i18n="sim.eyebrow">04 · Vendor simulators</p><h2 id="simulator-title" data-i18n="sim.title">Run OpenQASM locally.</h2>
-            <p class="view-lede" data-i18n="sim.lede">Choose one SDK or compare all three. “Shots” means how many times the simulator prepares and measures the circuit.</p>
+            <p class="view-lede" data-i18n="sim.lede">Choose one SDK or compare all three. For each shot, LoomQ creates fresh qubits at |0…0⟩, runs every gate once, and records one measured bit string.</p>
           </header>
           <div class="simulator-facts">
             <article class="vendor-card spinq"><span class="vendor-mark"><img src="/assets/spinq-logo.png" alt="" width="257" height="89"></span><span><strong data-i18n="sim.vendor.spinq">SpinQ</strong><small>SpinQit SDK</small></span></article>

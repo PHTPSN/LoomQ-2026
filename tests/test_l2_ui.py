@@ -107,6 +107,17 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertNotIn(b'The assistant stays here while you browse lessons and tools.', body)
             self.assertIn(b'role="separator"', body)
             self.assertIn(b"Vendor simulators", body)
+            self.assertEqual(body.count(b'class="concept-formula"'), 8)
+            self.assertIn(b"A Bell pair is an entangled two-qubit state", body)
+            self.assertIn("|α|² + |β|² = 1".encode(), body)
+            self.assertIn("U†U=I".encode(), body)
+            self.assertIn(b"P(00)=P(11)=1/2", body)
+            self.assertNotIn(
+                b"Converts quantum information into classical bits", body
+            )
+            self.assertNotIn(
+                b"How many times the circuit is prepared and measured", body
+            )
             self.assertEqual(body.count(b'class="vendor-card '), 3)
             self.assertIn(b">SpinQ</strong><small>SpinQit SDK</small>", body)
             self.assertIn(
@@ -149,6 +160,11 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertIn("cursor:ns-resize", styles)
             self.assertIn("resize:none", styles)
             self.assertIn("height:60px;min-height:60px;max-height:220px", styles)
+            self.assertIn("font:.82rem/1.5", styles)
+            self.assertIn(
+                ".gate-syntax{margin-top:auto;padding-top:20px;color:var(--ink);font:.82rem/1.5",
+                styles,
+            )
             self.assertIn(".assistant-dock{overflow:hidden}", styles)
             self.assertIn("overflow-y:auto;overscroll-behavior:contain", styles)
             self.assertIn("margin-bottom:14px", styles)
