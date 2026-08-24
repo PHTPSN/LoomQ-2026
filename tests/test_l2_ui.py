@@ -88,7 +88,16 @@ class Level2UIServerTest(unittest.TestCase):
             status, headers, body = local.request("GET", "/")
             self.assertEqual(status, 200)
             self.assertIn(b"Ask LoomQ", body)
-            self.assertIn(b"Test OpenQASM directly", body)
+            self.assertIn(b'class="assistant-dock"', body)
+            self.assertIn(b"Vendor simulators", body)
+            self.assertEqual(
+                re.findall(rb'data-view="([^"]+)"', body),
+                [b"overview", b"learn", b"gates", b"simulator"],
+            )
+            self.assertEqual(
+                re.findall(rb'data-view-panel="([^"]+)"', body),
+                [b"overview", b"learn", b"gates", b"simulator"],
+            )
             gate_examples = re.findall(rb'data-gate-example="([^"]+)"', body)
             gate_spec = json.loads(
                 (ui_server.UI_ROOT.parents[1] / "knowledge/spec/gates.json").read_text(
@@ -97,6 +106,16 @@ class Level2UIServerTest(unittest.TestCase):
             )
             expected_gates = [item["name"].encode() for item in gate_spec["gates"]]
             self.assertEqual(gate_examples, expected_gates)
+            script = (ui_server.UI_ROOT / "app.js").read_text(encoding="utf-8")
+            i18n_keys = set(
+                re.findall(
+                    rb'data-i18n(?:-placeholder|-aria)?="([^"]+)"', body
+                )
+            )
+            for key in i18n_keys:
+                self.assertIn('"%s":' % key.decode(), script)
+            self.assertEqual(body.count(b"data-prompt-en="), 3)
+            self.assertEqual(body.count(b"data-prompt-zh="), 3)
             self.assertIn("default-src 'self'", headers["Content-Security-Policy"])
             self.assertEqual(headers["X-Frame-Options"], "DENY")
 

@@ -3,323 +3,147 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="LoomQ translates plain-language quantum ideas into verified circuits and practical backend choices.">
-    <title>LoomQ — Quantum access, in plain language</title>
+    <meta name="description" content="LoomQ is a bilingual guide, circuit assistant, and local vendor-simulator workspace for quantum beginners.">
+    <title>LoomQ — Learn, build, and simulate quantum circuits</title>
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
-    <div class="ambient ambient-one" aria-hidden="true"></div>
-    <div class="ambient ambient-two" aria-hidden="true"></div>
-
-    <header class="topbar">
-      <a class="brand" href="/" aria-label="LoomQ home">
-        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span>
-          <strong>LoomQ</strong>
-          <small>Quantum access layer</small>
-        </span>
-      </a>
-      <div class="topbar-actions">
-        <a class="learn-link" href="#learn">Learn the basics</a>
-        <span class="status" id="service-status" role="status">
-          <span class="status-dot"></span>
-          <span id="service-status-text">Checking local agent</span>
-        </span>
-        <button class="ghost-button" id="clear-button" type="button">New conversation</button>
-      </div>
-    </header>
-
-    <main class="page-shell">
-      <section class="agent-panel" aria-labelledby="agent-title">
-        <div class="hero-copy">
-          <p class="eyebrow">L2 Agent Lab · 本地智能体</p>
-          <h1 id="agent-title">Make a quantum circuit<br><em>without speaking QASM.</em></h1>
-          <p class="lede">Describe the result you want. LoomQ writes or repairs the circuit, checks it locally, and helps you choose where to run it.</p>
+    <div class="workspace">
+      <aside class="side-rail" data-i18n-aria="aria.workspace">
+        <a class="brand" href="#" aria-label="LoomQ home">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span><strong>LoomQ</strong><small data-i18n="brand.tagline">Quantum guide</small></span>
+        </a>
+        <div class="language-switch" role="group" data-i18n-aria="aria.language">
+          <button class="active" type="button" data-language="en">EN</button><button type="button" data-language="zh">中文</button>
         </div>
+        <nav class="view-nav" data-i18n-aria="aria.tools">
+          <button class="active" type="button" data-view="overview" aria-current="page"><span>01</span><i aria-hidden="true">◎</i><strong data-i18n="nav.overview">Tool overview</strong></button>
+          <button type="button" data-view="learn"><span>02</span><i aria-hidden="true">◇</i><strong data-i18n="nav.learn">Quantum basics</strong></button>
+          <button type="button" data-view="gates"><span>03</span><i aria-hidden="true">⊕</i><strong data-i18n="nav.gates">12 supported gates</strong></button>
+          <button type="button" data-view="simulator"><span>04</span><i aria-hidden="true">▶</i><strong data-i18n="nav.simulator">Vendor simulators</strong></button>
+        </nav>
+        <div class="rail-footer">
+          <span class="status" id="service-status" role="status"><span class="status-dot"></span><span id="service-status-text">Checking local agent</span></span>
+          <p data-i18n="rail.local">Local only · model credentials stay in Python</p>
+        </div>
+      </aside>
 
-        <div class="conversation" id="conversation" aria-live="polite" aria-label="Conversation"></div>
-
-        <div class="starter-prompts" id="starter-prompts">
-          <p>Start with an idea · 选择一个示例</p>
-          <div class="prompt-grid">
-            <button class="prompt-card" type="button" data-prompt="Create a three-qubit GHZ state and measure every qubit.">
-              <span class="prompt-number">01</span>
-              <strong>Create a circuit</strong>
-              <small>“Make a 3-qubit GHZ state.”</small>
-            </button>
-            <button class="prompt-card" type="button" data-prompt="I intended to prepare and measure a Bell state, but this is broken: H q[0]; CX q[0] q[1]. Repair the complete OpenQASM 2.0 program.">
-              <span class="prompt-number">02</span>
-              <strong>Repair QASM</strong>
-              <small>Fix syntax without losing intent.</small>
-            </button>
-            <button class="prompt-card" type="button" data-prompt="I need to run a 26-qubit circuit with no queue and no account. Which backend should I use?">
-              <span class="prompt-number">03</span>
-              <strong>Choose a backend</strong>
-              <small>Balance qubits, wait, cost, and access.</small>
-            </button>
+      <main class="content-stage" id="content-stage">
+        <section class="content-view active" id="view-overview" data-view-panel="overview" aria-labelledby="overview-title">
+          <header class="view-heading">
+            <p class="eyebrow" data-i18n="overview.eyebrow">01 · Tool overview</p>
+            <h1 id="overview-title"><span data-i18n="overview.title1">From a plain-language idea</span><br><em data-i18n="overview.title2">to a circuit you can run.</em></h1>
+            <p class="view-lede" data-i18n="overview.lede">LoomQ helps a beginner understand the task, write or repair OpenQASM, verify the circuit locally, and compare three vendor simulators.</p>
+          </header>
+          <div class="capability-grid">
+            <article><span>01</span><h2 data-i18n="overview.askTitle">Ask naturally</h2><p data-i18n="overview.askBody">Describe the outcome. You do not need to know gate syntax or backend names.</p></article>
+            <article><span>02</span><h2 data-i18n="overview.verifyTitle">Verify before use</h2><p data-i18n="overview.verifyBody">Generated QASM is parsed and simulated locally before LoomQ presents it as valid.</p></article>
+            <article><span>03</span><h2 data-i18n="overview.runTitle">Run without cloud cost</h2><p data-i18n="overview.runBody">Test counts through SpinQit, Origin Quantum, and Amazon Braket local SDKs.</p></article>
           </div>
-        </div>
+          <div class="workflow-card">
+            <div><span data-i18n="overview.intentLabel">YOUR INTENT</span><strong data-i18n="overview.intentValue">“Make a Bell pair”</strong></div><i>→</i>
+            <div><span>LOOMQ</span><strong data-i18n="overview.loomqValue">Build + verify</strong></div><i>→</i>
+            <div><span data-i18n="overview.resultLabel">RESULT</span><strong data-i18n="overview.resultValue">QASM + counts</strong></div>
+          </div>
+          <div class="boundary-note"><span aria-hidden="true">!</span><div><strong data-i18n="overview.boundaryTitle">Simulation is not real hardware.</strong><p data-i18n="overview.boundaryBody">The simulator view uses vendor SDKs on this computer. It never submits a paid quantum-machine job.</p></div></div>
+        </section>
 
-        <details class="runner-lab" id="runner-lab">
-          <summary>
-            <span class="runner-symbol" aria-hidden="true">▶</span>
-            <span>
-              <small>Local simulator lab · 本地模拟实验室</small>
-              <strong>Test OpenQASM directly</strong>
-            </span>
-            <span class="runner-summary-note">3 vendor SDKs · no cloud account</span>
-          </summary>
-          <form class="runner-form" id="runner-form">
-            <label for="qasm-input">OpenQASM 2.0 program</label>
-            <textarea id="qasm-input" name="qasm" rows="10" maxlength="24000" spellcheck="false">OPENQASM 2.0;
+        <section class="content-view" id="view-learn" data-view-panel="learn" aria-labelledby="learn-title">
+          <header class="view-heading compact">
+            <p class="eyebrow" data-i18n="learn.eyebrow">02 · Quantum basics</p>
+            <h2 id="learn-title"><span data-i18n="learn.title1">Six ideas are enough</span><br><em data-i18n="learn.title2">to read your first circuit.</em></h2>
+            <p class="view-lede" data-i18n="learn.lede">Think like a programmer: a circuit is an ordered instruction list that transforms a state and then samples an answer.</p>
+          </header>
+          <div class="concept-grid">
+            <article><span>01 / DATA</span><h3 data-i18n="learn.qubitTitle">Qubit</h3><p data-i18n="learn.qubitBody">A quantum bit. Before measurement, its state can contain weighted |0⟩ and |1⟩ components.</p></article>
+            <article><span>02 / STATE</span><h3 data-i18n="learn.superTitle">Superposition</h3><p data-i18n="learn.superBody">A combination of basis states. Squared amplitude magnitudes become measurement probabilities.</p></article>
+            <article><span>03 / CODE</span><h3 data-i18n="learn.gateTitle">Gate and circuit</h3><p data-i18n="learn.gateBody">A gate is one reversible transformation; a circuit is the ordered list of those instructions.</p></article>
+            <article><span>04 / OUTPUT</span><h3 data-i18n="learn.measureTitle">Measurement</h3><p data-i18n="learn.measureBody">Converts quantum information into classical bits such as 00 or 11.</p></article>
+            <article><span>05 / SAMPLE</span><h3 data-i18n="learn.shotsTitle">Shots</h3><p data-i18n="learn.shotsBody">How many times the circuit is prepared and measured. More shots make the histogram steadier.</p></article>
+            <article><span>06 / LINK</span><h3 data-i18n="learn.entangleTitle">Entanglement</h3><p data-i18n="learn.entangleBody">A shared state with correlated outcomes. A Bell pair returns matching bits even though each bit is random.</p></article>
+          </div>
+          <div class="circuit-story">
+            <div><p class="eyebrow" data-i18n="learn.storyEyebrow">A two-gate story</p><h3 data-i18n="learn.storyTitle">How a Bell pair is made</h3><p data-i18n="learn.storyBody">Start with two zeroes. H creates two paths; CX links them. Measurement then returns mostly 00 or 11.</p></div>
+            <ol class="state-flow">
+              <li><span data-i18n="learn.start">START</span><code>|00⟩</code><small data-i18n="learn.known">Known input</small></li>
+              <li><span data-i18n="learn.gate">GATE</span><code>h q[0]</code><small data-i18n="learn.paths">Two paths</small></li>
+              <li><span data-i18n="learn.link">LINK</span><code>cx q[0],q[1]</code><small data-i18n="learn.entangle">Entangle</small></li>
+              <li><span data-i18n="learn.measure">MEASURE</span><code>00 ≈ 11</code><small data-i18n="learn.correlated">Correlated counts</small></li>
+            </ol>
+          </div>
+          <div class="bit-order-note"><strong data-i18n="learn.bitOrderTitle">One important convention</strong><p data-i18n="learn.bitOrderBody">In result key “10”, the rightmost character is c[0]. LoomQ normalizes every backend to this little-endian convention.</p></div>
+        </section>
+
+        <section class="content-view" id="view-gates" data-view-panel="gates" aria-labelledby="gates-title">
+          <header class="view-heading compact">
+            <p class="eyebrow" data-i18n="gates.eyebrow">03 · Official gate set</p>
+            <h2 id="gates-title"><span data-i18n="gates.title1">Twelve gates.</span><br><em data-i18n="gates.title2">The complete vocabulary.</em></h2>
+            <p class="view-lede" data-i18n="gates.lede">Hidden competition cases use this same whitelist. θ is a rotation angle measured in radians; “dg” means the inverse gate.</p>
+          </header>
+          <div class="gate-legend"><span><i class="single-dot"></i><b data-i18n="gates.single">Single-qubit</b></span><span><i class="phase-dot"></i><b data-i18n="gates.phase">Phase and rotation</b></span><span><i class="multi-dot"></i><b data-i18n="gates.multi">Controlled and multi-qubit</b></span></div>
+          <div class="gate-grid">
+            <article class="gate-card single"><div class="gate-top"><span>01</span><code>h</code><small data-i18n="gates.oneQubit">1 qubit</small></div><h3 data-i18n="gate.h.title">Hadamard</h3><p data-i18n="gate.h.body">Creates or recombines equal quantum paths—the usual doorway into superposition.</p><code class="gate-syntax">h q[0];</code><button type="button" data-gate-example="h"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+            <article class="gate-card single"><div class="gate-top"><span>02</span><code>x</code><small data-i18n="gates.oneQubit">1 qubit</small></div><h3 data-i18n="gate.x.title">Bit flip</h3><p data-i18n="gate.x.body">Swaps |0⟩ and |1⟩. It is the quantum counterpart of classical NOT.</p><code class="gate-syntax">x q[0];</code><button type="button" data-gate-example="x"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+            <article class="gate-card phase"><div class="gate-top"><span>03</span><code>s</code><small data-i18n="gates.oneQubit">1 qubit</small></div><h3 data-i18n="gate.s.title">Quarter phase</h3><p data-i18n="gate.s.body">Adds a 90° phase to |1⟩. Interference makes that hidden phase observable.</p><code class="gate-syntax">s q[0];</code><button type="button" data-gate-example="s"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+            <article class="gate-card phase"><div class="gate-top"><span>04</span><code>sdg</code><small data-i18n="gates.oneQubit">1 qubit</small></div><h3 data-i18n="gate.sdg.title">Inverse S</h3><p data-i18n="gate.sdg.body">Applies the opposite −90° phase. “Dagger” means inverse.</p><code class="gate-syntax">sdg q[0];</code><button type="button" data-gate-example="sdg"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+            <article class="gate-card phase"><div class="gate-top"><span>05</span><code>t</code><small data-i18n="gates.oneQubit">1 qubit</small></div><h3 data-i18n="gate.t.title">Eighth phase</h3><p data-i18n="gate.t.body">Adds a finer 45° phase, an important building block for general algorithms.</p><code class="gate-syntax">t q[0];</code><button type="button" data-gate-example="t"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+            <article class="gate-card phase"><div class="gate-top"><span>06</span><code>tdg</code><small data-i18n="gates.oneQubit">1 qubit</small></div><h3 data-i18n="gate.tdg.title">Inverse T</h3><p data-i18n="gate.tdg.body">Applies −45°, undoing a T gate when placed directly after it.</p><code class="gate-syntax">tdg q[0];</code><button type="button" data-gate-example="tdg"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+            <article class="gate-card phase"><div class="gate-top"><span>07</span><code>rz(θ)</code><small data-i18n="gates.oneQubit">1 qubit</small></div><h3 data-i18n="gate.rz.title">Z rotation</h3><p data-i18n="gate.rz.body">Rotates phase by angle θ. It changes interference even when direct probabilities stay unchanged.</p><code class="gate-syntax">rz(pi/2) q[0];</code><button type="button" data-gate-example="rz"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+            <article class="gate-card phase"><div class="gate-top"><span>08</span><code>ry(θ)</code><small data-i18n="gates.oneQubit">1 qubit</small></div><h3 data-i18n="gate.ry.title">Y rotation</h3><p data-i18n="gate.ry.body">Rotates amplitudes by θ, directly changing the chance of measuring zero or one.</p><code class="gate-syntax">ry(pi/2) q[0];</code><button type="button" data-gate-example="ry"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+            <article class="gate-card multi"><div class="gate-top"><span>09</span><code>cx</code><small data-i18n="gates.twoQubits">2 qubits</small></div><h3 data-i18n="gate.cx.title">Controlled X</h3><p data-i18n="gate.cx.body">Flips the target only when the control is one. With H, it creates entanglement.</p><code class="gate-syntax">cx q[0],q[1];</code><button type="button" data-gate-example="cx"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+            <article class="gate-card multi"><div class="gate-top"><span>10</span><code>cu1(θ)</code><small data-i18n="gates.twoQubits">2 qubits</small></div><h3 data-i18n="gate.cu1.title">Controlled phase</h3><p data-i18n="gate.cu1.body">Adds phase θ only when both qubits are one. Common in Fourier-style circuits.</p><code class="gate-syntax">cu1(pi/2) q[0],q[1];</code><button type="button" data-gate-example="cu1"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+            <article class="gate-card multi"><div class="gate-top"><span>11</span><code>swap</code><small data-i18n="gates.twoQubits">2 qubits</small></div><h3 data-i18n="gate.swap.title">Exchange</h3><p data-i18n="gate.swap.body">Trades the complete states of two qubits without measuring either one.</p><code class="gate-syntax">swap q[0],q[1];</code><button type="button" data-gate-example="swap"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+            <article class="gate-card multi"><div class="gate-top"><span>12</span><code>ccx</code><small data-i18n="gates.threeQubits">3 qubits</small></div><h3 data-i18n="gate.ccx.title">Toffoli</h3><p data-i18n="gate.ccx.body">Flips the target only when both controls are one, enabling reversible classical logic.</p><code class="gate-syntax">ccx q[0],q[1],q[2];</code><button type="button" data-gate-example="ccx"><span data-i18n="gates.try">Try this gate</span><i>↗</i></button></article>
+          </div>
+        </section>
+
+        <section class="content-view" id="view-simulator" data-view-panel="simulator" aria-labelledby="simulator-title">
+          <header class="view-heading compact">
+            <p class="eyebrow" data-i18n="sim.eyebrow">04 · Vendor simulators</p><h2 id="simulator-title" data-i18n="sim.title">Run OpenQASM locally.</h2>
+            <p class="view-lede" data-i18n="sim.lede">Choose one SDK or compare all three. “Shots” means how many times the simulator prepares and measures the circuit.</p>
+          </header>
+          <div class="simulator-facts"><span><strong>SpinQit</strong><small>Basic Simulator</small></span><span><strong>pyQPanda</strong><small>CPUQVM</small></span><span><strong>Braket</strong><small>LocalSimulator</small></span></div>
+          <details class="runner-lab" id="runner-lab" open>
+            <summary data-i18n="sim.lab">Local simulator lab</summary>
+            <form class="runner-form" id="runner-form">
+              <label for="qasm-input" data-i18n="sim.program">OpenQASM 2.0 program</label>
+              <textarea id="qasm-input" name="qasm" rows="10" maxlength="24000" spellcheck="false">OPENQASM 2.0;
 include "qelib1.inc";
 qreg q[2];
 creg c[2];
 h q[0];
 cx q[0],q[1];
 measure q -&gt; c;</textarea>
-            <div class="runner-controls">
-              <label>
-                <span>Simulator</span>
-                <select id="simulator-target" name="target">
-                  <option value="all">Compare all three</option>
-                  <option value="spinq">SpinQit Basic</option>
-                  <option value="originq">Origin Quantum CPU</option>
-                  <option value="braket">Amazon Braket Local</option>
-                </select>
-              </label>
-              <label>
-                <span>Shots</span>
-                <input id="simulator-shots" name="shots" type="number" min="1" max="8192" step="1" value="512">
-              </label>
-              <button class="run-button" id="run-button" type="submit">
-                <span>Run locally</span>
-                <span aria-hidden="true">▶</span>
-              </button>
-            </div>
-            <p class="runner-privacy">Runs inside isolated vendor SDK simulators on this computer. No real quantum job, account, or payment is used.</p>
-            <div class="simulation-results" id="simulation-results" aria-live="polite"></div>
-          </form>
-        </details>
-
-        <form class="composer" id="composer">
-          <label for="prompt-input">Describe what you want <span>· 描述你的目标</span></label>
-          <textarea id="prompt-input" name="prompt" rows="3" maxlength="24000" placeholder="For example: Create a Bell state, measure both qubits, and explain which free local backend can run it." required></textarea>
-          <div class="composer-footer">
-            <span><kbd>Ctrl</kbd><span>+</span><kbd>Enter</kbd> to send</span>
-            <button class="send-button" id="send-button" type="submit">
-              <span>Ask LoomQ</span>
-              <span aria-hidden="true">↗</span>
-            </button>
-          </div>
-        </form>
-      </section>
-
-      <aside class="guide-panel" aria-label="How LoomQ helps">
-        <div class="guide-heading">
-          <span class="guide-index">Q / 01</span>
-          <h2>From intent<br>to something runnable.</h2>
-        </div>
-
-        <ol class="verification-list">
-          <li>
-            <span>1</span>
-            <div><strong>Understand</strong><small>Turns everyday language into a precise quantum task.</small></div>
-          </li>
-          <li>
-            <span>2</span>
-            <div><strong>Build</strong><small>Generates or repairs valid OpenQASM 2.0.</small></div>
-          </li>
-          <li>
-            <span>3</span>
-            <div><strong>Verify</strong><small>Parses and simulates the circuit before showing it.</small></div>
-          </li>
-          <li>
-            <span>4</span>
-            <div><strong>Compare</strong><small>Runs verified QASM on three local vendor SDK simulators.</small></div>
-          </li>
-        </ol>
-
-        <div class="truth-card">
-          <span class="truth-icon" aria-hidden="true">◎</span>
-          <div>
-            <strong>Recommendations use the official snapshot.</strong>
-            <p>Backend answers are based on competition capability data—not live queues, ads, or paid cloud access.</p>
-          </div>
-        </div>
-
-        <p class="local-note"><span aria-hidden="true">●</span> Runs locally. Your model credential stays in Python and is never sent to this page.</p>
-      </aside>
-    </main>
-
-    <section class="learn-section" id="learn" aria-labelledby="learn-title">
-      <div class="learn-shell">
-        <header class="learn-heading">
-          <div>
-            <p class="eyebrow">Quantum 101 · 新手入门</p>
-            <h2 id="learn-title">Quantum ideas,<br><em>translated into software.</em></h2>
-          </div>
-          <p>You do not need a physics degree. For LoomQ, a quantum circuit is a short program that transforms a state, then samples an answer.</p>
-        </header>
-
-        <div class="concept-grid">
-          <article class="concept-card">
-            <span>01 / DATA</span>
-            <h3>Qubit</h3>
-            <p>A quantum bit. Unlike a classical bit, its state can contain weighted <code>|0⟩</code> and <code>|1⟩</code> components before measurement.</p>
-          </article>
-          <article class="concept-card">
-            <span>02 / STATE</span>
-            <h3>Superposition</h3>
-            <p>A combination of basis states. Squaring each amplitude’s magnitude gives the probability of observing that state.</p>
-          </article>
-          <article class="concept-card">
-            <span>03 / CODE</span>
-            <h3>Gate &amp; circuit</h3>
-            <p>A gate is one reversible state transformation. A circuit is the ordered instruction list—much like a tiny assembly program.</p>
-          </article>
-          <article class="concept-card">
-            <span>04 / OUTPUT</span>
-            <h3>Measurement</h3>
-            <p>Converts quantum information into classical bits. One measurement produces one bit string such as <code>00</code> or <code>11</code>.</p>
-          </article>
-          <article class="concept-card">
-            <span>05 / SAMPLE</span>
-            <h3>Shots</h3>
-            <p>The number of times a circuit is prepared and measured. More shots make the observed histogram steadier.</p>
-          </article>
-          <article class="concept-card">
-            <span>06 / LINK</span>
-            <h3>Entanglement</h3>
-            <p>A joint state whose outcomes are correlated. A Bell pair behaves like two fair coins that always land on the same side.</p>
-          </article>
-        </div>
-
-        <div class="circuit-story" aria-label="Bell circuit walkthrough">
-          <div class="story-copy">
-            <span class="story-index">A two-gate story</span>
-            <h3>How a Bell pair is made</h3>
-            <p>Start with two zeroes. The <code>h</code> gate creates two possible paths; <code>cx</code> links them. Measurement then returns mostly <code>00</code> or <code>11</code>.</p>
-          </div>
-          <ol class="state-flow">
-            <li><span>Start</span><code>|00⟩</code><small>Known input</small></li>
-            <li class="flow-gate"><span>Gate</span><code>h q[0]</code><small>Two paths</small></li>
-            <li class="flow-gate"><span>Link</span><code>cx q[0],q[1]</code><small>Entangle</small></li>
-            <li><span>Measure</span><code>00 ≈ 11</code><small>Correlated counts</small></li>
-          </ol>
-        </div>
-
-        <section class="gate-atlas" aria-labelledby="gate-title">
-          <header class="atlas-heading">
-            <div>
-              <p class="eyebrow">The official set · 官方门集</p>
-              <h2 id="gate-title">Twelve gates.<br><em>That is the whole vocabulary.</em></h2>
-            </div>
-            <p>These are the only gates used by the competition circuits, including hidden cases. <strong>θ</strong> means a rotation angle in radians.</p>
-          </header>
-
-          <div class="gate-legend" aria-label="Gate categories">
-            <span><i class="single-dot"></i>Single-qubit</span>
-            <span><i class="phase-dot"></i>Phase &amp; rotation</span>
-            <span><i class="multi-dot"></i>Controlled &amp; multi-qubit</span>
-          </div>
-
-          <div class="gate-grid">
-            <article class="gate-card single">
-              <div class="gate-top"><span>01</span><code>h</code><small>1 qubit</small></div>
-              <h3>Hadamard</h3>
-              <p>Creates or recombines equal quantum paths—the usual doorway into superposition.</p>
-              <code class="gate-syntax">h q[0];</code>
-              <button type="button" data-gate-example="h">Try this gate <span>↗</span></button>
-            </article>
-            <article class="gate-card single">
-              <div class="gate-top"><span>02</span><code>x</code><small>1 qubit</small></div>
-              <h3>Bit flip</h3>
-              <p>Swaps <code>|0⟩</code> and <code>|1⟩</code>. It is the quantum counterpart of classical NOT.</p>
-              <code class="gate-syntax">x q[0];</code>
-              <button type="button" data-gate-example="x">Try this gate <span>↗</span></button>
-            </article>
-            <article class="gate-card phase">
-              <div class="gate-top"><span>03</span><code>s</code><small>1 qubit</small></div>
-              <h3>Quarter phase</h3>
-              <p>Adds a 90° phase to the <code>|1⟩</code> component. Interference makes that hidden phase observable.</p>
-              <code class="gate-syntax">s q[0];</code>
-              <button type="button" data-gate-example="s">Try this gate <span>↗</span></button>
-            </article>
-            <article class="gate-card phase">
-              <div class="gate-top"><span>04</span><code>sdg</code><small>1 qubit</small></div>
-              <h3>Inverse S</h3>
-              <p>Removes the S phase, applying −90° instead. “dg” means dagger, or inverse.</p>
-              <code class="gate-syntax">sdg q[0];</code>
-              <button type="button" data-gate-example="sdg">Try this gate <span>↗</span></button>
-            </article>
-            <article class="gate-card phase">
-              <div class="gate-top"><span>05</span><code>t</code><small>1 qubit</small></div>
-              <h3>Eighth phase</h3>
-              <p>Adds a finer 45° phase. T gates are important building blocks for general algorithms.</p>
-              <code class="gate-syntax">t q[0];</code>
-              <button type="button" data-gate-example="t">Try this gate <span>↗</span></button>
-            </article>
-            <article class="gate-card phase">
-              <div class="gate-top"><span>06</span><code>tdg</code><small>1 qubit</small></div>
-              <h3>Inverse T</h3>
-              <p>Applies the opposite −45° phase, undoing a T gate when placed directly after it.</p>
-              <code class="gate-syntax">tdg q[0];</code>
-              <button type="button" data-gate-example="tdg">Try this gate <span>↗</span></button>
-            </article>
-            <article class="gate-card phase">
-              <div class="gate-top"><span>07</span><code>rz(θ)</code><small>1 qubit</small></div>
-              <h3>Z rotation</h3>
-              <p>Rotates phase by any angle θ. It changes interference, although direct Z-basis probabilities may stay unchanged.</p>
-              <code class="gate-syntax">rz(pi/2) q[0];</code>
-              <button type="button" data-gate-example="rz">Try this gate <span>↗</span></button>
-            </article>
-            <article class="gate-card phase">
-              <div class="gate-top"><span>08</span><code>ry(θ)</code><small>1 qubit</small></div>
-              <h3>Y rotation</h3>
-              <p>Rotates amplitudes by any angle θ, directly changing the chance of measuring zero or one.</p>
-              <code class="gate-syntax">ry(pi/2) q[0];</code>
-              <button type="button" data-gate-example="ry">Try this gate <span>↗</span></button>
-            </article>
-            <article class="gate-card multi">
-              <div class="gate-top"><span>09</span><code>cx</code><small>2 qubits</small></div>
-              <h3>Controlled X</h3>
-              <p>Flips the target only when the control is one. With H, it is the standard recipe for entanglement.</p>
-              <code class="gate-syntax">cx q[0],q[1];</code>
-              <button type="button" data-gate-example="cx">Try this gate <span>↗</span></button>
-            </article>
-            <article class="gate-card multi">
-              <div class="gate-top"><span>10</span><code>cu1(θ)</code><small>2 qubits</small></div>
-              <h3>Controlled phase</h3>
-              <p>Adds phase θ only when both qubits are one. It is common in Fourier-style circuits.</p>
-              <code class="gate-syntax">cu1(pi/2) q[0],q[1];</code>
-              <button type="button" data-gate-example="cu1">Try this gate <span>↗</span></button>
-            </article>
-            <article class="gate-card multi">
-              <div class="gate-top"><span>11</span><code>swap</code><small>2 qubits</small></div>
-              <h3>Exchange</h3>
-              <p>Trades the complete states of two qubits without measuring either one.</p>
-              <code class="gate-syntax">swap q[0],q[1];</code>
-              <button type="button" data-gate-example="swap">Try this gate <span>↗</span></button>
-            </article>
-            <article class="gate-card multi">
-              <div class="gate-top"><span>12</span><code>ccx</code><small>3 qubits</small></div>
-              <h3>Toffoli</h3>
-              <p>Flips the target only when both controls are one—a reversible version of classical AND logic.</p>
-              <code class="gate-syntax">ccx q[0],q[1],q[2];</code>
-              <button type="button" data-gate-example="ccx">Try this gate <span>↗</span></button>
-            </article>
-          </div>
+              <div class="runner-controls">
+                <label><span data-i18n="sim.simulator">Simulator</span><select id="simulator-target" name="target"><option value="all" data-i18n="sim.all">Compare all three</option><option value="spinq">SpinQit Basic</option><option value="originq">Origin Quantum CPU</option><option value="braket">Amazon Braket Local</option></select></label>
+                <label><span data-i18n="sim.shots">Shots</span><input id="simulator-shots" name="shots" type="number" min="1" max="8192" step="1" value="512"></label>
+                <button class="run-button" id="run-button" type="submit"><span data-i18n="sim.run">Run locally</span><span aria-hidden="true">▶</span></button>
+              </div>
+              <p class="runner-privacy" data-i18n="sim.privacy">No account, payment, queue, or real-hardware submission is used.</p>
+              <div class="simulation-results" id="simulation-results" aria-live="polite"></div>
+            </form>
+          </details>
         </section>
-      </div>
-    </section>
+      </main>
 
-    <template id="message-template">
-      <article class="message">
-        <div class="message-meta"></div>
-        <div class="message-body"></div>
-      </article>
-    </template>
+      <aside class="assistant-dock" aria-labelledby="assistant-title">
+        <header class="assistant-heading"><div><p class="eyebrow" data-i18n="assistant.eyebrow">AI circuit assistant</p><h2 id="assistant-title" data-i18n="assistant.title">Ask LoomQ</h2></div><button class="clear-button" id="clear-button" type="button" data-i18n="assistant.new">New</button></header>
+        <p class="assistant-intro" data-i18n="assistant.intro">The assistant stays here while you browse lessons and tools.</p>
+        <div class="starter-prompts" id="starter-prompts">
+          <button type="button" data-prompt-en="Create a three-qubit GHZ state and measure every qubit." data-prompt-zh="创建一个三量子比特 GHZ 态并测量全部量子比特。"><span data-i18n="assistant.generate">Generate</span><b data-i18n="assistant.ghz">Create a GHZ circuit</b></button>
+          <button type="button" data-prompt-en="Repair this Bell-state fragment as complete OpenQASM 2.0: H q[0]; CX q[0] q[1]." data-prompt-zh="把这个 Bell 态片段修复为完整的 OpenQASM 2.0：H q[0]; CX q[0] q[1]."><span data-i18n="assistant.repair">Repair</span><b data-i18n="assistant.fix">Fix broken QASM</b></button>
+          <button type="button" data-prompt-en="I need a 26-qubit circuit with no queue and no account. Which backend should I use?" data-prompt-zh="我需要运行一个 26 量子比特线路，不能排队，也没有账号。应该使用哪个后端？"><span data-i18n="assistant.choose">Choose</span><b data-i18n="assistant.backend">Recommend a backend</b></button>
+        </div>
+        <div class="conversation" id="conversation" aria-live="polite" data-i18n-aria="aria.conversation"></div>
+        <form class="composer" id="composer">
+          <label for="prompt-input" data-i18n="assistant.describe">Describe what you want</label>
+          <textarea id="prompt-input" name="prompt" rows="4" maxlength="24000" data-i18n-placeholder="assistant.placeholder" placeholder="Create a Bell state, measure both qubits, and explain the result." required></textarea>
+          <div class="composer-footer"><span><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span><button class="send-button" id="send-button" type="submit"><span data-i18n="assistant.ask">Ask LoomQ</span><span aria-hidden="true">↗</span></button></div>
+        </form>
+      </aside>
+    </div>
+    <template id="message-template"><article class="message"><div class="message-meta"></div><div class="message-body"></div></article></template>
     <script src="/app.js" defer></script>
   </body>
 </html>
