@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="LoomQ translates plain-language quantum ideas into verified circuits and practical backend choices.">
+    <title>LoomQ — Quantum access, in plain language</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="LoomQ home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>
+          <strong>LoomQ</strong>
+          <small>Quantum access layer</small>
+        </span>
+      </a>
+      <div class="topbar-actions">
+        <span class="status" id="service-status" role="status">
+          <span class="status-dot"></span>
+          <span id="service-status-text">Checking local agent</span>
+        </span>
+        <button class="ghost-button" id="clear-button" type="button">New conversation</button>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="agent-panel" aria-labelledby="agent-title">
+        <div class="hero-copy">
+          <p class="eyebrow">L2 Agent Lab · 本地智能体</p>
+          <h1 id="agent-title">Make a quantum circuit<br><em>without speaking QASM.</em></h1>
+          <p class="lede">Describe the result you want. LoomQ writes or repairs the circuit, checks it locally, and helps you choose where to run it.</p>
+        </div>
+
+        <div class="conversation" id="conversation" aria-live="polite" aria-label="Conversation"></div>
+
+        <div class="starter-prompts" id="starter-prompts">
+          <p>Start with an idea · 选择一个示例</p>
+          <div class="prompt-grid">
+            <button class="prompt-card" type="button" data-prompt="Create a three-qubit GHZ state and measure every qubit.">
+              <span class="prompt-number">01</span>
+              <strong>Create a circuit</strong>
+              <small>“Make a 3-qubit GHZ state.”</small>
+            </button>
+            <button class="prompt-card" type="button" data-prompt="I intended to prepare and measure a Bell state, but this is broken: H q[0]; CX q[0] q[1]. Repair the complete OpenQASM 2.0 program.">
+              <span class="prompt-number">02</span>
+              <strong>Repair QASM</strong>
+              <small>Fix syntax without losing intent.</small>
+            </button>
+            <button class="prompt-card" type="button" data-prompt="I need to run a 26-qubit circuit with no queue and no account. Which backend should I use?">
+              <span class="prompt-number">03</span>
+              <strong>Choose a backend</strong>
+              <small>Balance qubits, wait, cost, and access.</small>
+            </button>
+          </div>
+        </div>
+
+        <form class="composer" id="composer">
+          <label for="prompt-input">Describe what you want <span>· 描述你的目标</span></label>
+          <textarea id="prompt-input" name="prompt" rows="3" maxlength="24000" placeholder="For example: Create a Bell state, measure both qubits, and explain which free local backend can run it." required></textarea>
+          <div class="composer-footer">
+            <span><kbd>Ctrl</kbd><span>+</span><kbd>Enter</kbd> to send</span>
+            <button class="send-button" id="send-button" type="submit">
+              <span>Ask LoomQ</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="guide-panel" aria-label="How LoomQ helps">
+        <div class="guide-heading">
+          <span class="guide-index">Q / 01</span>
+          <h2>From intent<br>to something runnable.</h2>
+        </div>
+
+        <ol class="verification-list">
+          <li>
+            <span>1</span>
+            <div><strong>Understand</strong><small>Turns everyday language into a precise quantum task.</small></div>
+          </li>
+          <li>
+            <span>2</span>
+            <div><strong>Build</strong><small>Generates or repairs valid OpenQASM 2.0.</small></div>
+          </li>
+          <li>
+            <span>3</span>
+            <div><strong>Verify</strong><small>Parses and simulates the circuit before showing it.</small></div>
+          </li>
+        </ol>
+
+        <div class="truth-card">
+          <span class="truth-icon" aria-hidden="true">◎</span>
+          <div>
+            <strong>Recommendations use the official snapshot.</strong>
+            <p>Backend answers are based on competition capability data—not live queues, ads, or paid cloud access.</p>
+          </div>
+        </div>
+
+        <p class="local-note"><span aria-hidden="true">●</span> Runs locally. Your model credential stays in Python and is never sent to this page.</p>
+      </aside>
+    </main>
+
+    <template id="message-template">
+      <article class="message">
+        <div class="message-meta"></div>
+        <div class="message-body"></div>
+      </article>
+    </template>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

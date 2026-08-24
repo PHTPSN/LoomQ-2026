@@ -155,6 +155,17 @@ python3 starter_kit/prepare_submission.py --team-id <GITHUB_USERNAME>
 
 本提交的 L2 实现位于 [`loomq_l2/`](loomq_l2/README.md)。它先完成规定的模型调用，再由本地确定性代码验证 QASM 或按 `backend_capabilities.json` 筛选后端；开发期的实时云状态不会进入正式评分路径。
 
+本地交互界面可从 fork 根目录用以下命令启动，然后访问
+`http://127.0.0.1:8765`：
+
+```bash
+python -m starter_kit.loomq_l2.ui_server
+```
+
+界面默认读取根目录的可选 `.env`，但不会覆盖已注入的环境变量。它只监听本机地址，
+模型凭证始终保留在 Python 进程中。完整界面说明与安全边界见
+[`loomq_l2/README.md`](loomq_l2/README.md)。
+
 ```bash
 export LOOMQ_LLM_BASE_URL=https://api.deepseek.com
 export LOOMQ_LLM_API_KEY=<YOUR_OWN_KEY>

@@ -1,0 +1,150 @@
+import http.client
+import json
+import os
+import tempfile
+import threading
+import unittest
+from http.server import ThreadingHTTPServer
+from pathlib import Path
+from unittest import mock
+
+from starter_kit.loomq_l2 import ui_server
+
+
+class LocalUIServer:
+    def __enter__(self):
+        ui_server.LoomQUIHandler.session_token = "test-session"
+        ui_server.LoomQUIHandler.agent_lock = threading.Lock()
+        self.server = ThreadingHTTPServer(
+            ("127.0.0.1", 0), ui_server.LoomQUIHandler
+        )
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        return self
+
+    def __exit__(self, *_args):
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=2)
+
+    def request(self, method, path, body=None, headers=None):
+        connection = http.client.HTTPConnection(
+            "127.0.0.1", self.server.server_port, timeout=2
+        )
+        request_headers = {"Host": "127.0.0.1:%d" % self.server.server_port}
+        request_headers.update(headers or {})
+        connection.request(method, path, body=body, headers=request_headers)
+        response = connection.getresponse()
+        payload = response.read()
+        response_headers = dict(response.getheaders())
+        connection.close()
+        return response.status, response_headers, payload
+
+
+class Level2UIHelpersTest(unittest.TestCase):
+    def test_env_file_fills_missing_values_without_overriding_process(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / ".env"
+            path.write_text(
+                "# local settings\nexport LOOMQ_UI_NEW='from file'\n"
+                "LOOMQ_UI_KEEP=from-file\nINVALID\n",
+                encoding="utf-8",
+            )
+            with mock.patch.dict(
+                os.environ, {"LOOMQ_UI_KEEP": "injected"}, clear=True
+            ):
+                ui_server._load_env_file(path)
+                self.assertEqual(os.environ["LOOMQ_UI_NEW"], "from file")
+                self.assertEqual(os.environ["LOOMQ_UI_KEEP"], "injected")
+
+    def test_history_is_limited_and_added_as_context(self):
+        history = [
+            {"role": "user", "content": "old-%d" % index} for index in range(8)
+        ]
+        normalized = ui_server._normalized_history(history)
+        self.assertEqual(len(normalized), ui_server.MAX_HISTORY_MESSAGES)
+        contextual = ui_server._contextual_prompt("current", normalized)
+        self.assertNotIn("old-0", contextual)
+        self.assertIn("old-7", contextual)
+        self.assertTrue(contextual.endswith("Current user request:\ncurrent"))
+
+    def test_model_errors_redact_api_key(self):
+        with mock.patch.dict(
+            os.environ, {"LOOMQ_LLM_API_KEY": "private-test-key"}, clear=True
+        ):
+            message = ui_server._safe_error(RuntimeError("bad private-test-key"))
+        self.assertEqual(message, "bad [redacted]")
+
+    def test_non_loopback_bind_is_rejected(self):
+        with self.assertRaises(Exception):
+            ui_server._loopback_host("0.0.0.0")
+
+
+class Level2UIServerTest(unittest.TestCase):
+    def test_health_and_static_page_have_security_headers(self):
+        with LocalUIServer() as local:
+            status, headers, body = local.request("GET", "/")
+            self.assertEqual(status, 200)
+            self.assertIn(b"Ask LoomQ", body)
+            self.assertIn("default-src 'self'", headers["Content-Security-Policy"])
+            self.assertEqual(headers["X-Frame-Options"], "DENY")
+
+            status, _, body = local.request("GET", "/api/health")
+            health = json.loads(body)
+            self.assertEqual(status, 200)
+            self.assertTrue(health["ok"])
+            self.assertEqual(health["session_token"], "test-session")
+
+    def test_chat_calls_agent_with_context_and_classifies_qasm(self):
+        qasm = 'OPENQASM 2.0;\ninclude "qelib1.inc";\nqreg q[1];\n'
+        payload = json.dumps(
+            {
+                "prompt": "Now measure it",
+                "history": [{"role": "user", "content": "Create one qubit"}],
+            }
+        )
+        with LocalUIServer() as local, mock.patch.object(
+            ui_server, "agent_chat", return_value=qasm
+        ) as agent:
+            status, _, body = local.request(
+                "POST",
+                "/api/chat",
+                body=payload,
+                headers={
+                    "Content-Type": "application/json",
+                    "Origin": "http://127.0.0.1:%d" % local.server.server_port,
+                    "X-LoomQ-Session": "test-session",
+                },
+            )
+        result = json.loads(body)
+        self.assertEqual(status, 200)
+        self.assertEqual(result["kind"], "qasm")
+        self.assertEqual(result["answer"], qasm)
+        self.assertIn("Previous user:\nCreate one qubit", agent.call_args.args[0])
+        self.assertTrue(agent.call_args.args[0].endswith("Now measure it"))
+
+    def test_chat_rejects_cross_origin_and_expired_sessions(self):
+        payload = json.dumps({"prompt": "Create a Bell state"})
+        with LocalUIServer() as local:
+            status, _, _ = local.request(
+                "POST",
+                "/api/chat",
+                body=payload,
+                headers={
+                    "Origin": "https://example.com",
+                    "X-LoomQ-Session": "test-session",
+                },
+            )
+            self.assertEqual(status, 403)
+            status, _, body = local.request(
+                "POST",
+                "/api/chat",
+                body=payload,
+                headers={"X-LoomQ-Session": "expired"},
+            )
+            self.assertEqual(status, 403)
+            self.assertIn(b"expired", body)
+
+
+if __name__ == "__main__":
+    unittest.main()

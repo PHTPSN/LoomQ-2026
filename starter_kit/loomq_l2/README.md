@@ -26,6 +26,22 @@
 后端选择不会访问 SpinQ、本源量子或 AWS，也不会读取开发期的实时观察缓存。
 这样正式答案只取决于比赛规定的能力快照，不需要云账号、Cookie、API Token 或付费任务。
 
+## 本地网页界面
+
+从 fork 根目录启动零依赖、仅本机可访问的界面：
+
+```bash
+python -m starter_kit.loomq_l2.ui_server
+```
+
+然后打开 `http://127.0.0.1:8765`。启动器会读取当前目录的可选 `.env`，但操作系统或
+评测器已经注入的同名变量优先。浏览器只与本机 Python 服务通信，不会取得或保存模型
+API Key。服务拒绝非回环地址绑定、跨站请求和无会话令牌的请求。
+
+界面支持三个主要流程：用自然语言生成量子线路、修复 OpenQASM 2.0，以及按比赛归档
+能力快照选择后端。多轮对话只把最近六条消息作为上下文，并保留失败请求以便修改重试。
+命令行参数见 `python -m starter_kit.loomq_l2.ui_server --help`。
+
 ## 合规性
 
 每个非空评分 prompt 都先调用 `LOOMQ_LLM_*` 指定的 OpenAI Chat Completions
