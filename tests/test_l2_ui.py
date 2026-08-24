@@ -15,6 +15,7 @@ class LocalUIServer:
     def __enter__(self):
         ui_server.LoomQUIHandler.session_token = "test-session"
         ui_server.LoomQUIHandler.agent_lock = threading.Lock()
+        ui_server.LoomQUIHandler.simulator_lock = threading.Lock()
         self.server = ThreadingHTTPServer(
             ("127.0.0.1", 0), ui_server.LoomQUIHandler
         )
@@ -86,6 +87,7 @@ class Level2UIServerTest(unittest.TestCase):
             status, headers, body = local.request("GET", "/")
             self.assertEqual(status, 200)
             self.assertIn(b"Ask LoomQ", body)
+            self.assertIn(b"Test OpenQASM directly", body)
             self.assertIn("default-src 'self'", headers["Content-Security-Policy"])
             self.assertEqual(headers["X-Frame-Options"], "DENY")
 
@@ -144,6 +146,47 @@ class Level2UIServerTest(unittest.TestCase):
             )
             self.assertEqual(status, 403)
             self.assertIn(b"expired", body)
+
+    def test_run_executes_selected_vendor_simulator(self):
+        qasm = 'OPENQASM 2.0;\ninclude "qelib1.inc";\nqreg q[1];\n'
+        vendor_result = {
+            "backend": "spinq_basic_simulator",
+            "job_id": "local-job",
+            "shots": 128,
+            "counts": {"0": 65, "1": 63},
+            "bit_order": "little",
+            "timestamp": "2026-08-24T00:00:00Z",
+            "meta": {"sdk": "spinqit"},
+        }
+        payload = json.dumps({"qasm": qasm, "target": "spinq", "shots": 128})
+        with LocalUIServer() as local, mock.patch.object(
+            ui_server, "run_circuit", return_value=vendor_result
+        ) as runner:
+            status, _, body = local.request(
+                "POST",
+                "/api/run",
+                body=payload,
+                headers={"X-LoomQ-Session": "test-session"},
+            )
+        result = json.loads(body)
+        self.assertEqual(status, 200)
+        self.assertEqual(result["target_name"], "SpinQit Basic Simulator")
+        self.assertEqual(result["result"]["counts"], {"0": 65, "1": 63})
+        runner.assert_called_once_with(qasm.strip(), "spinq", 128)
+
+    def test_run_rejects_unknown_target_and_excessive_shots(self):
+        qasm = 'OPENQASM 2.0;\ninclude "qelib1.inc";\nqreg q[1];\n'
+        with LocalUIServer() as local:
+            for target, shots in (("hardware", 128), ("spinq", 8193)):
+                status, _, _ = local.request(
+                    "POST",
+                    "/api/run",
+                    body=json.dumps(
+                        {"qasm": qasm, "target": target, "shots": shots}
+                    ),
+                    headers={"X-LoomQ-Session": "test-session"},
+                )
+                self.assertEqual(status, 400)
 
 
 if __name__ == "__main__":

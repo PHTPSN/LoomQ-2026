@@ -18,8 +18,10 @@ from urllib.parse import urlparse
 
 try:
     from .agent import agent_chat
+    from ..adapter import run as run_circuit
 except ImportError:
     from agent import agent_chat
+    from starter_kit.adapter import run as run_circuit
 
 
 UI_ROOT = Path(__file__).resolve().parent / "ui"
@@ -27,6 +29,12 @@ MAX_REQUEST_BYTES = 64 * 1024
 MAX_PROMPT_CHARACTERS = 24_000
 MAX_HISTORY_MESSAGES = 6
 MAX_HISTORY_CHARACTERS = 4_000
+MAX_SIMULATOR_SHOTS = 8_192
+SIMULATOR_TARGETS = {
+    "spinq": "SpinQit Basic Simulator",
+    "originq": "Origin Quantum CPU Simulator",
+    "braket": "Amazon Braket Local Simulator",
+}
 
 
 def _load_env_file(path: Path) -> None:
@@ -111,12 +119,24 @@ def _answer_kind(answer: str) -> str:
     return "message"
 
 
+def _simulation_error(target: str, exc: Exception) -> str:
+    detail = _safe_error(exc)
+    if "No module named" in detail or "does not exist" in detail:
+        return (
+            SIMULATOR_TARGETS[target]
+            + " is not installed in its isolated environment. See the Level 2 "
+            "README for local simulator setup."
+        )
+    return detail
+
+
 class LoomQUIHandler(BaseHTTPRequestHandler):
     """Serve static UI files and a same-origin JSON agent endpoint."""
 
     server_version = "LoomQUI/1.0"
     session_token = secrets.token_urlsafe(24)
     agent_lock = threading.Lock()
+    simulator_lock = threading.Lock()
 
     def log_message(self, format_string: str, *args: Any) -> None:
         print("[%s] %s" % (self.log_date_time_string(), format_string % args))
@@ -194,7 +214,8 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
         self._serve_file(filename)
 
     def do_POST(self) -> None:
-        if urlparse(self.path).path != "/api/chat":
+        route = urlparse(self.path).path
+        if route not in {"/api/chat", "/api/run"}:
             self.send_error(404)
             return
         if not self._valid_host() or not self._same_origin():
@@ -204,18 +225,34 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
         if not hmac.compare_digest(token, type(self).session_token):
             self._json(403, {"error": "The local UI session has expired. Refresh the page."})
             return
+        if route == "/api/run":
+            self._run_simulator()
+            return
+        self._run_agent()
+
+    def _read_payload(self) -> Optional[Mapping[str, Any]]:
         try:
             length = int(self.headers.get("Content-Length", "0"))
         except ValueError:
             self._json(400, {"error": "Invalid request length."})
-            return
+            return None
         if length <= 0 or length > MAX_REQUEST_BYTES:
             self._json(413, {"error": "The request is empty or too large."})
-            return
+            return None
         try:
             payload = json.loads(self.rfile.read(length))
             if not isinstance(payload, Mapping):
                 raise ValueError("request body must be a JSON object")
+            return payload
+        except (json.JSONDecodeError, UnicodeDecodeError, ValueError) as exc:
+            self._json(400, {"error": _safe_error(exc)})
+            return None
+
+    def _run_agent(self) -> None:
+        payload = self._read_payload()
+        if payload is None:
+            return
+        try:
             prompt = payload.get("prompt")
             if not isinstance(prompt, str) or not prompt.strip():
                 raise ValueError("Please describe what you want the quantum agent to do.")
@@ -243,6 +280,53 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
             {
                 "answer": answer,
                 "kind": _answer_kind(answer),
+                "elapsed_ms": round((time.monotonic() - started) * 1000),
+            },
+        )
+
+    def _run_simulator(self) -> None:
+        payload = self._read_payload()
+        if payload is None:
+            return
+        try:
+            qasm = payload.get("qasm")
+            target = payload.get("target")
+            shots = payload.get("shots", 512)
+            if not isinstance(qasm, str) or not qasm.strip():
+                raise ValueError("Paste an OpenQASM 2.0 program before running it.")
+            qasm = qasm.strip()
+            if len(qasm) > MAX_PROMPT_CHARACTERS:
+                raise ValueError("The QASM program is too long; keep it under 24,000 characters.")
+            if target not in SIMULATOR_TARGETS:
+                raise ValueError("Choose SpinQ, Origin Quantum, or Amazon Braket.")
+            if (
+                not isinstance(shots, int)
+                or isinstance(shots, bool)
+                or shots < 1
+                or shots > MAX_SIMULATOR_SHOTS
+            ):
+                raise ValueError("Shots must be a whole number from 1 to 8,192.")
+        except ValueError as exc:
+            self._json(400, {"error": _safe_error(exc)})
+            return
+
+        if not type(self).simulator_lock.acquire(blocking=False):
+            self._json(429, {"error": "A local simulation is already running. Try again in a moment."})
+            return
+        started = time.monotonic()
+        try:
+            result = run_circuit(qasm, target, shots)
+        except Exception as exc:
+            self._json(502, {"error": _simulation_error(target, exc), "target": target})
+            return
+        finally:
+            type(self).simulator_lock.release()
+        self._json(
+            200,
+            {
+                "target": target,
+                "target_name": SIMULATOR_TARGETS[target],
+                "result": result,
                 "elapsed_ms": round((time.monotonic() - started) * 1000),
             },
         )

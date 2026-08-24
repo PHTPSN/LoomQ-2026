@@ -34,7 +34,7 @@
 - [x] L2 交互体验
 - [x] 工程与产品化
 - [ ] 自定义量子 RISC-V Bonus
-- [ ] 新手引导与视觉叙事 Bonus
+- [x] 新手引导与视觉叙事 Bonus
 
 ## L1 真机
 
@@ -178,6 +178,9 @@ evidence/files/spinq-bell/spinq-bell-task.png
 界面首先给出三个可点击任务，明确区分生成、修复和后端推荐。QASM 结果使用等宽代码区并
 标明已经本地解析和验证；错误会解释恢复方法并把原 prompt 留在输入框中。最近六条对话
 作为后续请求的上下文。模型 Key 不进入浏览器，服务仅监听 IPv4 回环地址并校验同源请求。
+页面还提供可直接粘贴代码的 Local simulator lab，并能在 SpinQit、pyQPanda 和 Amazon
+Braket 三个本地 SDK 模拟器间单独运行或依次对比。测量 counts 会显示为百分比条形图；
+此路径不会提交真实硬件任务，也不需要任何云平台账号。
 
 工作人员会在组委会统一模型环境中运行最终代码，测试新手是否看得懂、出错后能否得到有效帮助、结果是否清楚，以及多轮回答是否一致。选手自己的对话截图只用于说明产品流程，不直接证明得分。
 
@@ -209,10 +212,10 @@ evidence/files/spinq-bell/spinq-bell-task.png
 请填写已有材料的路径，不要求为评分另写一套文档：
 
 ```text
-零基础首次运行指南：[填写]
-量子概念解释：[填写]
-结果可视化：[填写]
-错误恢复或无障碍引导：[填写]
+零基础首次运行指南：starter_kit/loomq_l2/README.md 的“本地网页界面”和“在页面中运行线路”
+量子概念解释：starter_kit/QUANTUM_101.md；页面内 Understand → Build → Verify → Compare 四步引导
+结果可视化：Local simulator lab 把三个厂商本地模拟器的测量 counts 显示为态、次数和百分比条形图
+错误恢复或无障碍引导：失败 prompt 保留在输入框；模拟器逐平台显示错误且继续其余对比；语义化 label、aria-live、键盘提交和 prefers-reduced-motion
 ```
 
 以上四项各 1 分。普通项目 README 完整不代表自动获得 Bonus。

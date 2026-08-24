@@ -42,6 +42,26 @@ API Key。服务拒绝非回环地址绑定、跨站请求和无会话令牌的�
 能力快照选择后端。多轮对话只把最近六条消息作为上下文，并保留失败请求以便修改重试。
 命令行参数见 `python -m starter_kit.loomq_l2.ui_server --help`。
 
+### 在页面中运行线路
+
+展开页面中的 **Local simulator lab**，可以直接粘贴 OpenQASM 2.0、选择 shots，并在
+下列本地厂商 SDK 模拟器中单独运行或依次对比：
+
+| 页面选项 | 实际执行器 | 是否提交真机任务 |
+|---|---|---|
+| SpinQit Basic | `spinqit` Basic Simulator | 否 |
+| Origin Quantum CPU | `pyqpanda.CPUQVM` | 否 |
+| Amazon Braket Local | `braket.devices.LocalSimulator` | 否 |
+
+运行结果使用统一的 little-endian counts Schema，并在页面中显示测量分布条形图。Agent
+生成且已验证的 QASM 也带有 **Run locally** 按钮，可直接送入同一个实验室。
+
+三个 SDK 的依赖互相冲突，因此必须按 `backend_requirements/*.lock.txt` 分别安装在 fork
+根目录的 `.venv-spinq`、`.venv-originq`、`.venv-braket`，Dockerfile 已自动完成这一步。
+也可以分别用 `LOOMQ_SPINQ_PYTHON`、`LOOMQ_ORIGINQ_PYTHON`、
+`LOOMQ_BRAKET_PYTHON` 指向对应解释器。模拟器 API 与模型 API 使用同一套本机同源、
+会话令牌和请求大小保护；它不会使用 `hardware/` 中的真实设备提交路径。
+
 ## 合规性
 
 每个非空评分 prompt 都先调用 `LOOMQ_LLM_*` 指定的 OpenAI Chat Completions

@@ -59,6 +59,48 @@
           </div>
         </div>
 
+        <details class="runner-lab" id="runner-lab">
+          <summary>
+            <span class="runner-symbol" aria-hidden="true">▶</span>
+            <span>
+              <small>Local simulator lab · 本地模拟实验室</small>
+              <strong>Test OpenQASM directly</strong>
+            </span>
+            <span class="runner-summary-note">3 vendor SDKs · no cloud account</span>
+          </summary>
+          <form class="runner-form" id="runner-form">
+            <label for="qasm-input">OpenQASM 2.0 program</label>
+            <textarea id="qasm-input" name="qasm" rows="10" maxlength="24000" spellcheck="false">OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[2];
+creg c[2];
+h q[0];
+cx q[0],q[1];
+measure q -&gt; c;</textarea>
+            <div class="runner-controls">
+              <label>
+                <span>Simulator</span>
+                <select id="simulator-target" name="target">
+                  <option value="all">Compare all three</option>
+                  <option value="spinq">SpinQit Basic</option>
+                  <option value="originq">Origin Quantum CPU</option>
+                  <option value="braket">Amazon Braket Local</option>
+                </select>
+              </label>
+              <label>
+                <span>Shots</span>
+                <input id="simulator-shots" name="shots" type="number" min="1" max="8192" step="1" value="512">
+              </label>
+              <button class="run-button" id="run-button" type="submit">
+                <span>Run locally</span>
+                <span aria-hidden="true">▶</span>
+              </button>
+            </div>
+            <p class="runner-privacy">Runs inside isolated vendor SDK simulators on this computer. No real quantum job, account, or payment is used.</p>
+            <div class="simulation-results" id="simulation-results" aria-live="polite"></div>
+          </form>
+        </details>
+
         <form class="composer" id="composer">
           <label for="prompt-input">Describe what you want <span>· 描述你的目标</span></label>
           <textarea id="prompt-input" name="prompt" rows="3" maxlength="24000" placeholder="For example: Create a Bell state, measure both qubits, and explain which free local backend can run it." required></textarea>
@@ -90,6 +132,10 @@
           <li>
             <span>3</span>
             <div><strong>Verify</strong><small>Parses and simulates the circuit before showing it.</small></div>
+          </li>
+          <li>
+            <span>4</span>
+            <div><strong>Compare</strong><small>Runs verified QASM on three local vendor SDK simulators.</small></div>
           </li>
         </ol>
 

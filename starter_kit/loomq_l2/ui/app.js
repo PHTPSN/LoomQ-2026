@@ -7,6 +7,13 @@ const statusElement = document.querySelector("#service-status");
 const statusText = document.querySelector("#service-status-text");
 const clearButton = document.querySelector("#clear-button");
 const template = document.querySelector("#message-template");
+const runnerLab = document.querySelector("#runner-lab");
+const runnerForm = document.querySelector("#runner-form");
+const qasmInput = document.querySelector("#qasm-input");
+const simulatorTarget = document.querySelector("#simulator-target");
+const simulatorShots = document.querySelector("#simulator-shots");
+const runButton = document.querySelector("#run-button");
+const simulationResults = document.querySelector("#simulation-results");
 
 let sessionToken = "";
 let history = [];
@@ -64,7 +71,20 @@ function addMessage(role, content, options = {}) {
         copy.textContent = "Select code to copy";
       }
     });
-    toolbar.append(badge, copy);
+    const simulate = document.createElement("button");
+    simulate.type = "button";
+    simulate.className = "simulate-button";
+    simulate.textContent = "Run locally";
+    simulate.addEventListener("click", () => {
+      qasmInput.value = content;
+      runnerLab.open = true;
+      runnerLab.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(() => qasmInput.focus(), 350);
+    });
+    const actions = document.createElement("div");
+    actions.className = "answer-actions";
+    actions.append(copy, simulate);
+    toolbar.append(badge, actions);
     message.append(toolbar);
   } else {
     body.textContent = content;
@@ -74,6 +94,106 @@ function addMessage(role, content, options = {}) {
   message.scrollIntoView({ behavior: "smooth", block: "nearest" });
   return message;
 }
+
+function setRunnerBusy(nextBusy, label = "Run locally") {
+  runButton.disabled = nextBusy;
+  qasmInput.disabled = nextBusy;
+  simulatorTarget.disabled = nextBusy;
+  simulatorShots.disabled = nextBusy;
+  runButton.querySelector("span").textContent = label;
+}
+
+function createResultCard(targetName, payload, error = "") {
+  const card = document.createElement("article");
+  card.className = `simulation-card${error ? " failed" : ""}`;
+  const heading = document.createElement("div");
+  heading.className = "simulation-heading";
+  const title = document.createElement("strong");
+  title.textContent = targetName;
+  const state = document.createElement("span");
+  state.textContent = error ? "Could not run" : `${payload.result.shots} shots · ${(payload.elapsed_ms / 1000).toFixed(2)}s`;
+  heading.append(title, state);
+  card.append(heading);
+
+  if (error) {
+    const message = document.createElement("p");
+    message.className = "simulation-error";
+    message.textContent = error;
+    card.append(message);
+    return card;
+  }
+
+  const counts = Object.entries(payload.result.counts);
+  const total = counts.reduce((sum, entry) => sum + entry[1], 0);
+  const visible = counts.sort((left, right) => right[1] - left[1]).slice(0, 16);
+  const chart = document.createElement("div");
+  chart.className = "counts-chart";
+  visible.forEach(([stateName, count]) => {
+    const row = document.createElement("div");
+    row.className = "count-row";
+    const key = document.createElement("code");
+    key.textContent = `|${stateName}⟩`;
+    const track = document.createElement("span");
+    track.className = "count-track";
+    const bar = document.createElement("i");
+    const percent = total ? (count / total) * 100 : 0;
+    bar.style.width = `${Math.max(percent, 0.7)}%`;
+    track.append(bar);
+    const value = document.createElement("span");
+    value.textContent = `${count} · ${percent.toFixed(1)}%`;
+    row.append(key, track, value);
+    chart.append(row);
+  });
+  card.append(chart);
+  if (counts.length > visible.length) {
+    const note = document.createElement("small");
+    note.textContent = `Showing the 16 most frequent of ${counts.length} measured states.`;
+    card.append(note);
+  }
+  return card;
+}
+
+async function runOnTarget(qasm, target, shots) {
+  const response = await fetch("/api/run", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-LoomQ-Session": sessionToken,
+    },
+    body: JSON.stringify({ qasm, target, shots }),
+  });
+  const payload = await response.json();
+  if (!response.ok) throw new Error(payload.error || "The simulator could not run this circuit.");
+  return payload;
+}
+
+runnerForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const qasm = qasmInput.value.trim();
+  const shots = Number(simulatorShots.value);
+  if (!qasm) return;
+  const targets = simulatorTarget.value === "all"
+    ? ["spinq", "originq", "braket"]
+    : [simulatorTarget.value];
+  const names = {
+    spinq: "SpinQit Basic Simulator",
+    originq: "Origin Quantum CPU Simulator",
+    braket: "Amazon Braket Local Simulator",
+  };
+  simulationResults.replaceChildren();
+  setRunnerBusy(true, targets.length > 1 ? "Comparing 1 of 3…" : "Running…");
+  for (let index = 0; index < targets.length; index += 1) {
+    const target = targets[index];
+    if (targets.length > 1) setRunnerBusy(true, `Comparing ${index + 1} of 3…`);
+    try {
+      const payload = await runOnTarget(qasm, target, shots);
+      simulationResults.append(createResultCard(payload.target_name, payload));
+    } catch (error) {
+      simulationResults.append(createResultCard(names[target], null, error.message));
+    }
+  }
+  setRunnerBusy(false);
+});
 
 function setBusy(nextBusy) {
   busy = nextBusy;
