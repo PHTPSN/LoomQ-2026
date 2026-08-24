@@ -88,6 +88,9 @@ def agent_chat(prompt: str) -> str: ...
 def compile_hybrid(hybrid_qasm_str: str) -> tuple[list, str]: ...
 ```
 
+Level 3 的解析、寄存器映射与极限寄存器压力处理见
+[`L3_IMPLEMENTATION.md`](L3_IMPLEMENTATION.md)。
+
 未参赛的 Level 保持 `NotImplementedError`，并在 `submission.yaml` 中标为 `false`。Starter Kit 原样运行会失败，这是预期行为，也确保原样提交不会获得功能分。
 
 ## 公开自测
