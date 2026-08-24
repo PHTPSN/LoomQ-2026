@@ -9,11 +9,14 @@
   </head>
   <body>
     <div class="workspace">
-      <aside class="side-rail" data-i18n-aria="aria.workspace">
-        <a class="brand" href="#" aria-label="LoomQ home">
-          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span><strong>LoomQ</strong><small data-i18n="brand.tagline">Quantum guide</small></span>
-        </a>
+      <aside class="side-rail" id="side-rail" data-i18n-aria="aria.workspace">
+        <div class="rail-head">
+          <a class="brand" href="#" aria-label="LoomQ home">
+            <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span><strong>LoomQ</strong><small data-i18n="brand.tagline">Quantum guide</small></span>
+          </a>
+          <button class="rail-toggle" id="rail-toggle" type="button" aria-controls="side-rail" aria-expanded="true" aria-label="Collapse sidebar" title="Collapse sidebar"><span aria-hidden="true">‹</span></button>
+        </div>
         <div class="language-switch" role="group" data-i18n-aria="aria.language">
           <button class="active" type="button" data-language="en">EN</button><button type="button" data-language="zh">中文</button>
         </div>
@@ -103,7 +106,11 @@
             <p class="eyebrow" data-i18n="sim.eyebrow">04 · Vendor simulators</p><h2 id="simulator-title" data-i18n="sim.title">Run OpenQASM locally.</h2>
             <p class="view-lede" data-i18n="sim.lede">Choose one SDK or compare all three. “Shots” means how many times the simulator prepares and measures the circuit.</p>
           </header>
-          <div class="simulator-facts"><span><strong>SpinQit</strong><small>Basic Simulator</small></span><span><strong>pyQPanda</strong><small>CPUQVM</small></span><span><strong>Braket</strong><small>LocalSimulator</small></span></div>
+          <div class="simulator-facts">
+            <article class="vendor-card spinq"><span class="vendor-mark"><img src="/assets/spinq-logo.png" alt="" width="257" height="89"></span><span><strong data-i18n="sim.vendor.spinq">SpinQ</strong><small>SpinQit SDK</small></span></article>
+            <article class="vendor-card origin"><span class="vendor-mark"><img src="/assets/origin-quantum-logo.svg" alt="" width="140" height="42"></span><span><strong data-i18n="sim.vendor.origin">Origin Quantum</strong><small>pyQPanda SDK</small></span></article>
+            <article class="vendor-card aws"><span class="vendor-mark"><img src="/assets/aws-logo.svg" alt="" width="189" height="126"></span><span><strong>Amazon Web Services</strong><small>Amazon Braket SDK</small></span></article>
+          </div>
           <details class="runner-lab" id="runner-lab" open>
             <summary data-i18n="sim.lab">Local simulator lab</summary>
             <form class="runner-form" id="runner-form">
@@ -127,9 +134,8 @@ measure q -&gt; c;</textarea>
         </section>
       </main>
 
-      <aside class="assistant-dock" aria-labelledby="assistant-title">
-        <header class="assistant-heading"><div><p class="eyebrow" data-i18n="assistant.eyebrow">AI circuit assistant</p><h2 id="assistant-title" data-i18n="assistant.title">Ask LoomQ</h2></div><button class="clear-button" id="clear-button" type="button" data-i18n="assistant.new">New</button></header>
-        <p class="assistant-intro" data-i18n="assistant.intro">The assistant stays here while you browse lessons and tools.</p>
+      <aside class="assistant-dock" id="assistant-dock" aria-labelledby="assistant-title">
+        <header class="assistant-heading"><div><p class="eyebrow" data-i18n="assistant.eyebrow">AI circuit assistant</p><h2 id="assistant-title" data-i18n="assistant.title">Ask LoomQ</h2></div><div class="assistant-actions"><button class="clear-button" id="clear-button" type="button" data-i18n="assistant.new">New</button><button class="assistant-hide-button" id="assistant-hide-button" type="button" aria-controls="assistant-dock" aria-label="Hide LoomQ assistant" title="Hide LoomQ assistant"><span aria-hidden="true">×</span></button></div></header>
         <div class="starter-prompts" id="starter-prompts">
           <button type="button" data-prompt-en="Create a three-qubit GHZ state and measure every qubit." data-prompt-zh="创建一个三量子比特 GHZ 态并测量全部量子比特。"><span data-i18n="assistant.generate">Generate</span><b data-i18n="assistant.ghz">Create a GHZ circuit</b></button>
           <button type="button" data-prompt-en="Repair this Bell-state fragment as complete OpenQASM 2.0: H q[0]; CX q[0] q[1]." data-prompt-zh="把这个 Bell 态片段修复为完整的 OpenQASM 2.0：H q[0]; CX q[0] q[1]."><span data-i18n="assistant.repair">Repair</span><b data-i18n="assistant.fix">Fix broken QASM</b></button>
@@ -137,11 +143,13 @@ measure q -&gt; c;</textarea>
         </div>
         <div class="conversation" id="conversation" aria-live="polite" data-i18n-aria="aria.conversation"></div>
         <form class="composer" id="composer">
+          <div class="composer-resize-handle" id="composer-resize-handle" role="separator" aria-orientation="horizontal" aria-label="Resize prompt input" aria-valuemin="60" aria-valuemax="220" aria-valuenow="60" tabindex="0"><span aria-hidden="true"></span></div>
           <label for="prompt-input" data-i18n="assistant.describe">Describe what you want</label>
-          <textarea id="prompt-input" name="prompt" rows="4" maxlength="24000" data-i18n-placeholder="assistant.placeholder" placeholder="Create a Bell state, measure both qubits, and explain the result." required></textarea>
+          <textarea id="prompt-input" name="prompt" rows="3" maxlength="24000" data-i18n-placeholder="assistant.placeholder" placeholder="Create a Bell state, measure both qubits, and explain the result." required></textarea>
           <div class="composer-footer"><span><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span><button class="send-button" id="send-button" type="submit"><span data-i18n="assistant.ask">Ask LoomQ</span><span aria-hidden="true">↗</span></button></div>
         </form>
       </aside>
+      <button class="assistant-launcher" id="assistant-launcher" type="button" aria-controls="assistant-dock" aria-expanded="false" aria-label="Open LoomQ assistant" title="Open LoomQ assistant"><span aria-hidden="true">✦</span><strong data-dynamic-text="openAssistant">Ask LoomQ</strong></button>
     </div>
     <template id="message-template"><article class="message"><div class="message-meta"></div><div class="message-body"></div></article></template>
     <script src="/app.js" defer></script>

@@ -235,7 +235,15 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
                 },
             )
             return
-        files = {"/": "index.html", "/index.html": "index.html", "/styles.css": "styles.css", "/app.js": "app.js"}
+        files = {
+            "/": "index.html",
+            "/index.html": "index.html",
+            "/styles.css": "styles.css",
+            "/app.js": "app.js",
+            "/assets/spinq-logo.png": "assets/spinq-logo.png",
+            "/assets/origin-quantum-logo.svg": "assets/origin-quantum-logo.svg",
+            "/assets/aws-logo.svg": "assets/aws-logo.svg",
+        }
         filename = files.get(route)
         if filename is None:
             self.send_error(404)

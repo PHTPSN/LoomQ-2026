@@ -15,6 +15,12 @@ const simulatorTarget = document.querySelector("#simulator-target");
 const simulatorShots = document.querySelector("#simulator-shots");
 const runButton = document.querySelector("#run-button");
 const simulationResults = document.querySelector("#simulation-results");
+const workspace = document.querySelector(".workspace");
+const railToggle = document.querySelector("#rail-toggle");
+const promptResizeHandle = document.querySelector("#composer-resize-handle");
+const assistantDock = document.querySelector("#assistant-dock");
+const assistantHideButton = document.querySelector("#assistant-hide-button");
+const assistantLauncher = document.querySelector("#assistant-launcher");
 
 const chinese = {
   "aria.workspace": "工作区导航",
@@ -118,10 +124,11 @@ const chinese = {
   "sim.shots": "Shots",
   "sim.run": "在本地运行",
   "sim.privacy": "无需账号、付款或排队，也不会提交任何真实硬件任务。",
+  "sim.vendor.spinq": "量旋科技 SpinQ",
+  "sim.vendor.origin": "本源量子",
   "assistant.eyebrow": "AI 量子线路助手",
   "assistant.title": "询问 LoomQ",
   "assistant.new": "新对话",
-  "assistant.intro": "浏览工具和课程时，AI 对话会始终显示在这里。",
   "assistant.generate": "生成",
   "assistant.ghz": "创建 GHZ 线路",
   "assistant.repair": "修复",
@@ -139,6 +146,8 @@ const dynamicText = {
     user: "You", assistant: "LoomQ · Verified response", verified: "✓ Parsed and verified locally", copy: "Copy QASM", copied: "Copied", selectCopy: "Select code to copy", run: "Run locally",
     couldNotRun: "Could not run", shots: "shots", showing: "Showing the 16 most frequent of {count} measured states.", simulatorFailure: "The simulator could not run this circuit.",
     insightOne: "Most frequent result: {states}, representing {share}% of all shots.", insightTwo: "Most frequent results: {states}. Together they represent {share}% of all shots.",
+    collapseRail: "Collapse sidebar", expandRail: "Expand sidebar",
+    resizePrompt: "Resize prompt input from its top edge", hideAssistant: "Hide LoomQ assistant", showAssistant: "Open LoomQ assistant", openAssistant: "Ask LoomQ",
     running: "Running…", comparing: "Comparing {current} of 3…", checkingAnswer: "Checking…", loading: "Interpreting, building, and checking your request", chatFailure: "The local agent could not answer.", chatHint: "Check the local model configuration, then try again. Your prompt is still in the box."
   },
   zh: {
@@ -146,6 +155,8 @@ const dynamicText = {
     user: "你", assistant: "LoomQ · 已验证回答", verified: "✓ 已在本地解析并验证", copy: "复制 QASM", copied: "已复制", selectCopy: "请选择代码后复制", run: "在本地运行",
     couldNotRun: "无法运行", shots: "次测量", showing: "正在显示 {count} 个测量状态中出现次数最多的 16 个。", simulatorFailure: "模拟器无法运行此线路，请检查量子门、参数和测量语句。",
     insightOne: "最常见的结果是 {states}，占全部测量次数的 {share}%。", insightTwo: "最常见的结果是 {states}，两者合计占全部测量次数的 {share}%。",
+    collapseRail: "折叠侧边栏", expandRail: "展开侧边栏",
+    resizePrompt: "从顶部边缘调整提示词输入框高度", hideAssistant: "隐藏 LoomQ 助手", showAssistant: "打开 LoomQ 助手", openAssistant: "询问 LoomQ",
     running: "正在运行…", comparing: "正在对比第 {current}/3 个…", checkingAnswer: "正在检查…", loading: "正在理解、构建并检查你的请求", chatFailure: "本地智能体暂时无法回答。", chatHint: "请检查本地模型配置后重试。你的输入仍保留在输入框中。"
   }
 };
@@ -153,6 +164,12 @@ const dynamicText = {
 let savedLanguage = "";
 try { savedLanguage = localStorage.getItem("loomq-language") || ""; } catch (_error) { savedLanguage = ""; }
 let language = savedLanguage || (navigator.language.toLowerCase().startsWith("zh") ? "zh" : "en");
+let savedRailState = "";
+try { savedRailState = localStorage.getItem("loomq-rail") || ""; } catch (_error) { savedRailState = ""; }
+let railCollapsed = savedRailState ? savedRailState === "collapsed" : window.matchMedia("(max-width: 980px)").matches;
+let savedAssistantState = "";
+try { savedAssistantState = localStorage.getItem("loomq-assistant") || ""; } catch (_error) { savedAssistantState = ""; }
+let assistantHidden = savedAssistantState === "hidden";
 let sessionToken = "";
 let history = [];
 let busy = false;
@@ -162,6 +179,45 @@ function tr(key, values = {}) {
   let value = dynamicText[language][key] || key;
   Object.entries(values).forEach(([name, replacement]) => { value = value.replace(`{${name}}`, replacement); });
   return value;
+}
+
+function syncRailToggle() {
+  workspace.classList.toggle("rail-collapsed", railCollapsed);
+  railToggle.setAttribute("aria-expanded", String(!railCollapsed));
+  const label = tr(railCollapsed ? "expandRail" : "collapseRail");
+  railToggle.setAttribute("aria-label", label);
+  railToggle.title = label;
+  railToggle.querySelector("span").textContent = railCollapsed ? "›" : "‹";
+  document.querySelectorAll("[data-view]").forEach((button) => {
+    const navigationLabel = button.querySelector("strong").textContent;
+    if (railCollapsed) button.title = navigationLabel;
+    else button.removeAttribute("title");
+  });
+  promptResizeHandle.setAttribute("aria-label", tr("resizePrompt"));
+  promptResizeHandle.title = tr("resizePrompt");
+}
+
+function syncAssistantVisibility() {
+  workspace.classList.toggle("assistant-hidden", assistantHidden);
+  assistantDock.setAttribute("aria-hidden", String(assistantHidden));
+  assistantLauncher.setAttribute("aria-expanded", String(!assistantHidden));
+  assistantHideButton.setAttribute("aria-label", tr("hideAssistant"));
+  assistantHideButton.title = tr("hideAssistant");
+  assistantLauncher.setAttribute("aria-label", tr("showAssistant"));
+  assistantLauncher.title = tr("showAssistant");
+}
+
+function setAssistantHidden(nextHidden) {
+  assistantHidden = nextHidden;
+  syncAssistantVisibility();
+  try { localStorage.setItem("loomq-assistant", assistantHidden ? "hidden" : "visible"); } catch (_error) { /* Preference storage is optional. */ }
+  if (assistantHidden) assistantLauncher.focus(); else input.focus();
+}
+
+function setPromptHeight(value) {
+  const height = Math.max(60, Math.min(220, Math.round(value)));
+  input.style.height = `${height}px`;
+  promptResizeHandle.setAttribute("aria-valuenow", String(height));
 }
 
 function applyLanguage(nextLanguage) {
@@ -191,6 +247,8 @@ function applyLanguage(nextLanguage) {
   if (!busy) sendButton.querySelector("span").textContent = language === "zh" ? chinese["assistant.ask"] : sendButton.querySelector("span").dataset.enText || "Ask LoomQ";
   if (!runButton.disabled) runButton.querySelector("span").textContent = language === "zh" ? chinese["sim.run"] : "Run locally";
   if (simulationResults.children.length) simulationResults.replaceChildren();
+  syncRailToggle();
+  syncAssistantVisibility();
   try { localStorage.setItem("loomq-language", language); } catch (_error) { /* Preference storage is optional. */ }
 }
 
@@ -257,7 +315,7 @@ function addMessage(role, content, options = {}) {
     const actions = document.createElement("div"); actions.className = "answer-actions"; actions.append(copy, simulate); toolbar.append(badge, actions); message.append(toolbar);
   } else { body.textContent = content; }
   conversation.append(message);
-  message.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  conversation.scrollTo({ top: conversation.scrollHeight, behavior: "smooth" });
   return message;
 }
 
@@ -331,6 +389,41 @@ document.querySelectorAll("[data-gate-example]").forEach((button) => button.addE
 document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => activateView(button.dataset.view)));
 document.querySelectorAll("[data-language]").forEach((button) => button.addEventListener("click", () => applyLanguage(button.dataset.language)));
 clearButton.addEventListener("click", () => { history = []; conversation.replaceChildren(); starterPrompts.hidden = false; input.value = ""; input.focus(); });
+railToggle.addEventListener("click", () => {
+  railCollapsed = !railCollapsed;
+  syncRailToggle();
+  try { localStorage.setItem("loomq-rail", railCollapsed ? "collapsed" : "expanded"); } catch (_error) { /* Preference storage is optional. */ }
+});
+assistantHideButton.addEventListener("click", () => setAssistantHidden(true));
+assistantLauncher.addEventListener("click", () => setAssistantHidden(false));
+let promptResizeStart = null;
+promptResizeHandle.addEventListener("pointerdown", (event) => {
+  promptResizeStart = { y: event.clientY, height: input.getBoundingClientRect().height };
+  promptResizeHandle.setPointerCapture(event.pointerId);
+  promptResizeHandle.classList.add("active");
+  event.preventDefault();
+});
+promptResizeHandle.addEventListener("pointermove", (event) => {
+  if (!promptResizeStart) return;
+  setPromptHeight(promptResizeStart.height + promptResizeStart.y - event.clientY);
+});
+function finishPromptResize(event) {
+  if (!promptResizeStart) return;
+  promptResizeStart = null;
+  promptResizeHandle.classList.remove("active");
+  if (promptResizeHandle.hasPointerCapture(event.pointerId)) promptResizeHandle.releasePointerCapture(event.pointerId);
+}
+promptResizeHandle.addEventListener("pointerup", finishPromptResize);
+promptResizeHandle.addEventListener("pointercancel", finishPromptResize);
+promptResizeHandle.addEventListener("keydown", (event) => {
+  const current = input.getBoundingClientRect().height;
+  if (event.key === "ArrowUp") setPromptHeight(current + 16);
+  else if (event.key === "ArrowDown") setPromptHeight(current - 16);
+  else if (event.key === "Home") setPromptHeight(60);
+  else if (event.key === "End") setPromptHeight(220);
+  else return;
+  event.preventDefault();
+});
 
 applyLanguage(language);
 activateView(location.hash.slice(1));

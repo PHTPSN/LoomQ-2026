@@ -97,7 +97,27 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertIn(b"Ask LoomQ", body)
             self.assertIn(b'class="assistant-dock"', body)
+            self.assertIn(b'id="rail-toggle"', body)
+            self.assertIn(b'aria-controls="side-rail"', body)
+            self.assertIn(b'id="composer-resize-handle"', body)
+            self.assertIn(b'id="assistant-hide-button"', body)
+            self.assertIn(b'id="assistant-launcher"', body)
+            self.assertIn(b'aria-controls="assistant-dock"', body)
+            self.assertIn(b'aria-valuemin="60"', body)
+            self.assertNotIn(b'The assistant stays here while you browse lessons and tools.', body)
+            self.assertIn(b'role="separator"', body)
             self.assertIn(b"Vendor simulators", body)
+            self.assertEqual(body.count(b'class="vendor-card '), 3)
+            self.assertIn(b">SpinQ</strong><small>SpinQit SDK</small>", body)
+            self.assertIn(
+                b">Origin Quantum</strong><small>pyQPanda SDK</small>", body
+            )
+            self.assertIn(
+                b">Amazon Web Services</strong><small>Amazon Braket SDK</small>",
+                body,
+            )
+            self.assertNotIn(b"<small>Basic Simulator</small>", body)
+            self.assertNotIn(b"<small>LocalSimulator</small>", body)
             self.assertEqual(
                 re.findall(rb'data-view="([^"]+)"', body),
                 [b"overview", b"learn", b"gates", b"simulator"],
@@ -115,6 +135,31 @@ class Level2UIServerTest(unittest.TestCase):
             expected_gates = [item["name"].encode() for item in gate_spec["gates"]]
             self.assertEqual(gate_examples, expected_gates)
             script = (ui_server.UI_ROOT / "app.js").read_text(encoding="utf-8")
+            styles = (ui_server.UI_ROOT / "styles.css").read_text(encoding="utf-8")
+            self.assertIn('localStorage.setItem("loomq-rail"', script)
+            self.assertIn('localStorage.setItem("loomq-assistant"', script)
+            self.assertIn("button.title = navigationLabel", script)
+            self.assertIn('button.removeAttribute("title")', script)
+            self.assertIn('promptResizeHandle.addEventListener("pointerdown"', script)
+            self.assertIn('promptResizeHandle.addEventListener("keydown"', script)
+            self.assertIn("position:fixed", styles)
+            self.assertIn("top:auto;right:16px;bottom:16px", styles)
+            self.assertIn("height:min(564px,calc(100vh - 32px))", styles)
+            self.assertIn("padding-bottom:600px", styles)
+            self.assertIn("cursor:ns-resize", styles)
+            self.assertIn("resize:none", styles)
+            self.assertIn("height:60px;min-height:60px;max-height:220px", styles)
+            self.assertIn(".assistant-dock{overflow:hidden}", styles)
+            self.assertIn("overflow-y:auto;overscroll-behavior:contain", styles)
+            self.assertIn("margin-bottom:14px", styles)
+            self.assertIn("margin:clamp(42px,5vw,70px) 0 8px", styles)
+            self.assertIn(".workspace.assistant-hidden .assistant-dock{display:none}", styles)
+            self.assertIn(
+                'conversation.scrollTo({ top: conversation.scrollHeight', script
+            )
+            self.assertIn("height:39px;min-height:39px", styles)
+            self.assertIn("padding-right:0", styles)
+            self.assertIn(".workspace.rail-collapsed", styles)
             i18n_keys = set(
                 re.findall(
                     rb'data-i18n(?:-placeholder|-aria)?="([^"]+)"', body
@@ -126,6 +171,23 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertEqual(body.count(b"data-prompt-zh="), 3)
             self.assertIn("default-src 'self'", headers["Content-Security-Policy"])
             self.assertEqual(headers["X-Frame-Options"], "DENY")
+
+            status, headers, body = local.request("GET", "/assets/spinq-logo.png")
+            self.assertEqual(status, 200)
+            self.assertEqual(headers["Content-Type"], "image/png")
+            self.assertTrue(body.startswith(b"\x89PNG"))
+
+            status, headers, body = local.request(
+                "GET", "/assets/origin-quantum-logo.svg"
+            )
+            self.assertEqual(status, 200)
+            self.assertEqual(headers["Content-Type"], "image/svg+xml")
+            self.assertIn(b"<svg", body)
+
+            status, headers, body = local.request("GET", "/assets/aws-logo.svg")
+            self.assertEqual(status, 200)
+            self.assertEqual(headers["Content-Type"], "image/svg+xml")
+            self.assertIn(b"<svg", body)
 
             status, _, body = local.request("GET", "/api/health")
             health = json.loads(body)
