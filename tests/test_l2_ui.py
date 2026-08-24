@@ -107,6 +107,14 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertNotIn(b'The assistant stays here while you browse lessons and tools.', body)
             self.assertIn(b'role="separator"', body)
             self.assertIn(b"Vendor simulators", body)
+            self.assertNotIn(b"Level 1", body)
+            self.assertNotIn(b"Level 3", body)
+            self.assertIn(b'class="translation-disclosure"', body)
+            self.assertNotIn(b'<details class="translation-disclosure" open', body)
+            self.assertIn(b'id="l1-ir-output"', body)
+            self.assertIn(b'id="l1-translation-output"', body)
+            self.assertIn(b'id="hybrid-form"', body)
+            self.assertIn(b'id="hybrid-assembly-output"', body)
             self.assertEqual(body.count(b'class="concept-formula"'), 8)
             self.assertIn(b"A Bell pair is an entangled two-qubit state", body)
             self.assertIn("|α|² + |β|² = 1".encode(), body)
@@ -131,11 +139,11 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertNotIn(b"<small>LocalSimulator</small>", body)
             self.assertEqual(
                 re.findall(rb'data-view="([^"]+)"', body),
-                [b"overview", b"learn", b"gates", b"simulator"],
+                [b"overview", b"learn", b"gates", b"simulator", b"hybrid"],
             )
             self.assertEqual(
                 re.findall(rb'data-view-panel="([^"]+)"', body),
-                [b"overview", b"learn", b"gates", b"simulator"],
+                [b"overview", b"learn", b"gates", b"simulator", b"hybrid"],
             )
             gate_examples = re.findall(rb'data-gate-example="([^"]+)"', body)
             gate_spec = json.loads(
@@ -176,6 +184,10 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertIn("height:39px;min-height:39px", styles)
             self.assertIn("padding-right:0", styles)
             self.assertIn(".workspace.rail-collapsed", styles)
+            self.assertIn('fetch("/api/transpile"', script)
+            self.assertIn('fetch("/api/compile-hybrid"', script)
+            self.assertNotIn("void translateProgram();", script)
+            self.assertIn(".compiler-results", styles)
             i18n_keys = set(
                 re.findall(
                     rb'data-i18n(?:-placeholder|-aria)?="([^"]+)"', body
@@ -303,6 +315,63 @@ class Level2UIServerTest(unittest.TestCase):
                     headers={"X-LoomQ-Session": "test-session"},
                 )
                 self.assertEqual(status, 400)
+
+    def test_transpile_exposes_canonical_ir_and_vendor_output(self):
+        qasm = '''OPENQASM 2.0;
+include "qelib1.inc";
+qreg source[2];
+creg result[2];
+h source[0];
+cx source[0], source[1];
+measure source -> result;
+'''
+        with LocalUIServer() as local:
+            status, _, body = local.request(
+                "POST",
+                "/api/transpile",
+                body=json.dumps({"qasm": qasm, "target": "originq"}),
+                headers={"X-LoomQ-Session": "test-session"},
+            )
+        result = json.loads(body)
+        self.assertEqual(status, 200)
+        self.assertEqual(result["target_name"], "Origin Quantum QRunes")
+        self.assertEqual(result["ir"]["qubits"], 2)
+        self.assertEqual(result["ir"]["classical_bits"], 2)
+        self.assertEqual(
+            result["ir"]["instructions"][0],
+            {"kind": "gate", "name": "h", "parameters": [], "qubits": [0]},
+        )
+        self.assertEqual(result["ir"]["instructions"][-1]["classical_bit"], 1)
+        self.assertIn("QINIT 2", result["translated"])
+        self.assertIn("CNOT q[0], q[1]", result["translated"])
+
+    def test_compile_hybrid_exposes_quantum_stream_and_riscv(self):
+        source = '''OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[2];
+creg c[2];
+h q[0];
+measure q[0] -> c[0];
+classical {
+  if (c[0] == 1) { r1 = 7; } else { r1 = 3; }
+}
+cx q[0], q[1];
+'''
+        with LocalUIServer() as local:
+            status, _, body = local.request(
+                "POST",
+                "/api/compile-hybrid",
+                body=json.dumps({"source": source}),
+                headers={"X-LoomQ-Session": "test-session"},
+            )
+        result = json.loads(body)
+        self.assertEqual(status, 200)
+        self.assertEqual(
+            result["quantum_operations"],
+            ["h q[0];", "measure q[0] -> c[0];", "cx q[0], q[1];"],
+        )
+        self.assertIn("li x1, 7", result["assembly"])
+        self.assertIn("li x1, 3", result["assembly"])
 
 
 if __name__ == "__main__":

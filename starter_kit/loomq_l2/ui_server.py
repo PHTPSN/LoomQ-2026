@@ -1,4 +1,4 @@
-"""Loopback-only web interface for the LoomQ Level 2 agent."""
+"""Loopback-only web interface for the LoomQ multi-level workspace."""
 
 from __future__ import annotations
 
@@ -19,9 +19,13 @@ from urllib.parse import urlparse
 try:
     from .agent import agent_chat
     from ..adapter import run as run_circuit
+    from ..loomq_l1 import Gate, Measure, emit_target, parse_qasm2
+    from ..loomq_l3 import compile_hybrid
 except ImportError:
     from agent import agent_chat
     from starter_kit.adapter import run as run_circuit
+    from starter_kit.loomq_l1 import Gate, Measure, emit_target, parse_qasm2
+    from starter_kit.loomq_l3 import compile_hybrid
 
 
 UI_ROOT = Path(__file__).resolve().parent / "ui"
@@ -34,6 +38,11 @@ SIMULATOR_TARGETS = {
     "spinq": "SpinQit Basic Simulator",
     "originq": "Origin Quantum CPU Simulator",
     "braket": "Amazon Braket Local Simulator",
+}
+TRANSLATION_TARGETS = {
+    "spinq": "SpinQ OpenQASM 2.0",
+    "originq": "Origin Quantum QRunes",
+    "braket": "Amazon Braket OpenQASM 3.0",
 }
 
 
@@ -159,6 +168,37 @@ def _simulation_insight(result: Any) -> Optional[Dict[str, Any]]:
     }
 
 
+def _canonical_ir(circuit: Any) -> Dict[str, Any]:
+    """Return the Level 1 circuit model as a JSON-safe teaching artifact."""
+
+    instructions: List[Dict[str, Any]] = []
+    for instruction in circuit.instructions:
+        if isinstance(instruction, Gate):
+            instructions.append(
+                {
+                    "kind": "gate",
+                    "name": instruction.name,
+                    "parameters": list(instruction.params),
+                    "qubits": list(instruction.qubits),
+                }
+            )
+        elif isinstance(instruction, Measure):
+            instructions.append(
+                {
+                    "kind": "measure",
+                    "qubit": instruction.qubit,
+                    "classical_bit": instruction.clbit,
+                }
+            )
+        else:  # The validated model should make this unreachable.
+            raise ValueError("unknown canonical instruction type")
+    return {
+        "qubits": circuit.num_qubits,
+        "classical_bits": circuit.num_clbits,
+        "instructions": instructions,
+    }
+
+
 class LoomQUIHandler(BaseHTTPRequestHandler):
     """Serve static UI files and a same-origin JSON agent endpoint."""
 
@@ -252,7 +292,12 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         route = urlparse(self.path).path
-        if route not in {"/api/chat", "/api/run"}:
+        if route not in {
+            "/api/chat",
+            "/api/run",
+            "/api/transpile",
+            "/api/compile-hybrid",
+        }:
             self.send_error(404)
             return
         if not self._valid_host() or not self._same_origin():
@@ -264,6 +309,12 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/run":
             self._run_simulator()
+            return
+        if route == "/api/transpile":
+            self._transpile()
+            return
+        if route == "/api/compile-hybrid":
+            self._compile_hybrid()
             return
         self._run_agent()
 
@@ -369,6 +420,62 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
             },
         )
 
+    def _transpile(self) -> None:
+        payload = self._read_payload()
+        if payload is None:
+            return
+        try:
+            qasm = payload.get("qasm")
+            target = payload.get("target")
+            if not isinstance(qasm, str) or not qasm.strip():
+                raise ValueError("Paste an OpenQASM 2.0 program before translating it.")
+            qasm = qasm.strip()
+            if len(qasm) > MAX_PROMPT_CHARACTERS:
+                raise ValueError("The QASM program is too long; keep it under 24,000 characters.")
+            if target not in TRANSLATION_TARGETS:
+                raise ValueError("Choose SpinQ, Origin Quantum, or Amazon Braket.")
+            started = time.monotonic()
+            circuit = parse_qasm2(qasm)
+            translated = emit_target(circuit, target)
+        except Exception as exc:
+            self._json(400, {"error": _safe_error(exc)})
+            return
+        self._json(
+            200,
+            {
+                "target": target,
+                "target_name": TRANSLATION_TARGETS[target],
+                "ir": _canonical_ir(circuit),
+                "translated": translated,
+                "elapsed_ms": round((time.monotonic() - started) * 1000),
+            },
+        )
+
+    def _compile_hybrid(self) -> None:
+        payload = self._read_payload()
+        if payload is None:
+            return
+        try:
+            source = payload.get("source")
+            if not isinstance(source, str) or not source.strip():
+                raise ValueError("Paste a Hybrid-QASM program before compiling it.")
+            source = source.strip()
+            if len(source) > MAX_PROMPT_CHARACTERS:
+                raise ValueError("The Hybrid-QASM program is too long; keep it under 24,000 characters.")
+            started = time.monotonic()
+            quantum_operations, assembly = compile_hybrid(source)
+        except Exception as exc:
+            self._json(400, {"error": _safe_error(exc)})
+            return
+        self._json(
+            200,
+            {
+                "quantum_operations": quantum_operations,
+                "assembly": assembly,
+                "elapsed_ms": round((time.monotonic() - started) * 1000),
+            },
+        )
+
 
 def _loopback_host(value: str) -> str:
     if value == "localhost":
@@ -383,7 +490,7 @@ def _loopback_host(value: str) -> str:
 
 
 def main(argv: Optional[List[str]] = None) -> int:
-    parser = argparse.ArgumentParser(description="Run the local LoomQ Level 2 web interface")
+    parser = argparse.ArgumentParser(description="Run the local LoomQ web workspace")
     parser.add_argument("--host", default="127.0.0.1", type=_loopback_host)
     parser.add_argument("--port", default=8765, type=int)
     parser.add_argument(
@@ -398,7 +505,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     _load_env_file(args.env_file)
     server = ThreadingHTTPServer((args.host, args.port), LoomQUIHandler)
     url = "http://%s:%d" % (args.host, server.server_address[1])
-    print("LoomQ Level 2 UI: " + url, flush=True)
+    print("LoomQ workspace: " + url, flush=True)
     print("Press Ctrl+C to stop.", flush=True)
     try:
         server.serve_forever()

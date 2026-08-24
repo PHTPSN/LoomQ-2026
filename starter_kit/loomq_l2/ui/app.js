@@ -15,6 +15,15 @@ const simulatorTarget = document.querySelector("#simulator-target");
 const simulatorShots = document.querySelector("#simulator-shots");
 const runButton = document.querySelector("#run-button");
 const simulationResults = document.querySelector("#simulation-results");
+const translationTarget = document.querySelector("#translation-target");
+const translationButton = document.querySelector("#translation-button");
+const irOutput = document.querySelector("#l1-ir-output");
+const translationOutput = document.querySelector("#l1-translation-output");
+const hybridForm = document.querySelector("#hybrid-form");
+const hybridInput = document.querySelector("#hybrid-input");
+const hybridButton = document.querySelector("#hybrid-button");
+const hybridQuantumOutput = document.querySelector("#hybrid-quantum-output");
+const hybridAssemblyOutput = document.querySelector("#hybrid-assembly-output");
 const workspace = document.querySelector(".workspace");
 const railToggle = document.querySelector("#rail-toggle");
 const promptResizeHandle = document.querySelector("#composer-resize-handle");
@@ -32,6 +41,7 @@ const chinese = {
   "nav.learn": "量子基础教学",
   "nav.gates": "支持的 12 种门",
   "nav.simulator": "厂商模拟器",
+  "nav.hybrid": "混合编译器",
   "rail.local": "仅在本机运行 · 模型凭证始终保留在 Python 中",
   "overview.eyebrow": "01 · 工具介绍",
   "overview.title1": "从一句自然语言想法",
@@ -130,6 +140,31 @@ const chinese = {
   "sim.privacy": "无需账号、付款或排队，也不会提交任何真实硬件任务。",
   "sim.vendor.spinq": "量旋科技 SpinQ",
   "sim.vendor.origin": "本源量子",
+  "l1.target": "翻译目标",
+  "l1.optional": "可选 · 查看 IR 与 SDK 翻译",
+  "l1.translate": "显示 IR 与 SDK 翻译",
+  "l1.note": "IR 会去除源程序中的寄存器名称，同时保留量子比特索引、经典比特写入位置、参数和指令顺序。",
+  "l1.ir": "规范化 IR",
+  "l1.output": "SDK 翻译",
+  "l1.awaiting": "选择此功能后即可查看线路 IR。",
+  "l1.awaitingOutput": "选择目标后即可查看对应的准确语法。",
+  "hybrid.eyebrow": "05 · 混合编译器",
+  "hybrid.title1": "量子操作保持顺序，",
+  "hybrid.title2": "经典决策编译为 RISC-V。",
+  "hybrid.lede": "Hybrid-QASM 在 OpenQASM 2.0 线路中加入一个 classical { … } 代码块。LoomQ 会分离两类职责：量子门与测量保持为有序操作流，整数赋值和 if/else 决策则转换成确定性的 RISC-V 指令。",
+  "hybrid.step1Title": "读取 Hybrid-QASM",
+  "hybrid.step1Body": "普通量子指令围绕一个 classical 代码块排列。测量表达式使用 c[n]，可写整数值使用 r1、r2 等名称。",
+  "hybrid.step2Title": "保持量子顺序",
+  "hybrid.step2Body": "量子门和测量会被规范化为与线路翻译器相同的标准指令顺序。",
+  "hybrid.step3Title": "降低经典逻辑",
+  "hybrid.step3Body": "测量比特依次进入 RISC-V 寄存器 x10、x11 等位置。赋值和分支会被编译成一段精简且可执行的汇编程序。",
+  "hybrid.program": "Hybrid-QASM 程序",
+  "hybrid.note": "编译过程是确定性的，并且完全在本地完成：不会调用 AI 模型或云端服务。",
+  "hybrid.compile": "编译 Hybrid-QASM",
+  "hybrid.quantumOutput": "量子操作流",
+  "hybrid.classicalOutput": "精简 RISC-V 汇编",
+  "hybrid.awaitingQuantum": "编译示例后即可列出量子操作。",
+  "hybrid.awaitingAssembly": "编译后的经典指令将显示在这里。",
   "assistant.eyebrow": "AI 量子线路助手",
   "assistant.title": "询问 LoomQ",
   "assistant.new": "新对话",
@@ -152,7 +187,7 @@ const dynamicText = {
     insightOne: "Most frequent result: {states}, representing {share}% of all shots.", insightTwo: "Most frequent results: {states}. Together they represent {share}% of all shots.",
     collapseRail: "Collapse sidebar", expandRail: "Expand sidebar",
     resizePrompt: "Resize prompt input from its top edge", hideAssistant: "Hide LoomQ assistant", showAssistant: "Open LoomQ assistant", openAssistant: "Ask LoomQ",
-    running: "Running…", comparing: "Comparing {current} of 3…", checkingAnswer: "Checking…", loading: "Interpreting, building, and checking your request", chatFailure: "The local agent could not answer.", chatHint: "Check the local model configuration, then try again. Your prompt is still in the box."
+    running: "Running…", comparing: "Comparing {current} of 3…", translating: "Translating…", compiling: "Compiling…", translationFailure: "The circuit translator could not process this program.", hybridFailure: "The hybrid compiler could not process this program.", checkingAnswer: "Checking…", loading: "Interpreting, building, and checking your request", chatFailure: "The local agent could not answer.", chatHint: "Check the local model configuration, then try again. Your prompt is still in the box."
   },
   zh: {
     checking: "正在检查本地智能体", ready: "本地智能体已就绪", missing: "缺少模型配置", unavailable: "本地智能体不可用",
@@ -161,7 +196,7 @@ const dynamicText = {
     insightOne: "最常见的结果是 {states}，占全部测量次数的 {share}%。", insightTwo: "最常见的结果是 {states}，两者合计占全部测量次数的 {share}%。",
     collapseRail: "折叠侧边栏", expandRail: "展开侧边栏",
     resizePrompt: "从顶部边缘调整提示词输入框高度", hideAssistant: "隐藏 LoomQ 助手", showAssistant: "打开 LoomQ 助手", openAssistant: "询问 LoomQ",
-    running: "正在运行…", comparing: "正在对比第 {current}/3 个…", checkingAnswer: "正在检查…", loading: "正在理解、构建并检查你的请求", chatFailure: "本地智能体暂时无法回答。", chatHint: "请检查本地模型配置后重试。你的输入仍保留在输入框中。"
+    running: "正在运行…", comparing: "正在对比第 {current}/3 个…", translating: "正在翻译…", compiling: "正在编译…", translationFailure: "线路翻译器无法处理这份程序。", hybridFailure: "混合编译器无法处理这份程序。", checkingAnswer: "正在检查…", loading: "正在理解、构建并检查你的请求", chatFailure: "本地智能体暂时无法回答。", chatHint: "请检查本地模型配置后重试。你的输入仍保留在输入框中。"
   }
 };
 
@@ -227,7 +262,7 @@ function setPromptHeight(value) {
 function applyLanguage(nextLanguage) {
   language = nextLanguage === "zh" ? "zh" : "en";
   document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
-  document.title = language === "zh" ? "LoomQ — 学习、构建和模拟量子线路" : "LoomQ — Learn, build, and simulate quantum circuits";
+  document.title = language === "zh" ? "LoomQ — 学习、翻译、模拟与编译量子程序" : "LoomQ — Learn, translate, simulate, and compile";
   document.querySelectorAll("[data-i18n]").forEach((element) => {
     if (!element.dataset.enText) element.dataset.enText = element.textContent;
     element.textContent = language === "zh" ? chinese[element.dataset.i18n] : element.dataset.enText;
@@ -250,6 +285,8 @@ function applyLanguage(nextLanguage) {
   statusText.textContent = tr(statusState);
   if (!busy) sendButton.querySelector("span").textContent = language === "zh" ? chinese["assistant.ask"] : sendButton.querySelector("span").dataset.enText || "Ask LoomQ";
   if (!runButton.disabled) runButton.querySelector("span").textContent = language === "zh" ? chinese["sim.run"] : "Run locally";
+  if (!translationButton.disabled) translationButton.querySelector("span").textContent = language === "zh" ? chinese["l1.translate"] : "Show IR + SDK translation";
+  if (!hybridButton.disabled) hybridButton.querySelector("span").textContent = language === "zh" ? chinese["hybrid.compile"] : "Compile Hybrid-QASM";
   if (simulationResults.children.length) simulationResults.replaceChildren();
   syncRailToggle();
   syncAssistantVisibility();
@@ -257,7 +294,7 @@ function applyLanguage(nextLanguage) {
 }
 
 function activateView(name) {
-  const allowed = new Set(["overview", "learn", "gates", "simulator"]);
+  const allowed = new Set(["overview", "learn", "gates", "simulator", "hybrid"]);
   const view = allowed.has(name) ? name : "overview";
   document.querySelectorAll("[data-view]").forEach((button) => {
     const active = button.dataset.view === view;
@@ -293,6 +330,7 @@ async function connect() {
     const health = await response.json();
     sessionToken = health.session_token;
     setStatus(health.model_configured ? "ready" : "offline", health.model_configured ? "ready" : "missing");
+    void compileHybridProgram();
   } catch (_error) { setStatus("offline", "unavailable"); }
 }
 
@@ -369,6 +407,61 @@ runnerForm.addEventListener("submit", async (event) => {
   setRunnerBusy(false, language === "zh" ? chinese["sim.run"] : "Run locally");
 });
 
+function setCompilerOutput(element, content, isError = false) {
+  element.classList.toggle("error", isError);
+  element.textContent = content;
+}
+
+function setTranslationBusy(nextBusy) {
+  translationButton.disabled = nextBusy;
+  translationTarget.disabled = nextBusy;
+  translationButton.querySelector("span").textContent = nextBusy ? tr("translating") : (language === "zh" ? chinese["l1.translate"] : "Show IR + SDK translation");
+}
+
+async function translateProgram() {
+  const qasm = qasmInput.value.trim();
+  if (!qasm || translationButton.disabled) return;
+  setTranslationBusy(true);
+  setCompilerOutput(irOutput, tr("translating"));
+  setCompilerOutput(translationOutput, tr("translating"));
+  try {
+    const response = await fetch("/api/transpile", { method: "POST", headers: { "Content-Type": "application/json", "X-LoomQ-Session": sessionToken }, body: JSON.stringify({ qasm, target: translationTarget.value }) });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || tr("translationFailure"));
+    setCompilerOutput(irOutput, JSON.stringify(payload.ir, null, 2));
+    setCompilerOutput(translationOutput, payload.translated);
+  } catch (error) {
+    const message = `${tr("translationFailure")}\n\n${error.message}`;
+    setCompilerOutput(irOutput, message, true);
+    setCompilerOutput(translationOutput, message, true);
+  } finally { setTranslationBusy(false); }
+}
+
+function setHybridBusy(nextBusy) {
+  hybridButton.disabled = nextBusy;
+  hybridInput.disabled = nextBusy;
+  hybridButton.querySelector("span").textContent = nextBusy ? tr("compiling") : (language === "zh" ? chinese["hybrid.compile"] : "Compile Hybrid-QASM");
+}
+
+async function compileHybridProgram() {
+  const source = hybridInput.value.trim();
+  if (!source || hybridButton.disabled) return;
+  setHybridBusy(true);
+  setCompilerOutput(hybridQuantumOutput, tr("compiling"));
+  setCompilerOutput(hybridAssemblyOutput, tr("compiling"));
+  try {
+    const response = await fetch("/api/compile-hybrid", { method: "POST", headers: { "Content-Type": "application/json", "X-LoomQ-Session": sessionToken }, body: JSON.stringify({ source }) });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || tr("hybridFailure"));
+    setCompilerOutput(hybridQuantumOutput, payload.quantum_operations.join("\n"));
+    setCompilerOutput(hybridAssemblyOutput, payload.assembly);
+  } catch (error) {
+    const message = `${tr("hybridFailure")}\n\n${error.message}`;
+    setCompilerOutput(hybridQuantumOutput, message, true);
+    setCompilerOutput(hybridAssemblyOutput, message, true);
+  } finally { setHybridBusy(false); }
+}
+
 function setBusy(nextBusy) {
   busy = nextBusy; sendButton.disabled = nextBusy; input.disabled = nextBusy;
   sendButton.querySelector("span").textContent = nextBusy ? tr("checkingAnswer") : (language === "zh" ? chinese["assistant.ask"] : "Ask LoomQ");
@@ -387,6 +480,8 @@ async function submitPrompt(prompt) {
 }
 
 composer.addEventListener("submit", (event) => { event.preventDefault(); submitPrompt(input.value); });
+translationButton.addEventListener("click", translateProgram);
+hybridForm.addEventListener("submit", (event) => { event.preventDefault(); compileHybridProgram(); });
 input.addEventListener("keydown", (event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); composer.requestSubmit(); } });
 document.querySelectorAll("[data-prompt-en]").forEach((button) => button.addEventListener("click", () => { input.value = language === "zh" ? button.dataset.promptZh : button.dataset.promptEn; input.focus(); }));
 document.querySelectorAll("[data-gate-example]").forEach((button) => button.addEventListener("click", () => { qasmInput.value = gateExamples[button.dataset.gateExample]; simulationResults.replaceChildren(); runnerLab.open = true; activateView("simulator"); window.setTimeout(() => qasmInput.focus(), 200); }));

@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="LoomQ is a bilingual guide, circuit assistant, and local vendor-simulator workspace for quantum beginners.">
-    <title>LoomQ — Learn, build, and simulate quantum circuits</title>
+    <meta name="description" content="LoomQ is a bilingual guide and local workspace for learning, translating, simulating, and compiling quantum programs.">
+    <title>LoomQ — Learn, translate, simulate, and compile</title>
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
@@ -25,6 +25,7 @@
           <button type="button" data-view="learn"><span>02</span><i aria-hidden="true">◇</i><strong data-i18n="nav.learn">Quantum basics</strong></button>
           <button type="button" data-view="gates"><span>03</span><i aria-hidden="true">⊕</i><strong data-i18n="nav.gates">12 supported gates</strong></button>
           <button type="button" data-view="simulator"><span>04</span><i aria-hidden="true">▶</i><strong data-i18n="nav.simulator">Vendor simulators</strong></button>
+          <button type="button" data-view="hybrid"><span>05</span><i aria-hidden="true">⌁</i><strong data-i18n="nav.hybrid">Hybrid compiler</strong></button>
         </nav>
         <div class="rail-footer">
           <span class="status" id="service-status" role="status"><span class="status-dot"></span><span id="service-status-text">Checking local agent</span></span>
@@ -131,8 +132,57 @@ measure q -&gt; c;</textarea>
               </div>
               <p class="runner-privacy" data-i18n="sim.privacy">No account, payment, queue, or real-hardware submission is used.</p>
               <div class="simulation-results" id="simulation-results" aria-live="polite"></div>
+              <details class="translation-disclosure">
+                <summary data-i18n="l1.optional">Optional · inspect IR and SDK translation</summary>
+                <section class="translation-tool" aria-labelledby="translation-tool-title">
+                  <div class="translation-controls">
+                    <label><span data-i18n="l1.target">Translation target</span><select id="translation-target"><option value="spinq">SpinQ · OpenQASM 2.0</option><option value="originq">Origin Quantum · QRunes</option><option value="braket">Amazon Braket · OpenQASM 3.0</option></select></label>
+                    <button class="compile-button" id="translation-button" type="button"><span data-i18n="l1.translate">Show IR + SDK translation</span><span aria-hidden="true">→</span></button>
+                  </div>
+                  <p class="runner-privacy" data-i18n="l1.note">The IR removes source register names while preserving qubit indices, classical-bit destinations, parameters, and instruction order.</p>
+                  <div class="compiler-results" id="l1-results" aria-live="polite">
+                    <article class="compiler-output"><header><span>01</span><strong id="translation-tool-title" data-i18n="l1.ir">Canonical IR</strong></header><pre id="l1-ir-output"><code data-i18n="l1.awaiting">Choose this option to inspect the circuit IR.</code></pre></article>
+                    <article class="compiler-output"><header><span>02</span><strong id="l1-output-title" data-i18n="l1.output">SDK translation</strong></header><pre id="l1-translation-output"><code data-i18n="l1.awaitingOutput">Choose a target to see its exact syntax.</code></pre></article>
+                  </div>
+                </section>
+              </details>
             </form>
           </details>
+        </section>
+
+        <section class="content-view" id="view-hybrid" data-view-panel="hybrid" aria-labelledby="hybrid-title">
+          <header class="view-heading compact">
+            <p class="eyebrow" data-i18n="hybrid.eyebrow">05 · Hybrid compiler</p>
+            <h2 id="hybrid-title"><span data-i18n="hybrid.title1">Quantum operations in order.</span><br><em data-i18n="hybrid.title2">Classical decisions in RISC-V.</em></h2>
+            <p class="view-lede" data-i18n="hybrid.lede">Hybrid-QASM adds one classical { … } block to an OpenQASM 2.0 circuit. LoomQ separates the two responsibilities: quantum gates and measurements remain an ordered operation stream, while integer assignments and if/else decisions become deterministic RISC-V instructions.</p>
+          </header>
+          <div class="hybrid-explainer">
+            <article><span>01</span><strong data-i18n="hybrid.step1Title">Read Hybrid-QASM</strong><p data-i18n="hybrid.step1Body">Ordinary quantum instructions surround one classical block. Measurement expressions use c[n]; writable integer values use r1, r2, and so on.</p></article>
+            <article><span>02</span><strong data-i18n="hybrid.step2Title">Preserve quantum order</strong><p data-i18n="hybrid.step2Body">Gates and measurements are normalized into the same canonical instruction order used by the circuit translator.</p></article>
+            <article><span>03</span><strong data-i18n="hybrid.step3Title">Lower classical logic</strong><p data-i18n="hybrid.step3Body">Measured bits enter RISC-V registers x10, x11, and onward. Assignments and branches compile into a small, executable assembly program.</p></article>
+          </div>
+          <form class="hybrid-lab" id="hybrid-form">
+            <label for="hybrid-input" data-i18n="hybrid.program">Hybrid-QASM program</label>
+            <textarea id="hybrid-input" rows="17" maxlength="24000" spellcheck="false">OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[2];
+creg c[2];
+h q[0];
+measure q[0] -&gt; c[0];
+classical {
+  if (c[0] == 1) {
+    r1 = 7;
+  } else {
+    r1 = 3;
+  }
+}
+cx q[0], q[1];</textarea>
+            <div class="hybrid-actions"><p data-i18n="hybrid.note">Compilation is deterministic and local: it does not call the AI model or a cloud service.</p><button class="compile-button" id="hybrid-button" type="submit"><span data-i18n="hybrid.compile">Compile Hybrid-QASM</span><span aria-hidden="true">→</span></button></div>
+            <div class="compiler-results" id="hybrid-results" aria-live="polite">
+              <article class="compiler-output"><header><span>01</span><strong data-i18n="hybrid.quantumOutput">Quantum operation stream</strong></header><pre id="hybrid-quantum-output"><code data-i18n="hybrid.awaitingQuantum">Compile the example to list its quantum operations.</code></pre></article>
+              <article class="compiler-output"><header><span>02</span><strong data-i18n="hybrid.classicalOutput">Tiny RISC-V assembly</strong></header><pre id="hybrid-assembly-output"><code data-i18n="hybrid.awaitingAssembly">Compiled classical instructions will appear here.</code></pre></article>
+            </div>
+          </form>
         </section>
       </main>
 
