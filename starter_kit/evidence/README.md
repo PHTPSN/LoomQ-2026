@@ -18,6 +18,10 @@
 - **SpinQ 诊断证据目录：**[`files/spinq-diagnostics/`](files/spinq-diagnostics/)。
 - **SpinQ GHZ-3 真机状态检查：**
   [`files/spinq-ghz3/spinq-ghz3-platform-status.json`](files/spinq-ghz3/spinq-ghz3-platform-status.json)。
+- **L2 本地 36 案例鲁棒性报告：**
+  [`files/l2-robustness/robustness-report.json`](files/l2-robustness/robustness-report.json)；
+  12 个生成、12 个修复、12 个后端选择，正式模型配置下 36/36。该报告明确声明它不是
+  组委会隐藏案例或官方分数。
 - **附件目录索引：**[`files/README.md`](files/README.md)；正式任务分别位于
   [`originq-bell/`](files/originq-bell/)、[`originq-ghz3/`](files/originq-ghz3/)
   和 [`spinq-bell/`](files/spinq-bell/)，跨平台结果位于
@@ -31,10 +35,10 @@
 把要申报项目的方框改成 `[x]`，并填写对应内容：
 
 - [x] L1 真机
-- [ ] L2 交互体验
-- [ ] 工程与产品化
+- [x] L2 交互体验
+- [x] 工程与产品化
 - [ ] 自定义量子 RISC-V Bonus
-- [ ] 新手引导与视觉叙事 Bonus
+- [x] 新手引导与视觉叙事 Bonus
 
 ## L1 真机
 
@@ -166,14 +170,24 @@ evidence/files/spinq-bell/spinq-bell-task.png
 请填写：
 
 ```text
-启动界面或 CLI 的命令：[填写]
-测试入口或页面地址：[填写，没有则写“无”]
+启动界面或 CLI 的命令：python -m starter_kit.loomq_l2.ui_server
+测试入口或页面地址：http://127.0.0.1:8765
 用于交互体验评测的 3 个用户任务：
-1. [填写]
-2. [填写]
-3. [填写]
-截图或演示视频：[选填，填写仓库内路径或稳定只读链接]
+1. Create a three-qubit GHZ state and measure every qubit.
+2. I intended to prepare and measure a Bell state, but this is broken: H q[0]; CX q[0] q[1]. Repair the complete OpenQASM 2.0 program.
+3. I need to run a 26-qubit circuit with no queue and no account. Which backend should I use?
+截图或演示视频：无；评委可按上述命令直接运行完整交互流程。
 ```
+
+界面采用左侧工具导航、中间内容和右侧常驻 AI 对话三栏结构。中英文开关会完整切换全部
+界面、教学说明、示例 prompt 和动态状态，而不是在英文正文中零散混入中文。三个可点击
+任务明确区分生成、修复和后端推荐。QASM 结果使用等宽代码区并标明已经本地解析和验证；
+错误会解释恢复方法并把原 prompt 留在输入框中。最近六条对话作为后续请求的上下文。
+模型 Key 不进入浏览器，服务仅监听 IPv4 回环地址并校验同源请求。
+页面还提供可直接粘贴代码的 Local simulator lab，并能在 SpinQit、pyQPanda 和 Amazon
+Braket 三个本地 SDK 模拟器间单独运行或依次对比。测量 counts 会显示为百分比条形图，
+并自动用中英文解释最常见状态及前两个状态的合计占比；
+此路径不会提交真实硬件任务，也不需要任何云平台账号。
 
 工作人员会在组委会统一模型环境中运行最终代码，测试新手是否看得懂、出错后能否得到有效帮助、结果是否清楚，以及多轮回答是否一致。选手自己的对话截图只用于说明产品流程，不直接证明得分。
 
@@ -182,10 +196,11 @@ evidence/files/spinq-bell/spinq-bell-task.png
 已有内容可以直接引用主 README 或其他项目文档，不必复制到本目录。
 
 ```text
-干净环境中的构建和启动命令：[填写命令或文档路径]
-架构说明：[填写文档路径，或用几句话说明主要模块]
-目标用户和使用场景：[填写]
-完整使用流程：[填写文档、截图或演示路径]
+干净环境中的构建和启动命令：starter_kit/README.md 的“环境”和“L2 统一模型与环境变量”；界面命令为 python -m starter_kit.loomq_l2.ui_server
+架构说明：starter_kit/loomq_l2/README.md；浏览器 SPA → 本机 Python HTTP 边界 → agent_chat → 模型解释与确定性本地验证
+目标用户和使用场景：不了解 OpenQASM 或云量子平台约束的初学者；生成或修复小型线路，并根据比赛能力快照选择可用后端
+完整使用流程：starter_kit/loomq_l2/README.md 的“本地网页界面”，以及页面内三个引导任务
+鲁棒性评估：starter_kit/evidence/files/l2-robustness/robustness-report.json；正式模型配置、36 个真实开发案例、36/36，本地报告而非官方隐藏案例
 ```
 
 工作人员会按最终 commit 实际构建和启动，并检查文档与代码是否一致、产品是否真的降低了量子计算的使用门槛。
@@ -205,10 +220,10 @@ evidence/files/spinq-bell/spinq-bell-task.png
 请填写已有材料的路径，不要求为评分另写一套文档：
 
 ```text
-零基础首次运行指南：[填写]
-量子概念解释：[填写]
-结果可视化：[填写]
-错误恢复或无障碍引导：[填写]
+零基础首次运行指南：starter_kit/loomq_l2/README.md 的“本地网页界面”和“在页面中运行线路”；页面左栏提供完整中英文工具导航
+量子概念解释：starter_kit/QUANTUM_101.md；页面“量子基础教学”和“支持的 12 种门”视图用六张概念卡、Bell 状态流程和完整 12 门交互图谱解释 qubit、叠加、线路、测量、shots、纠缠与门操作
+结果可视化：Local simulator lab 把三个厂商本地模拟器的测量 counts 显示为态、次数和百分比条形图，并用确定性双语文字解释最常见状态及合计占比
+错误恢复或无障碍引导：失败 prompt 保留在输入框；模拟器逐平台显示错误且继续其余对比；语义化 label、aria-live、键盘提交和 prefers-reduced-motion
 ```
 
 以上四项各 1 分。普通项目 README 完整不代表自动获得 Bonus。

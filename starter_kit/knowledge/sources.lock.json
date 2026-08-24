@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "retrieved_at": "2026-08-23",
+  "retrieved_at": "2026-08-24",
   "policy": "Primary specifications and official vendor sources only; retrieval output remains advisory until locally verified.",
   "sources": [
     {
@@ -103,6 +103,33 @@
       "used_for": ["package artifact", "version metadata"]
     },
     {
+      "id": "originq-current-hardware",
+      "kind": "vendor_documentation",
+      "version": "live",
+      "authority": "Origin Quantum",
+      "url": "https://qcloud.originqc.com.cn/document/usermanual/rst/Computing_service1.html",
+      "used_for": ["advisory hardware inventory", "console status semantics"],
+      "advisory_only": true
+    },
+    {
+      "id": "originq-qcloud-service",
+      "kind": "vendor_documentation",
+      "version": "QPanda3 current reference",
+      "authority": "Origin Quantum",
+      "url": "https://qcloud.originqc.com.cn/document/qpanda-3/cn/d2/d42/tutorial_qcloud_service.html",
+      "used_for": ["authenticated backend discovery", "backend availability semantics"],
+      "advisory_only": true
+    },
+    {
+      "id": "pyqpanda3-package",
+      "kind": "official_package_registry",
+      "version": "0.4.0",
+      "authority": "PyPI package published by Origin Quantum",
+      "url": "https://pypi.org/project/pyqpanda3/0.4.0/",
+      "used_for": ["authenticated backend discovery", "pinned observation environment"],
+      "advisory_only": true
+    },
+    {
       "id": "pyqpanda-context7",
       "kind": "retrieval_index",
       "version": "/originq/pyqpanda-toturial",
@@ -150,6 +177,33 @@
       "authority": "PyPI package published by Amazon Web Services",
       "url": "https://pypi.org/project/amazon-braket-sdk/1.110.1/",
       "used_for": ["package artifact", "version metadata"]
+    },
+    {
+      "id": "braket-devices-live",
+      "kind": "vendor_documentation",
+      "version": "live",
+      "authority": "Amazon Web Services",
+      "url": "https://docs.aws.amazon.com/braket/latest/developerguide/braket-devices.html",
+      "used_for": ["advisory device inventory", "regions", "device ARNs"],
+      "advisory_only": true
+    },
+    {
+      "id": "braket-device-apis",
+      "kind": "vendor_api_documentation",
+      "version": "live",
+      "authority": "Amazon Web Services",
+      "url": "https://docs.aws.amazon.com/braket/latest/APIReference/API_GetDevice.html",
+      "used_for": ["device status", "capabilities", "queue depth"],
+      "advisory_only": true
+    },
+    {
+      "id": "braket-pricing-live",
+      "kind": "vendor_pricing",
+      "version": "live",
+      "authority": "Amazon Web Services",
+      "url": "https://aws.amazon.com/braket/pricing/",
+      "used_for": ["advisory current pricing"],
+      "advisory_only": true
     }
   ]
 }

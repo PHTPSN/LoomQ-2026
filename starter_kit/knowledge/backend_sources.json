@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "policy": {
+    "formal_l2_source": "../backend_capabilities.json",
+    "live_data_role": "advisory_only",
+    "rule": "Never overwrite the formal L2 capability snapshot from live observations."
+  },
+  "providers": {
+    "spinq": {
+      "public_documentation": [
+        "https://cloud.spinq.cn/circuitDesign/docs?page=cloudInstruction",
+        "https://doc.spinq.cn/doc/spinqit/index.html"
+      ],
+      "live_discovery": {
+        "access": "visitor_session",
+        "stability": "observed_internal_web_api",
+        "login_method": "POST",
+        "login_url": "https://cloud.spinq.cn/prod/api/user/loginAsVisitor",
+        "credential_environment": []
+      }
+    },
+    "originq": {
+      "public_documentation": [
+        "https://qcloud.originqc.com.cn/document/usermanual/rst/Computing_service1.html",
+        "https://qcloud.originqc.com.cn/document/qpanda-3/cn/d2/d42/tutorial_qcloud_service.html"
+      ],
+      "live_discovery": {
+        "access": "api_key_required",
+        "stability": "official_sdk",
+        "sdk_call": "pyqpanda3.qcloud.QCloudService.backends",
+        "credential_environment": ["ORIGINQ_API_KEY", "QPANDA3_API_KEY"]
+      }
+    },
+    "aws_braket": {
+      "public_documentation": [
+        "https://docs.aws.amazon.com/braket/latest/developerguide/braket-devices.html",
+        "https://docs.aws.amazon.com/braket/latest/APIReference/API_SearchDevices.html",
+        "https://docs.aws.amazon.com/braket/latest/APIReference/API_GetDevice.html",
+        "https://aws.amazon.com/braket/pricing/"
+      ],
+      "live_discovery": {
+        "access": "aws_credentials_required",
+        "stability": "official_api",
+        "api_calls": ["braket:SearchDevices", "braket:GetDevice"],
+        "credential_environment": ["AWS_PROFILE"],
+        "regions": ["us-east-1", "us-west-1", "us-west-2", "eu-north-1", "eu-west-2"]
+      }
+    }
+  }
+}

@@ -74,3 +74,21 @@ Keep this behavior in a versioned profile. Do not remove the formal-contract int
 ## Cloud execution boundary
 
 AWS credentials are unnecessary for LocalSimulator. Cloud devices require separately authorized AWS configuration, service enablement, region selection, S3 output, and cost approval. Do not infer permission to submit paid cloud tasks from permission to run locally.
+
+## Read-only cloud discovery
+
+Amazon Braket provides stable official control-plane APIs for current device
+information:
+
+- `SearchDevices` lists device ARN, name, provider, type, and status;
+- `GetDevice` returns status, capability JSON, and queue information;
+- valid device states are `ONLINE`, `OFFLINE`, and `RETIRED`.
+
+These calls still require AWS credentials. A least-privilege discovery identity
+needs only `braket:SearchDevices` and `braket:GetDevice`; it does not need
+`braket:CreateQuantumTask`. The standard Boto3 credential chain or a named
+`AWS_PROFILE` should be used instead of storing keys in this repository.
+
+Use `scripts/backend_observations.py --provider aws` to query every documented
+Braket region and produce a timestamped advisory report. Pricing remains a
+separate public source because it is not included in `GetDevice`.

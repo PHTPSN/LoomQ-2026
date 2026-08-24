@@ -21,6 +21,7 @@ If two layers disagree, preserve the higher-priority contract, document the disc
 | Integrate SpinQit or prepare SpinQ Cloud hardware validation | `sdk_spinq.md` | `spec/target_mappings.json`, `.venv-spinq`, `../examples/run_spinq.py`; refresh live cloud capabilities before submission |
 | Integrate pyQPanda / OriginIR | `sdk_originq.md` | `.venv-originq`, `../examples/run_originq.py` |
 | Integrate Amazon Braket | `sdk_braket.md` | `.venv-braket`, `../examples/run_braket.py` |
+| Review current backend availability | `backend_observations.md` | `backend_sources.json`, `../../scripts/backend_observations.py` |
 | Normalize execution results | `translation_method.md` | `spec/result_schema.json`, `../QUANTUM_101.md` |
 | Refresh technical references | `WEB_LINKS.md` | `sources.lock.json`, pinned requirement locks, executable tests |
 

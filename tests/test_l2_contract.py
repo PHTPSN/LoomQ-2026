@@ -12,6 +12,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[1]
 CLIENT = ROOT / "starter_kit" / "llm_client.py"
 POLICY = ROOT / "starter_kit" / "l2_policy.json"
+SUBMISSION = ROOT / "starter_kit" / "submission.yaml"
 
 
 def load_client():
@@ -56,6 +57,12 @@ class PublicL2ContractTests(unittest.TestCase):
             {"timeout_seconds": 120},
         )
         self.assertFalse(policy["organizer_api_available_before_scoring"])
+
+    def test_submission_enables_l2_and_its_injected_network(self):
+        manifest = SUBMISSION.read_text(encoding="utf-8")
+        self.assertRegex(manifest, r"(?m)^\s+l2:\s*true\s*$")
+        self.assertRegex(manifest, r"(?m)^\s+required_for_l2:\s*true\s*$")
+        self.assertRegex(manifest, r"(?m)^\s+allowed_hosts:\s*\[\]\s*$")
 
     def test_missing_environment_fails_without_echoing_secrets(self):
         client = load_client()

@@ -66,7 +66,28 @@ pyQPanda returns bit-string keys in the tested path. A string such as `"11"` is 
 
 - Origin Quantum cloud authentication and Wukong job submission;
 - API Token storage;
-- live hardware mapping and queue discovery;
+- hardware job submission and account quota management;
 - QPanda3 migration.
 
 Keep cloud credentials outside the repository and consult the current official documentation before enabling hardware execution.
+
+## Read-only cloud discovery
+
+The current official QPanda3 cloud interface supports authenticated backend
+discovery without submitting a task:
+
+```python
+from pyqpanda3.qcloud import QCloudService
+
+service = QCloudService(api_key=api_key)
+availability = service.backends()
+```
+
+The returned mapping uses backend names as keys and booleans as current
+availability values. Official examples currently include `WK_C180` and older
+or maintenance backends. This live inventory is intentionally separate from
+LoomQ's frozen `originq_wukong` scoring record.
+
+Use `scripts/backend_observations.py --provider originq` for a redacted,
+timestamped report. It reads `ORIGINQ_API_KEY` or `QPANDA3_API_KEY`, does not
+print the key, and never submits a quantum job.

@@ -41,6 +41,13 @@ def _configuration() -> tuple[str, str, str, float, int]:
 def chat_completion(messages: list[dict[str, Any]], **extra: Any) -> dict[str, Any]:
     """Create one non-streaming chat completion using the public L2 contract."""
     base_url, api_key, model, timeout, max_output = _configuration()
+    request_timeout = extra.pop("_request_timeout_seconds", timeout)
+    if (
+        isinstance(request_timeout, bool)
+        or not isinstance(request_timeout, (int, float))
+        or request_timeout <= 0
+    ):
+        raise RuntimeError("LoomQ L2 request timeout must be positive")
     payload = {
         "model": model,
         "messages": messages,
@@ -61,7 +68,7 @@ def chat_completion(messages: list[dict[str, Any]], **extra: Any) -> dict[str, A
         method="POST",
     )
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        with urllib.request.urlopen(request, timeout=min(timeout, float(request_timeout))) as response:
             return json.loads(response.read())
     except urllib.error.HTTPError as exc:
         raise RuntimeError("LoomQ L2 API returned HTTP %d" % exc.code) from exc
