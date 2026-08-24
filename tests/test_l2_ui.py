@@ -17,6 +17,9 @@ class LocalUIServer:
         ui_server.LoomQUIHandler.session_token = "test-session"
         ui_server.LoomQUIHandler.agent_lock = threading.Lock()
         ui_server.LoomQUIHandler.simulator_lock = threading.Lock()
+        ui_server.LoomQUIHandler.backend_health_lock = threading.Lock()
+        ui_server.LoomQUIHandler.backend_health_checked_at = 0.0
+        ui_server.LoomQUIHandler.backend_health_cache = {}
         self.server = ThreadingHTTPServer(
             ("127.0.0.1", 0), ui_server.LoomQUIHandler
         )
@@ -103,6 +106,13 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertIn(b'id="assistant-hide-button"', body)
             self.assertIn(b'id="assistant-launcher"', body)
             self.assertIn(b'aria-controls="assistant-dock"', body)
+            self.assertIn(b'id="service-status"', body)
+            self.assertEqual(body.count(b'data-backend-status="'), 3)
+            self.assertIn(b'data-backend-status="spinq"', body)
+            self.assertIn(b'data-backend-status="originq"', body)
+            self.assertIn(b'data-backend-status="braket"', body)
+            self.assertNotIn(b"Local only \xc2\xb7 model credentials stay in Python", body)
+            self.assertNotIn(b"This computer \xc2\xb7 not live QPU status", body)
             self.assertIn(b'aria-valuemin="60"', body)
             self.assertNotIn(b'The assistant stays here while you browse lessons and tools.', body)
             self.assertIn(b'role="separator"', body)
@@ -110,11 +120,33 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertNotIn(b"Level 1", body)
             self.assertNotIn(b"Level 3", body)
             self.assertIn(b'class="translation-disclosure"', body)
-            self.assertNotIn(b'<details class="translation-disclosure" open', body)
+            self.assertIn(b'<section class="runner-lab"', body)
+            self.assertIn(b'<section class="translation-disclosure"', body)
+            self.assertNotIn(b'<details class="runner-lab"', body)
+            self.assertNotIn(b'<details class="translation-disclosure"', body)
             self.assertIn(b'id="l1-ir-output"', body)
             self.assertIn(b'id="l1-translation-output"', body)
             self.assertIn(b'id="hybrid-form"', body)
             self.assertIn(b'id="hybrid-assembly-output"', body)
+            self.assertIn(b"Hardware evidence", body)
+            self.assertIn(b'id="view-evidence"', body)
+            self.assertIn(b"FF2950", body)
+            self.assertIn(b"G-260823-0014", body)
+            self.assertIn(b"99.94%", body)
+            self.assertIn(b"67.22%", body)
+            self.assertIn(b"The website never submits hardware", body)
+            self.assertIn(b"submit --confirm-real-hardware", body)
+            self.assertIn(b"Separate free local learning", body)
+            self.assertIn(b"python starter_kit/examples/run_braket.py", body)
+            self.assertIn(b"Want to reproduce the archived evidence example?", body)
+            self.assertIn(b"starter_kit/circuits/bell.qasm", body)
+            self.assertEqual(body.count(b'data-hardware-tab="'), 3)
+            self.assertEqual(body.count(b'data-hardware-panel="'), 3)
+            self.assertEqual(body.count(b'role="tab"'), 3)
+            self.assertEqual(body.count(b'role="tabpanel"'), 3)
+            self.assertIn(b'id="hardware-tab-origin"', body)
+            self.assertIn(b'id="hardware-tab-spinq"', body)
+            self.assertIn(b'id="hardware-tab-aws"', body)
             self.assertEqual(body.count(b'class="concept-formula"'), 8)
             self.assertIn(b"A Bell pair is an entangled two-qubit state", body)
             self.assertIn("|α|² + |β|² = 1".encode(), body)
@@ -139,11 +171,11 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertNotIn(b"<small>LocalSimulator</small>", body)
             self.assertEqual(
                 re.findall(rb'data-view="([^"]+)"', body),
-                [b"overview", b"learn", b"gates", b"simulator", b"hybrid"],
+                [b"overview", b"learn", b"gates", b"simulator", b"hybrid", b"evidence"],
             )
             self.assertEqual(
                 re.findall(rb'data-view-panel="([^"]+)"', body),
-                [b"overview", b"learn", b"gates", b"simulator", b"hybrid"],
+                [b"overview", b"learn", b"gates", b"simulator", b"hybrid", b"evidence"],
             )
             gate_examples = re.findall(rb'data-gate-example="([^"]+)"', body)
             gate_spec = json.loads(
@@ -184,10 +216,25 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertIn("height:39px;min-height:39px", styles)
             self.assertIn("padding-right:0", styles)
             self.assertIn(".workspace.rail-collapsed", styles)
+            self.assertIn(".view-nav { display:grid; gap:5px;", styles)
+            self.assertIn(".view-nav button { min-height:46px;", styles)
+            self.assertIn("padding:4px 9px;", styles)
+            self.assertIn(".view-nav button>i{width:26px;height:26px", styles)
+            self.assertIn(".view-nav button>strong{font-size:.73rem", styles)
             self.assertIn('fetch("/api/transpile"', script)
             self.assertIn('fetch("/api/compile-hybrid"', script)
+            self.assertIn('fetch("/api/backend-health"', script)
+            self.assertIn("function setBackendStatus", script)
             self.assertNotIn("void translateProgram();", script)
             self.assertIn(".compiler-results", styles)
+            self.assertIn(".evidence-grid", styles)
+            self.assertIn(".hardware-tabs", styles)
+            self.assertIn(".hardware-tab-panel", styles)
+            self.assertIn(
+                ".workspace.rail-collapsed .rail-footer{display:block", styles
+            )
+            self.assertIn("function activateHardwareTutorial", script)
+            self.assertIn('event.key === "ArrowRight"', script)
             i18n_keys = set(
                 re.findall(
                     rb'data-i18n(?:-placeholder|-aria)?="([^"]+)"', body
@@ -198,6 +245,21 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertEqual(body.count(b"data-prompt-en="), 3)
             self.assertEqual(body.count(b"data-prompt-zh="), 3)
             self.assertIn("default-src 'self'", headers["Content-Security-Policy"])
+
+            evidence_routes = {
+                "/evidence/originq-bell-task.png": "image/png",
+                "/evidence/originq-bell-normalized.json": "application/json",
+                "/evidence/spinq-bell-task.png": "image/png",
+                "/evidence/spinq-bell-normalized.json": "application/json",
+                "/evidence/spinq-diagnostics.json": "application/json",
+            }
+            for route, content_type in evidence_routes.items():
+                evidence_status, evidence_headers, evidence_body = local.request(
+                    "GET", route
+                )
+                self.assertEqual(evidence_status, 200, route)
+                self.assertTrue(evidence_body, route)
+                self.assertEqual(evidence_headers["Content-Type"], content_type)
             self.assertEqual(headers["X-Frame-Options"], "DENY")
 
             status, headers, body = local.request("GET", "/assets/spinq-logo.png")
@@ -222,6 +284,46 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertTrue(health["ok"])
             self.assertEqual(health["session_token"], "test-session")
+
+    def test_backend_health_checks_three_local_simulators_and_caches_result(self):
+        result = {
+            "backend": "local",
+            "job_id": "health-check",
+            "shots": 1,
+            "counts": {"0": 1},
+            "bit_order": "little",
+            "timestamp": "2026-08-25T00:00:00Z",
+            "meta": {},
+        }
+        with LocalUIServer() as local, mock.patch.object(
+            ui_server, "_backend_runtime_available", return_value=True
+        ), mock.patch.object(ui_server, "run_circuit", return_value=result) as runner:
+            status, _, body = local.request("GET", "/api/backend-health")
+            cached_status, _, cached_body = local.request(
+                "GET", "/api/backend-health"
+            )
+        payload = json.loads(body)
+        self.assertEqual(status, 200)
+        self.assertEqual(cached_status, 200)
+        self.assertEqual(payload["scope"], "local_simulators")
+        self.assertEqual(
+            payload["backends"],
+            {
+                "spinq": {"ok": True},
+                "originq": {"ok": True},
+                "braket": {"ok": True},
+            },
+        )
+        self.assertEqual(json.loads(cached_body), payload)
+        self.assertEqual(runner.call_count, 3)
+        self.assertEqual(
+            [call.args[1] for call in runner.call_args_list],
+            ["spinq", "originq", "braket"],
+        )
+        self.assertTrue(
+            all(call.args[0] == ui_server.BACKEND_HEALTH_QASM for call in runner.call_args_list)
+        )
+        self.assertTrue(all(call.args[2] == 1 for call in runner.call_args_list))
 
     def test_chat_calls_agent_with_context_and_classifies_qasm(self):
         qasm = 'OPENQASM 2.0;\ninclude "qelib1.inc";\nqreg q[1];\n'

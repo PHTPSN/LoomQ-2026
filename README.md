@@ -13,6 +13,29 @@
 | `LoomQ-选手提交流程图.png` | 最终提交流程信息图，适合单独转发给选手 |
 | `starter_kit/` | 选手工具包 v1.1.0：提交清单、人工评分证据模板、L2 环境协议、公开自测、容器基线、RISC-V 模拟器、公开电路与上手资料 |
 
+## 克隆后启动 LoomQ 网站
+
+Windows 与官方 Python 3.10 基线下，从仓库根目录运行一个命令：
+
+```powershell
+.\scripts\start-ui.ps1
+```
+
+首次运行会自动创建核心环境和三个互相隔离的厂商 SDK 环境，严格安装仓库中锁定的
+SpinQit、pyQPanda 与 Amazon Braket 依赖，分别执行一次本地模拟验证，然后启动
+`http://127.0.0.1:8765`。这些 `.venv*` 目录由 Git 忽略；可复现性来自已提交的安装脚本
+和依赖锁文件，而不是开发者电脑上现成的虚拟环境。
+
+只安装或修复环境而不启动网站：
+
+```powershell
+.\scripts\setup.ps1
+```
+
+Linux、macOS 或不希望在宿主机安装三个冲突 SDK 的用户，可使用
+[`starter_kit/Dockerfile`](starter_kit/Dockerfile)；该镜像同样从已提交的锁文件创建三个
+隔离后端。
+
 ## 最终提交流程图
 
 ![LoomQ 最终提交流程](LoomQ-选手提交流程图.png)

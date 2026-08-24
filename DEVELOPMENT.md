@@ -24,6 +24,20 @@ From the repository root in PowerShell:
 .\scripts\activate.ps1
 ```
 
+`setup.ps1` installs both the core and all three isolated backend environments.
+It validates the actual `python.exe` inside each environment, so an empty or
+interrupted `.venv-*` directory is repaired instead of being accepted as ready.
+It also runs one local shot through every vendor SDK before reporting success.
+
+To set up if necessary and start the browser workspace with one command:
+
+```powershell
+.\scripts\start-ui.ps1
+```
+
+Use `setup.ps1 -SkipBackends` only for compiler-only development where the
+three local vendor simulators are intentionally unnecessary.
+
 Activation loads local variables from `.env`. The file is ignored by Git. `.env.example` is the safe template committed to the repository.
 
 ## DeepSeek configuration
@@ -46,6 +60,10 @@ Install or refresh every isolated backend environment:
 ```powershell
 .\scripts\setup-backends.ps1 -Backend all
 ```
+
+The backend installer is idempotent: it can be rerun after an interrupted
+download or a damaged environment. It finishes by running
+`scripts/check-backends.py` through the core Python environment.
 
 Install only selected environments:
 

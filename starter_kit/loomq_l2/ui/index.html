@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="LoomQ is a bilingual guide and local workspace for learning, translating, simulating, and compiling quantum programs.">
-    <title>LoomQ — Learn, translate, simulate, and compile</title>
+    <meta name="description" content="LoomQ is a bilingual guide and local workspace for learning, translating, simulating, compiling, and verifying quantum programs.">
+    <title>LoomQ — Learn, simulate, compile, and verify</title>
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
@@ -26,10 +26,20 @@
           <button type="button" data-view="gates"><span>03</span><i aria-hidden="true">⊕</i><strong data-i18n="nav.gates">12 supported gates</strong></button>
           <button type="button" data-view="simulator"><span>04</span><i aria-hidden="true">▶</i><strong data-i18n="nav.simulator">Vendor simulators</strong></button>
           <button type="button" data-view="hybrid"><span>05</span><i aria-hidden="true">⌁</i><strong data-i18n="nav.hybrid">Hybrid compiler</strong></button>
+          <button type="button" data-view="evidence"><span>06</span><i aria-hidden="true">✓</i><strong data-i18n="nav.evidence">Hardware evidence</strong></button>
         </nav>
         <div class="rail-footer">
-          <span class="status" id="service-status" role="status"><span class="status-dot"></span><span id="service-status-text">Checking local agent</span></span>
-          <p data-i18n="rail.local">Local only · model credentials stay in Python</p>
+          <div class="agent-health">
+            <span class="status" id="service-status" role="status"><span class="status-dot"></span><span id="service-status-text">Checking local agent</span></span>
+          </div>
+          <div class="backend-health" data-i18n-aria="aria.backends">
+            <strong data-i18n="rail.backends">Local backends</strong>
+            <ul>
+              <li class="checking" data-backend-status="spinq" title="SpinQit · checking"><span class="backend-dot" aria-hidden="true"></span><span>SpinQit</span><small data-backend-state>Checking</small></li>
+              <li class="checking" data-backend-status="originq" title="Origin Quantum · checking"><span class="backend-dot" aria-hidden="true"></span><span data-i18n="sim.vendor.origin">Origin Quantum</span><small data-backend-state>Checking</small></li>
+              <li class="checking" data-backend-status="braket" title="Amazon Braket · checking"><span class="backend-dot" aria-hidden="true"></span><span>Braket</span><small data-backend-state>Checking</small></li>
+            </ul>
+          </div>
         </div>
       </aside>
 
@@ -114,8 +124,8 @@
             <article class="vendor-card origin"><span class="vendor-mark"><img src="/assets/origin-quantum-logo.svg" alt="" width="140" height="42"></span><span><strong data-i18n="sim.vendor.origin">Origin Quantum</strong><small>pyQPanda SDK</small></span></article>
             <article class="vendor-card aws"><span class="vendor-mark"><img src="/assets/aws-logo.svg" alt="" width="189" height="126"></span><span><strong>Amazon Web Services</strong><small>Amazon Braket SDK</small></span></article>
           </div>
-          <details class="runner-lab" id="runner-lab" open>
-            <summary data-i18n="sim.lab">Local simulator lab</summary>
+          <section class="runner-lab" id="runner-lab" aria-labelledby="runner-lab-title">
+            <header class="lab-heading"><h3 id="runner-lab-title" data-i18n="sim.lab">Local simulator lab</h3></header>
             <form class="runner-form" id="runner-form">
               <label for="qasm-input" data-i18n="sim.program">OpenQASM 2.0 program</label>
               <textarea id="qasm-input" name="qasm" rows="10" maxlength="24000" spellcheck="false">OPENQASM 2.0;
@@ -132,22 +142,22 @@ measure q -&gt; c;</textarea>
               </div>
               <p class="runner-privacy" data-i18n="sim.privacy">No account, payment, queue, or real-hardware submission is used.</p>
               <div class="simulation-results" id="simulation-results" aria-live="polite"></div>
-              <details class="translation-disclosure">
-                <summary data-i18n="l1.optional">Optional · inspect IR and SDK translation</summary>
-                <section class="translation-tool" aria-labelledby="translation-tool-title">
-                  <div class="translation-controls">
-                    <label><span data-i18n="l1.target">Translation target</span><select id="translation-target"><option value="spinq">SpinQ · OpenQASM 2.0</option><option value="originq">Origin Quantum · QRunes</option><option value="braket">Amazon Braket · OpenQASM 3.0</option></select></label>
-                    <button class="compile-button" id="translation-button" type="button"><span data-i18n="l1.translate">Show IR + SDK translation</span><span aria-hidden="true">→</span></button>
-                  </div>
-                  <p class="runner-privacy" data-i18n="l1.note">The IR removes source register names while preserving qubit indices, classical-bit destinations, parameters, and instruction order.</p>
-                  <div class="compiler-results" id="l1-results" aria-live="polite">
-                    <article class="compiler-output"><header><span>01</span><strong id="translation-tool-title" data-i18n="l1.ir">Canonical IR</strong></header><pre id="l1-ir-output"><code data-i18n="l1.awaiting">Choose this option to inspect the circuit IR.</code></pre></article>
-                    <article class="compiler-output"><header><span>02</span><strong id="l1-output-title" data-i18n="l1.output">SDK translation</strong></header><pre id="l1-translation-output"><code data-i18n="l1.awaitingOutput">Choose a target to see its exact syntax.</code></pre></article>
-                  </div>
-                </section>
-              </details>
             </form>
-          </details>
+          </section>
+          <section class="translation-disclosure" aria-labelledby="translation-block-title">
+            <header class="lab-heading"><h3 id="translation-block-title" data-i18n="l1.optional">Inspect IR and SDK translation</h3></header>
+            <div class="translation-tool" aria-labelledby="translation-tool-title">
+              <div class="translation-controls">
+                <label><span data-i18n="l1.target">Translation target</span><select id="translation-target"><option value="spinq">SpinQ · OpenQASM 2.0</option><option value="originq">Origin Quantum · QRunes</option><option value="braket">Amazon Braket · OpenQASM 3.0</option></select></label>
+                <button class="compile-button" id="translation-button" type="button"><span data-i18n="l1.translate">Show IR + SDK translation</span><span aria-hidden="true">→</span></button>
+              </div>
+              <p class="runner-privacy" data-i18n="l1.note">The IR removes source register names while preserving qubit indices, classical-bit destinations, parameters, and instruction order.</p>
+              <div class="compiler-results" id="l1-results" aria-live="polite">
+                <article class="compiler-output"><header><span>01</span><strong id="translation-tool-title" data-i18n="l1.ir">Canonical IR</strong></header><pre id="l1-ir-output"><code data-i18n="l1.awaiting">Choose this option to inspect the circuit IR.</code></pre></article>
+                <article class="compiler-output"><header><span>02</span><strong id="l1-output-title" data-i18n="l1.output">SDK translation</strong></header><pre id="l1-translation-output"><code data-i18n="l1.awaitingOutput">Choose a target to see its exact syntax.</code></pre></article>
+              </div>
+            </div>
+          </section>
         </section>
 
         <section class="content-view" id="view-hybrid" data-view-panel="hybrid" aria-labelledby="hybrid-title">
@@ -183,6 +193,108 @@ cx q[0], q[1];</textarea>
               <article class="compiler-output"><header><span>02</span><strong data-i18n="hybrid.classicalOutput">Tiny RISC-V assembly</strong></header><pre id="hybrid-assembly-output"><code data-i18n="hybrid.awaitingAssembly">Compiled classical instructions will appear here.</code></pre></article>
             </div>
           </form>
+        </section>
+
+        <section class="content-view" id="view-evidence" data-view-panel="evidence" aria-labelledby="evidence-title">
+          <header class="view-heading compact">
+            <p class="eyebrow" data-i18n="evidence.eyebrow">06 · Real-hardware evidence</p>
+            <h2 id="evidence-title"><span data-i18n="evidence.title1">Jobs you can verify.</span><br><em data-i18n="evidence.title2">A workflow you can repeat.</em></h2>
+            <p class="view-lede" data-i18n="evidence.lede">A hardware claim needs more than a chart. Each archived run links the provider job ID, submitted circuit, unedited provider response, normalized counts, execution time, and task-page screenshot.</p>
+          </header>
+
+          <div class="evidence-definition">
+            <span aria-hidden="true">✓</span>
+            <div><strong data-i18n="evidence.definitionTitle">What “real-hardware evidence” means here</strong><p data-i18n="evidence.definitionBody">The provider recorded a completed job on a named physical quantum machine. “Normalized” means LoomQ converted the provider’s result into one common counts format; the original response remains available beside it.</p></div>
+          </div>
+
+          <div class="evidence-grid">
+            <article class="evidence-card origin-evidence">
+              <header><div><span class="evidence-provider">ORIGIN QUANTUM · WK_C180</span><h3 data-i18n="evidence.originBell">Bell pair · Wukong 180</h3></div><span class="evidence-status verified" data-i18n="evidence.verified">Verified</span></header>
+              <a class="evidence-shot" href="/evidence/originq-bell-task.png" target="_blank" rel="noopener"><img src="/evidence/originq-bell-task.png" alt="Origin Quantum Bell task page showing the completed Wukong 180 hardware job" width="2048" height="1346"><span data-i18n="evidence.openScreenshot">Open task screenshot ↗</span></a>
+              <dl class="evidence-meta"><div><dt data-i18n="evidence.jobId">Job ID</dt><dd><code>FF2950…C14CA</code></dd></div><div><dt data-i18n="evidence.shots">Shots</dt><dd>512</dd></div><div><dt data-i18n="evidence.finished">Platform finish</dt><dd>2026-08-23 18:17 CST</dd></div></dl>
+              <div class="evidence-distribution" aria-label="Origin Quantum Bell result distribution"><div><code>00</code><meter min="0" max="1" value="0.4763031">47.63%</meter><span>47.63%</span></div><div><code>11</code><meter min="0" max="1" value="0.5230812">52.31%</meter><span>52.31%</span></div></div>
+              <p class="evidence-reading"><strong>99.94%</strong> <span data-i18n="evidence.originReading">of provider probability lies on the Bell pair’s expected results, 00 and 11.</span></p>
+              <nav class="artifact-links" aria-label="Origin Quantum Bell evidence files"><a href="/evidence/originq-bell-task.json" target="_blank" rel="noopener" data-i18n="evidence.taskRecord">Task record</a><a href="/evidence/originq-bell-program.originir" target="_blank" rel="noopener" data-i18n="evidence.executedProgram">Executed program</a><a href="/evidence/originq-bell-raw.json" target="_blank" rel="noopener" data-i18n="evidence.rawResult">Raw result</a><a href="/evidence/originq-bell-normalized.json" target="_blank" rel="noopener" data-i18n="evidence.normalizedResult">Normalized result</a></nav>
+            </article>
+
+            <article class="evidence-card spinq-evidence">
+              <header><div><span class="evidence-provider">SPINQ · GEMINI_VP</span><h3 data-i18n="evidence.spinqBell">Bell pair · Gemini NMR</h3></div><span class="evidence-status caution" data-i18n="evidence.noisy">Recorded · noisy</span></header>
+              <a class="evidence-shot" href="/evidence/spinq-bell-task.png" target="_blank" rel="noopener"><img src="/evidence/spinq-bell-task.png" alt="SpinQ Bell task page showing the completed Gemini hardware job" width="1874" height="978"><span data-i18n="evidence.openScreenshot">Open task screenshot ↗</span></a>
+              <dl class="evidence-meta"><div><dt data-i18n="evidence.jobId">Job ID</dt><dd><code>G-260823-0014</code></dd></div><div><dt data-i18n="evidence.shots">Shots</dt><dd>1,000</dd></div><div><dt data-i18n="evidence.finished">Platform finish</dt><dd>2026-08-23 22:35 CST</dd></div></dl>
+              <div class="evidence-distribution" aria-label="SpinQ Bell result distribution"><div><code>00</code><meter min="0" max="1" value="0.39588674">39.59%</meter><span>39.59%</span></div><div><code>01 + 10</code><meter class="unexpected" min="0" max="1" value="0.32784597">32.78%</meter><span>32.78%</span></div><div><code>11</code><meter min="0" max="1" value="0.27626729">27.63%</meter><span>27.63%</span></div></div>
+              <p class="evidence-reading caution-text"><strong>67.22%</strong> <span data-i18n="evidence.spinqReading">lies on 00 and 11. LoomQ preserves the unexpected 01 and 10 results instead of hiding them.</span></p>
+              <nav class="artifact-links" aria-label="SpinQ Bell evidence files"><a href="/evidence/spinq-bell-task.json" target="_blank" rel="noopener" data-i18n="evidence.taskRecord">Task record</a><a href="/evidence/spinq-bell-program.qasm" target="_blank" rel="noopener" data-i18n="evidence.executedProgram">Executed program</a><a href="/evidence/spinq-bell-raw.json" target="_blank" rel="noopener" data-i18n="evidence.rawResult">Raw result</a><a href="/evidence/spinq-bell-normalized.json" target="_blank" rel="noopener" data-i18n="evidence.normalizedResult">Normalized result</a></nav>
+            </article>
+          </div>
+
+          <div class="supplemental-evidence">
+            <article><span>GHZ-3 · ORIGIN QUANTUM</span><h3 data-i18n="evidence.ghzTitle">A second Wukong 180 run</h3><p data-i18n="evidence.ghzBody">Job 98E7…C497 used 512 shots. The expected 000 and 111 outcomes contain 99.85% of provider probability.</p><a href="/evidence/originq-ghz3-task.png" target="_blank" rel="noopener" data-i18n="evidence.viewGhz">View GHZ-3 task screenshot ↗</a></article>
+            <article><span>3 TESTS · SPINQ</span><h3 data-i18n="evidence.diagnosticTitle">The noisy result was investigated</h3><p data-i18n="evidence.diagnosticBody">Three follow-up jobs show that simply reversing the CNOT operands does not explain the Bell discrepancy. The available cloud interface cannot separate compilation, mapping, calibration, state preparation, and measurement effects.</p><a href="/evidence/spinq-diagnostics.json" target="_blank" rel="noopener" data-i18n="evidence.viewDiagnostics">Open diagnostic report ↗</a></article>
+            <article class="not-run"><span>GHZ-3 · SPINQ</span><h3 data-i18n="evidence.notRunTitle">Prepared, not submitted</h3><p data-i18n="evidence.notRunBody">At the recorded status check, the only online machine had two qubits. LoomQ did not present an offline three-qubit machine as a successful run.</p></article>
+          </div>
+
+          <section class="hardware-tutorial" aria-labelledby="hardware-tutorial-title">
+            <header><p class="eyebrow" data-i18n="evidence.tutorialEyebrow">Real-machine tutorial</p><h3 id="hardware-tutorial-title" data-i18n="evidence.tutorialTitle">Learn one safe workflow for each platform.</h3><p data-i18n="evidence.tutorialLede">The website never submits hardware. These lessons explain what each step means, which project resource helps, and exactly where a read-only action becomes a quota-consuming cloud submission.</p></header>
+
+            <div class="safety-strip"><strong data-i18n="evidence.safetyTitle">The rule shared by all three platforms</strong><p data-i18n="evidence.safetyBody">First run the circuit in a local simulator. Then refresh the real device’s current status, check its supported qubit count and gates, review price or quota, and obtain the account owner’s approval. Credentials belong only in ignored local configuration—not in this page, screenshots, evidence files, or Git.</p></div>
+
+            <div class="hardware-tabs" role="tablist" aria-label="Real-machine platform tutorials">
+              <button class="active" id="hardware-tab-origin" type="button" role="tab" aria-selected="true" aria-controls="hardware-panel-origin" tabindex="0" data-hardware-tab="origin"><span>01</span><strong data-i18n="evidence.tabOrigin">Origin Quantum</strong><small>pyqpanda3 · OriginIR</small></button>
+              <button id="hardware-tab-spinq" type="button" role="tab" aria-selected="false" aria-controls="hardware-panel-spinq" tabindex="-1" data-hardware-tab="spinq"><span>02</span><strong data-i18n="evidence.tabSpinq">SpinQ</strong><small>SpinQ Cloud · OpenQASM 2.0</small></button>
+              <button id="hardware-tab-aws" type="button" role="tab" aria-selected="false" aria-controls="hardware-panel-aws" tabindex="-1" data-hardware-tab="aws"><span>03</span><strong>Amazon Braket</strong><small>AWS · OpenQASM 3.0</small></button>
+            </div>
+
+            <section class="hardware-tab-panel active" id="hardware-panel-origin" role="tabpanel" aria-labelledby="hardware-tab-origin" data-hardware-panel="origin">
+              <header><span>ORIGIN QUANTUM</span><h4 data-i18n="evidence.originLessonTitle">From a locally checked circuit to one saved hardware job</h4><p data-i18n="evidence.originLessonLede">A backend is the named machine that receives your circuit. A preflight reads the available backend list before submission; it does not consume hardware quota.</p></header>
+              <ol class="tutorial-steps">
+                <li><div><strong data-i18n="evidence.originStep1">Validate the circuit locally</strong><p data-i18n="evidence.originStep1Body">Use the Vendor simulators page first. Then use its optional translation panel to inspect the Origin Quantum form before contacting the cloud.</p></div></li>
+                <li><div><strong data-i18n="evidence.originStep2">Configure account access</strong><p data-i18n="evidence.originStep2Body">Create a current API token in the Origin Quantum account center. A token is a secret used by software; it is different from your website password. Put it only in the ignored repository-root .env file.</p></div><pre><code>LOOMQ_ORIGINQ_API_TOKEN=&lt;your-current-api-token&gt;
+LOOMQ_ORIGINQ_BACKEND=&lt;an-online-backend-id&gt;</code></pre></li>
+                <li><div><strong data-i18n="evidence.originStep3">Build once, then run a read-only preflight</strong><p data-i18n="evidence.originStep3Body">The isolated image keeps the cloud SDK separate from the competition environment. Preflight confirms that the token works and shows the currently available machines.</p></div><pre><code>docker build -f starter_kit/hardware/Dockerfile.originq `
+  -t loomq-originq-hardware:0.4.0 .
+
+docker run --rm --env-file .env `
+  --mount type=bind,source=${PWD},target=/workspace/repo `
+  loomq-originq-hardware:0.4.0 preflight</code></pre></li>
+                <li class="quota-step"><div><strong data-i18n="evidence.originStep4">Approve, submit once, and keep the job ID</strong><p data-i18n="evidence.originStep4Body">Only submit after checking the selected machine and quota. The project’s helper requires an explicit confirmation flag, saves the returned job ID immediately, and refuses to overwrite an existing record.</p></div><pre><code>docker run --rm --env-file .env `
+  --mount type=bind,source=${PWD},target=/workspace/repo `
+  loomq-originq-hardware:0.4.0 submit --confirm-real-hardware
+
+docker run --rm --env-file .env `
+  --mount type=bind,source=${PWD},target=/workspace/repo `
+  loomq-originq-hardware:0.4.0 poll --wait</code></pre></li>
+              </ol>
+              <aside class="reproduction-note"><strong data-i18n="evidence.reproduceOriginTitle">Want to reproduce the archived evidence example?</strong><p data-i18n="evidence.reproduceOriginBody">Use starter_kit/circuits/bell.qasm, the default bell profile, backend WK_C180, and 512 shots. Run the prepare command before submission. For the three-qubit example, add --profile ghz3 to prepare, submit, and poll.</p></aside>
+            </section>
+
+            <section class="hardware-tab-panel" id="hardware-panel-spinq" role="tabpanel" aria-labelledby="hardware-tab-spinq" data-hardware-panel="spinq" hidden>
+              <header><span>SPINQ CLOUD</span><h4 data-i18n="evidence.spinqLessonTitle">Prepare a cloud-compatible circuit before choosing a machine</h4><p data-i18n="evidence.spinqLessonLede">SpinQ’s cloud hardware measures used qubits automatically, so its submitted artifact must omit explicit measure statements even though the local learning circuit contains them.</p></header>
+              <ol class="tutorial-steps">
+                <li><div><strong data-i18n="evidence.spinqStep1">Start with a locally verified OpenQASM circuit</strong><p data-i18n="evidence.spinqStep1Body">Run it through the SpinQit simulator on the Vendor simulators page. Simulation checks circuit meaning, but it does not prove that a real machine is currently online.</p></div></li>
+                <li><div><strong data-i18n="evidence.spinqStep2">Refresh machines and choose by capability</strong><p data-i18n="evidence.spinqStep2Body">Connect the authenticated SpinQ cloud tool, call get_platforms, and select an online machine with enough qubits and the required gates. Save that fresh response as your preflight JSON.</p></div></li>
+                <li><div><strong data-i18n="evidence.spinqStep3">Create the exact submission artifact</strong><p data-i18n="evidence.spinqStep3Body">The project helper checks the selected platform and removes cloud-incompatible measurement declarations. Inspect its output before sending it anywhere.</p></div><pre><code>python -m starter_kit.hardware.spinq_cloud `
+  --source starter_kit/circuits/bell.qasm `
+  --platforms-json &lt;fresh-preflight.json&gt; `
+  --platform &lt;online-platform-code&gt; `
+  --out &lt;prepared-cloud-circuit.qasm&gt;</code></pre></li>
+                <li class="quota-step"><div><strong data-i18n="evidence.spinqStep4">Approve one submission, then retrieve that same task</strong><p data-i18n="evidence.spinqStep4Body">Call qasm_submit with the selected platform code and the exact prepared QASM only after approval. Save the returned task ID, wait, and use get_task_result_by_id; never create a second task merely because the first is pending.</p></div></li>
+              </ol>
+            </section>
+
+            <section class="hardware-tab-panel" id="hardware-panel-aws" role="tabpanel" aria-labelledby="hardware-tab-aws" data-hardware-panel="aws" hidden>
+              <header><span>AMAZON BRAKET</span><h4 data-i18n="evidence.awsLessonTitle">Separate free local learning from an authorized AWS QPU task</h4><p data-i18n="evidence.awsLessonLede">A QPU is a physical quantum processing unit. Amazon Braket local simulation needs no AWS account, while a QPU task needs AWS access, a region, service configuration, storage, and explicit cost approval.</p></header>
+              <ol class="tutorial-steps">
+                <li><div><strong data-i18n="evidence.awsStep1">Translate and test locally without credentials</strong><p data-i18n="evidence.awsStep1Body">Use the Vendor simulators page for Amazon Braket, or run the repository example below. It teaches the OpenQASM 3.0 program shape and returns counts without contacting AWS.</p></div><pre><code>python starter_kit/examples/run_braket.py</code></pre></li>
+                <li><div><strong data-i18n="evidence.awsStep2">Create a named AWS profile with limited permissions</strong><p data-i18n="evidence.awsStep2Body">For learning and device discovery, begin with an identity that can only call SearchDevices and GetDevice. Those read-only permissions cannot create a quantum task.</p></div><pre><code>py -m pip install -r requirements/backend-observations.lock.txt
+$env:AWS_PROFILE = "loomq-readonly"
+py scripts/backend_observations.py --provider aws `
+  --output .cache/loomq/backend-observations.json</code></pre></li>
+                <li><div><strong data-i18n="evidence.awsStep3">Read the fresh report before choosing a QPU</strong><p data-i18n="evidence.awsStep3Body">Check the device ARN, region, ONLINE status, qubit count, capabilities, queue information, and current public pricing. An ARN is AWS’s unique identifier for a cloud resource.</p></div></li>
+                <li class="quota-step"><div><strong data-i18n="evidence.awsStep4">Stop at the project boundary before paid submission</strong><p data-i18n="evidence.awsStep4Body">This repository intentionally has no AWS QPU submission helper and no archived AWS hardware job. After the account owner approves service enablement, storage, region, device, and cost, follow the official Braket console or SDK task workflow. Do not treat read-only discovery credentials as submission permission.</p></div></li>
+              </ol>
+              <aside class="platform-limit"><strong data-i18n="evidence.awsLimitTitle">What the project provides</strong><p data-i18n="evidence.awsLimitBody">OpenQASM 3.0 translation, a credential-free local Braket example, and read-only live device discovery. It does not automate a chargeable AWS task.</p></aside>
+            </section>
+          </section>
         </section>
       </main>
 

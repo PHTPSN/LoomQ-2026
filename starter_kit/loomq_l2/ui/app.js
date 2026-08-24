@@ -5,10 +5,10 @@ const sendButton = document.querySelector("#send-button");
 const starterPrompts = document.querySelector("#starter-prompts");
 const statusElement = document.querySelector("#service-status");
 const statusText = document.querySelector("#service-status-text");
+const backendStatusRows = Array.from(document.querySelectorAll("[data-backend-status]"));
 const clearButton = document.querySelector("#clear-button");
 const template = document.querySelector("#message-template");
 const contentStage = document.querySelector("#content-stage");
-const runnerLab = document.querySelector("#runner-lab");
 const runnerForm = document.querySelector("#runner-form");
 const qasmInput = document.querySelector("#qasm-input");
 const simulatorTarget = document.querySelector("#simulator-target");
@@ -30,19 +30,23 @@ const promptResizeHandle = document.querySelector("#composer-resize-handle");
 const assistantDock = document.querySelector("#assistant-dock");
 const assistantHideButton = document.querySelector("#assistant-hide-button");
 const assistantLauncher = document.querySelector("#assistant-launcher");
+const hardwareTabButtons = Array.from(document.querySelectorAll("[data-hardware-tab]"));
+const hardwareTabPanels = Array.from(document.querySelectorAll("[data-hardware-panel]"));
 
 const chinese = {
   "aria.workspace": "工作区导航",
   "aria.language": "语言",
   "aria.tools": "学习工具",
   "aria.conversation": "对话",
+  "aria.backends": "本地执行后端状态",
   "brand.tagline": "量子新手指南",
   "nav.overview": "工具介绍",
   "nav.learn": "量子基础教学",
   "nav.gates": "支持的 12 种门",
   "nav.simulator": "厂商模拟器",
   "nav.hybrid": "混合编译器",
-  "rail.local": "仅在本机运行 · 模型凭证始终保留在 Python 中",
+  "nav.evidence": "真机证据",
+  "rail.backends": "本地后端",
   "overview.eyebrow": "01 · 工具介绍",
   "overview.title1": "从一句自然语言想法",
   "overview.title2": "到一条可以运行的量子线路。",
@@ -141,7 +145,7 @@ const chinese = {
   "sim.vendor.spinq": "量旋科技 SpinQ",
   "sim.vendor.origin": "本源量子",
   "l1.target": "翻译目标",
-  "l1.optional": "可选 · 查看 IR 与 SDK 翻译",
+  "l1.optional": "查看 IR 与 SDK 翻译",
   "l1.translate": "显示 IR 与 SDK 翻译",
   "l1.note": "IR 会去除源程序中的寄存器名称，同时保留量子比特索引、经典比特写入位置、参数和指令顺序。",
   "l1.ir": "规范化 IR",
@@ -165,6 +169,99 @@ const chinese = {
   "hybrid.classicalOutput": "精简 RISC-V 汇编",
   "hybrid.awaitingQuantum": "编译示例后即可列出量子操作。",
   "hybrid.awaitingAssembly": "编译后的经典指令将显示在这里。",
+  "evidence.eyebrow": "06 · 真机证据",
+  "evidence.title1": "可以逐项核验的任务，",
+  "evidence.title2": "可以安全复现的流程。",
+  "evidence.lede": "真机结论不能只靠一张结果图。每次归档运行都关联厂商任务编号、实际提交的线路、未经修改的厂商响应、统一格式的 counts、执行时间和任务页截图。",
+  "evidence.definitionTitle": "这里的“真机证据”是什么意思",
+  "evidence.definitionBody": "厂商记录显示：一个任务已在指定的物理量子机器上完成。“统一格式”表示 LoomQ 把厂商结果转换为共同的 counts 格式；原始响应仍与转换结果一同保留。",
+  "evidence.originBell": "Bell 对 · 本源悟空 180",
+  "evidence.spinqBell": "Bell 对 · Gemini 核磁共振设备",
+  "evidence.verified": "已核验",
+  "evidence.noisy": "已记录 · 噪声较大",
+  "evidence.openScreenshot": "打开任务截图 ↗",
+  "evidence.jobId": "任务编号",
+  "evidence.shots": "运行次数",
+  "evidence.finished": "平台完成时间",
+  "evidence.originReading": "的厂商概率落在 Bell 对应有的 00 和 11 结果上。",
+  "evidence.spinqReading": "落在 00 和 11 上。LoomQ 保留了意外出现的 01 和 10，而没有把它们隐藏。",
+  "evidence.taskRecord": "任务记录",
+  "evidence.executedProgram": "实际执行程序",
+  "evidence.rawResult": "原始结果",
+  "evidence.normalizedResult": "统一格式结果",
+  "evidence.ghzTitle": "第二次悟空 180 真机运行",
+  "evidence.ghzBody": "任务 98E7…C497 共运行 512 次。预期的 000 与 111 合计占厂商概率的 99.85%。",
+  "evidence.viewGhz": "查看 GHZ-3 任务截图 ↗",
+  "evidence.diagnosticTitle": "我们调查了这个高噪声结果",
+  "evidence.diagnosticBody": "三个后续任务表明，仅仅调换 CNOT 的两个操作数无法解释 Bell 结果差异。现有云端接口无法进一步区分编译、映射、校准、初态制备和测量等因素。",
+  "evidence.viewDiagnostics": "打开诊断报告 ↗",
+  "evidence.notRunTitle": "已准备，但没有提交",
+  "evidence.notRunBody": "记录状态时，唯一在线的机器只有两个量子比特。LoomQ 没有把离线的三量子比特机器伪装成成功运行。",
+  "evidence.tutorialEyebrow": "真机实验教程",
+  "evidence.tutorialTitle": "学习三个平台各自的安全流程。",
+  "evidence.tutorialLede": "这个网站绝不会提交真机任务。以下教程会解释每一步的含义、可以使用的项目资源，以及只读操作从哪里开始变成会消耗配额的云端提交。",
+  "evidence.safetyTitle": "三个平台共同遵守的规则",
+  "evidence.safetyBody": "先在线路模拟器中运行线路；然后刷新真机的当前状态，检查它支持的量子比特数量和量子门，核对价格或配额，并获得账号所有者批准。凭证只能存放在被忽略的本地配置中，不能进入本页面、截图、证据文件或 Git。",
+  "evidence.tabOrigin": "本源量子",
+  "evidence.tabSpinq": "量旋科技 SpinQ",
+  "evidence.originLessonTitle": "从本地验证的线路到一个妥善保存的真机任务",
+  "evidence.originLessonLede": "后端是接收线路的指定机器。预检会在提交前读取可用后端列表，不会消耗真机配额。",
+  "evidence.originStep1": "先在本地验证线路",
+  "evidence.originStep1Body": "首先使用“厂商模拟器”页面运行线路，再打开其中的可选翻译面板，检查本源量子格式，然后再接触云端。",
+  "evidence.originStep2": "配置账号访问",
+  "evidence.originStep2Body": "在本源量子账号中心创建当前有效的 API token。token 是供软件使用的秘密字符串，与网站密码不同。它只能放在项目根目录中被忽略的 .env 文件里。",
+  "evidence.originStep3": "构建一次环境，然后执行只读预检",
+  "evidence.originStep3Body": "隔离镜像会把云端 SDK 与竞赛环境分开。预检可以确认 token 有效，并显示当前可用的机器。",
+  "evidence.originStep4": "批准后只提交一次，并保存任务编号",
+  "evidence.originStep4Body": "确认所选机器和配额后才能提交。项目助手要求显式确认参数，会立即保存返回的任务编号，并拒绝覆盖已有任务记录。",
+  "evidence.reproduceOriginTitle": "如果需要复现上面的归档证据示例",
+  "evidence.reproduceOriginBody": "请使用 starter_kit/circuits/bell.qasm、默认 bell 配置、后端 WK_C180 和 512 次 shots，并在提交前执行 prepare。若要复现三量子比特示例，请在 prepare、submit 和 poll 中加入 --profile ghz3。",
+  "evidence.spinqLessonTitle": "选择机器之前，先准备兼容云端的线路",
+  "evidence.spinqLessonLede": "SpinQ 云端真机会自动测量已经使用的量子比特，因此实际提交文件必须删除显式 measure 语句，即使本地教学线路仍然包含这些语句。",
+  "evidence.spinqStep1": "从本地验证过的 OpenQASM 线路开始",
+  "evidence.spinqStep1Body": "先在“厂商模拟器”页面中使用 SpinQit 模拟器运行线路。模拟可以检查线路含义，但不能证明真机当前在线。",
+  "evidence.spinqStep2": "刷新机器列表，并按能力选择",
+  "evidence.spinqStep2Body": "连接已认证的 SpinQ 云端工具，调用 get_platforms，并选择一台在线且量子比特数量和量子门满足要求的机器。把这次最新响应保存为预检 JSON。",
+  "evidence.spinqStep3": "生成实际提交文件",
+  "evidence.spinqStep3Body": "项目助手会检查所选平台，并删除云端不兼容的测量声明。发送到任何地方之前，先人工检查输出。",
+  "evidence.spinqStep4": "批准一次提交，然后获取同一个任务",
+  "evidence.spinqStep4Body": "获得批准后，使用所选平台代码和准备好的完整 QASM 调用 qasm_submit。保存返回的任务编号，等待后使用 get_task_result_by_id；不要因为任务仍在等待就再创建一个任务。",
+  "evidence.awsLessonTitle": "区分免费的本地学习与经过授权的 AWS QPU 任务",
+  "evidence.awsLessonLede": "QPU 是物理量子处理器。Amazon Braket 本地模拟不需要 AWS 账号，而 QPU 任务需要 AWS 权限、区域、服务配置、存储位置和明确的费用批准。",
+  "evidence.awsStep1": "无需凭证，先完成翻译和本地测试",
+  "evidence.awsStep1Body": "可以在“厂商模拟器”页面选择 Amazon Braket，也可以运行下面的项目示例。它会演示 OpenQASM 3.0 程序结构，并在不连接 AWS 的情况下返回 counts。",
+  "evidence.awsStep2": "创建权限受限的命名 AWS 配置",
+  "evidence.awsStep2Body": "在学习和发现设备阶段，先使用只能调用 SearchDevices 和 GetDevice 的身份。这些只读权限不能创建量子任务。",
+  "evidence.awsStep3": "选择 QPU 前阅读最新报告",
+  "evidence.awsStep3Body": "检查设备 ARN、区域、ONLINE 状态、量子比特数量、能力、队列信息和当前公开价格。ARN 是 AWS 为云端资源分配的唯一标识。",
+  "evidence.awsStep4": "在付费提交前停在项目边界",
+  "evidence.awsStep4Body": "本项目有意不提供 AWS QPU 提交助手，也没有归档 AWS 真机任务。账号所有者批准启用服务、存储、区域、设备和费用后，请按照 Braket 官方控制台或 SDK 任务流程操作。只读发现凭证不代表具有提交权限。",
+  "evidence.awsLimitTitle": "项目目前提供什么",
+  "evidence.awsLimitBody": "OpenQASM 3.0 翻译、无需凭证的 Braket 本地示例，以及只读的实时设备发现；它不会自动执行可能收费的 AWS 任务。",
+  "evidence.originGuide": "本源量子 · 带保护措施的命令行流程",
+  "evidence.originGuideMeta": "本地准备 → 只读预检 → 一次显式确认提交 → 轮询",
+  "evidence.credentialTitle": "只在本地配置当前 API token",
+  "evidence.credentialBody": "请使用本源量子的 API token，而不是网站密码或浏览器 cookie。项目根目录的 .env 文件已被 Git 忽略。",
+  "evidence.buildTitle": "构建隔离的真机镜像",
+  "evidence.buildBody": "这样可以把 pyqpanda3 0.4.0 与竞赛离线评测所用的旧版 SDK 分开。",
+  "evidence.prepareTitle": "准备并检查实际执行程序",
+  "evidence.prepareOriginBody": "这一步完全不连接网络，会生成之后提交的 OriginIR 文件。",
+  "evidence.preflightTitle": "检查账号权限和当前可用状态",
+  "evidence.preflightBody": "预检是只读操作：它只查询后端列表，不会创建任务。",
+  "evidence.submitTitle": "获得批准后只提交一次",
+  "evidence.submitOriginBody": "这是本源流程中唯一会消耗真机配额的步骤。脚本缺少显式确认参数时会拒绝运行，也不会覆盖已经存在的任务记录。",
+  "evidence.collectTitle": "按已保存的任务编号轮询并保留证据",
+  "evidence.collectOriginBody": "轮询只会复用已保存的任务编号，不得创建第二个任务。收集完成后，再补充厂商任务页截图。",
+  "evidence.spinqGuide": "SpinQ · 本地准备与已认证云端提交",
+  "evidence.spinqGuideMeta": "刷新状态 → 准备不含测量语句的 QASM → 一次获批 MCP 提交 → 获取结果",
+  "evidence.refreshTitle": "刷新实时能力",
+  "evidence.refreshBody": "使用 SpinQ 的 get_platforms 工具，把选中的在线机器记录保存为预检 JSON。可用状态会变化，不要直接复用归档快照。",
+  "evidence.prepareSpinqBody": "SpinQ 会自动测量已使用的量子比特，因此项目会从云端执行文件中删除显式 measure 语句。",
+  "evidence.submitSpinqTitle": "通过 SpinQ 已认证工具提交一次",
+  "evidence.submitSpinqBody": "获得账号所有者批准后，用 platform_code gemini_vp 和准备好的完整 QASM 调用 qasm_submit。立即保存返回的任务编号；等待期间不要重复提交。",
+  "evidence.collectSpinqBody": "按任务编号获取结果，保留未经修改的响应，生成统一格式结果，并保存包含实际设备、时间、shots 和完成状态的任务页截图。",
+  "evidence.awsTitle": "本项目中的 AWS 仍然只有只读能力",
+  "evidence.awsBody": "如果已经配置凭证，项目可以刷新 Amazon Braket 设备可用状态；但项目中没有归档的 AWS 真机任务，也没有带保护措施的提交流程。本页面不会声称已有这些内容。",
   "assistant.eyebrow": "AI 量子线路助手",
   "assistant.title": "询问 LoomQ",
   "assistant.new": "新对话",
@@ -186,6 +283,7 @@ const dynamicText = {
     couldNotRun: "Could not run", shots: "shots", showing: "Showing the 16 most frequent of {count} measured states.", simulatorFailure: "The simulator could not run this circuit.",
     insightOne: "Most frequent result: {states}, representing {share}% of all shots.", insightTwo: "Most frequent results: {states}. Together they represent {share}% of all shots.",
     collapseRail: "Collapse sidebar", expandRail: "Expand sidebar",
+    backendChecking: "Checking", backendReady: "Ready", backendMissing: "Not ready", backendUnavailable: "Unavailable",
     resizePrompt: "Resize prompt input from its top edge", hideAssistant: "Hide LoomQ assistant", showAssistant: "Open LoomQ assistant", openAssistant: "Ask LoomQ",
     running: "Running…", comparing: "Comparing {current} of 3…", translating: "Translating…", compiling: "Compiling…", translationFailure: "The circuit translator could not process this program.", hybridFailure: "The hybrid compiler could not process this program.", checkingAnswer: "Checking…", loading: "Interpreting, building, and checking your request", chatFailure: "The local agent could not answer.", chatHint: "Check the local model configuration, then try again. Your prompt is still in the box."
   },
@@ -195,6 +293,7 @@ const dynamicText = {
     couldNotRun: "无法运行", shots: "次测量", showing: "正在显示 {count} 个测量状态中出现次数最多的 16 个。", simulatorFailure: "模拟器无法运行此线路，请检查量子门、参数和测量语句。",
     insightOne: "最常见的结果是 {states}，占全部测量次数的 {share}%。", insightTwo: "最常见的结果是 {states}，两者合计占全部测量次数的 {share}%。",
     collapseRail: "折叠侧边栏", expandRail: "展开侧边栏",
+    backendChecking: "检查中", backendReady: "可用", backendMissing: "未就绪", backendUnavailable: "不可用",
     resizePrompt: "从顶部边缘调整提示词输入框高度", hideAssistant: "隐藏 LoomQ 助手", showAssistant: "打开 LoomQ 助手", openAssistant: "询问 LoomQ",
     running: "正在运行…", comparing: "正在对比第 {current}/3 个…", translating: "正在翻译…", compiling: "正在编译…", translationFailure: "线路翻译器无法处理这份程序。", hybridFailure: "混合编译器无法处理这份程序。", checkingAnswer: "正在检查…", loading: "正在理解、构建并检查你的请求", chatFailure: "本地智能体暂时无法回答。", chatHint: "请检查本地模型配置后重试。你的输入仍保留在输入框中。"
   }
@@ -288,13 +387,14 @@ function applyLanguage(nextLanguage) {
   if (!translationButton.disabled) translationButton.querySelector("span").textContent = language === "zh" ? chinese["l1.translate"] : "Show IR + SDK translation";
   if (!hybridButton.disabled) hybridButton.querySelector("span").textContent = language === "zh" ? chinese["hybrid.compile"] : "Compile Hybrid-QASM";
   if (simulationResults.children.length) simulationResults.replaceChildren();
+  backendStatusRows.forEach((row) => setBackendStatus(row.dataset.backendStatus, row.dataset.state || "checking"));
   syncRailToggle();
   syncAssistantVisibility();
   try { localStorage.setItem("loomq-language", language); } catch (_error) { /* Preference storage is optional. */ }
 }
 
 function activateView(name) {
-  const allowed = new Set(["overview", "learn", "gates", "simulator", "hybrid"]);
+  const allowed = new Set(["overview", "learn", "gates", "simulator", "hybrid", "evidence"]);
   const view = allowed.has(name) ? name : "overview";
   document.querySelectorAll("[data-view]").forEach((button) => {
     const active = button.dataset.view === view;
@@ -304,6 +404,22 @@ function activateView(name) {
   document.querySelectorAll("[data-view-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.viewPanel === view));
   contentStage.scrollTop = 0;
   window.history.replaceState(null, "", `#${view}`);
+}
+
+function activateHardwareTutorial(name, moveFocus = false) {
+  const selected = hardwareTabButtons.some((button) => button.dataset.hardwareTab === name) ? name : "origin";
+  hardwareTabButtons.forEach((button) => {
+    const active = button.dataset.hardwareTab === selected;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+    button.tabIndex = active ? 0 : -1;
+    if (active && moveFocus) button.focus();
+  });
+  hardwareTabPanels.forEach((panel) => {
+    const active = panel.dataset.hardwarePanel === selected;
+    panel.classList.toggle("active", active);
+    panel.hidden = !active;
+  });
 }
 
 function gateProgram(qubits, instructions) {
@@ -334,6 +450,35 @@ async function connect() {
   } catch (_error) { setStatus("offline", "unavailable"); }
 }
 
+function setBackendStatus(target, state) {
+  const row = backendStatusRows.find((item) => item.dataset.backendStatus === target);
+  if (!row) return;
+  const normalized = ["ready", "missing", "unavailable"].includes(state) ? state : "checking";
+  row.dataset.state = normalized;
+  row.classList.remove("checking", "ready", "missing", "unavailable");
+  row.classList.add(normalized);
+  const stateText = tr(normalized === "ready" ? "backendReady" : normalized === "missing" ? "backendMissing" : normalized === "unavailable" ? "backendUnavailable" : "backendChecking");
+  row.querySelector("[data-backend-state]").textContent = stateText;
+  const name = row.querySelector(":scope > span:nth-of-type(2)").textContent;
+  row.title = `${name} · ${stateText}`;
+  row.setAttribute("aria-label", `${name} · ${stateText}`);
+}
+
+async function checkBackendHealth() {
+  backendStatusRows.forEach((row) => setBackendStatus(row.dataset.backendStatus, "checking"));
+  try {
+    const response = await fetch("/api/backend-health", { cache: "no-store" });
+    if (!response.ok) throw new Error();
+    const payload = await response.json();
+    backendStatusRows.forEach((row) => {
+      const result = payload.backends && payload.backends[row.dataset.backendStatus];
+      setBackendStatus(row.dataset.backendStatus, result && result.ok ? "ready" : result && result.state === "missing" ? "missing" : "unavailable");
+    });
+  } catch (_error) {
+    backendStatusRows.forEach((row) => setBackendStatus(row.dataset.backendStatus, "unavailable"));
+  }
+}
+
 function addMessage(role, content, options = {}) {
   const message = template.content.firstElementChild.cloneNode(true);
   message.dataset.role = role;
@@ -353,7 +498,7 @@ function addMessage(role, content, options = {}) {
       catch (_error) { copy.dataset.dynamicText = "selectCopy"; copy.textContent = tr("selectCopy"); }
     });
     const simulate = document.createElement("button"); simulate.type = "button"; simulate.className = "simulate-button"; simulate.dataset.dynamicText = "run"; simulate.textContent = tr("run");
-    simulate.addEventListener("click", () => { qasmInput.value = content; runnerLab.open = true; activateView("simulator"); window.setTimeout(() => qasmInput.focus(), 200); });
+    simulate.addEventListener("click", () => { qasmInput.value = content; activateView("simulator"); window.setTimeout(() => qasmInput.focus(), 200); });
     const actions = document.createElement("div"); actions.className = "answer-actions"; actions.append(copy, simulate); toolbar.append(badge, actions); message.append(toolbar);
   } else { body.textContent = content; }
   conversation.append(message);
@@ -484,8 +629,21 @@ translationButton.addEventListener("click", translateProgram);
 hybridForm.addEventListener("submit", (event) => { event.preventDefault(); compileHybridProgram(); });
 input.addEventListener("keydown", (event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); composer.requestSubmit(); } });
 document.querySelectorAll("[data-prompt-en]").forEach((button) => button.addEventListener("click", () => { input.value = language === "zh" ? button.dataset.promptZh : button.dataset.promptEn; input.focus(); }));
-document.querySelectorAll("[data-gate-example]").forEach((button) => button.addEventListener("click", () => { qasmInput.value = gateExamples[button.dataset.gateExample]; simulationResults.replaceChildren(); runnerLab.open = true; activateView("simulator"); window.setTimeout(() => qasmInput.focus(), 200); }));
+document.querySelectorAll("[data-gate-example]").forEach((button) => button.addEventListener("click", () => { qasmInput.value = gateExamples[button.dataset.gateExample]; simulationResults.replaceChildren(); activateView("simulator"); window.setTimeout(() => qasmInput.focus(), 200); }));
 document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => activateView(button.dataset.view)));
+hardwareTabButtons.forEach((button, index) => {
+  button.addEventListener("click", () => activateHardwareTutorial(button.dataset.hardwareTab));
+  button.addEventListener("keydown", (event) => {
+    let nextIndex = index;
+    if (event.key === "ArrowRight") nextIndex = (index + 1) % hardwareTabButtons.length;
+    else if (event.key === "ArrowLeft") nextIndex = (index - 1 + hardwareTabButtons.length) % hardwareTabButtons.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = hardwareTabButtons.length - 1;
+    else return;
+    event.preventDefault();
+    activateHardwareTutorial(hardwareTabButtons[nextIndex].dataset.hardwareTab, true);
+  });
+});
 document.querySelectorAll("[data-language]").forEach((button) => button.addEventListener("click", () => applyLanguage(button.dataset.language)));
 clearButton.addEventListener("click", () => { history = []; conversation.replaceChildren(); starterPrompts.hidden = false; input.value = ""; input.focus(); });
 railToggle.addEventListener("click", () => {
@@ -527,3 +685,4 @@ promptResizeHandle.addEventListener("keydown", (event) => {
 applyLanguage(language);
 activateView(location.hash.slice(1));
 connect();
+checkBackendHealth();

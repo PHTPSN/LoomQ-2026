@@ -29,6 +29,7 @@ except ImportError:
 
 
 UI_ROOT = Path(__file__).resolve().parent / "ui"
+EVIDENCE_ROOT = Path(__file__).resolve().parents[1] / "evidence" / "files"
 MAX_REQUEST_BYTES = 64 * 1024
 MAX_PROMPT_CHARACTERS = 24_000
 MAX_HISTORY_MESSAGES = 6
@@ -44,6 +45,34 @@ TRANSLATION_TARGETS = {
     "originq": "Origin Quantum QRunes",
     "braket": "Amazon Braket OpenQASM 3.0",
 }
+BACKEND_HEALTH_QASM = '''OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[1];
+creg c[1];
+measure q[0] -> c[0];'''
+BACKEND_HEALTH_CACHE_SECONDS = 60.0
+BACKEND_PYTHON_ENV = {
+    "spinq": "LOOMQ_SPINQ_PYTHON",
+    "originq": "LOOMQ_ORIGINQ_PYTHON",
+    "braket": "LOOMQ_BRAKET_PYTHON",
+}
+
+
+def _backend_runtime_available(target: str) -> bool:
+    configured = os.environ.get(BACKEND_PYTHON_ENV[target])
+    if configured:
+        return Path(configured).expanduser().is_file()
+    repository_root = Path(__file__).resolve().parents[2]
+    if os.name == "nt":
+        candidates = (
+            repository_root / (".venv-" + target) / "Scripts" / "python.exe",
+        )
+    else:
+        candidates = (
+            repository_root / (".venv-" + target) / "bin" / "python",
+            Path("/opt/loomq-backends") / target / "bin" / "python",
+        )
+    return any(candidate.is_file() for candidate in candidates)
 
 
 def _load_env_file(path: Path) -> None:
@@ -206,6 +235,9 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
     session_token = secrets.token_urlsafe(24)
     agent_lock = threading.Lock()
     simulator_lock = threading.Lock()
+    backend_health_lock = threading.Lock()
+    backend_health_checked_at = 0.0
+    backend_health_cache: Dict[str, Dict[str, Any]] = {}
 
     def log_message(self, format_string: str, *args: Any) -> None:
         print("[%s] %s" % (self.log_date_time_string(), format_string % args))
@@ -246,8 +278,7 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
             and parsed.port == self.server.server_address[1]
         )
 
-    def _serve_file(self, filename: str) -> None:
-        path = UI_ROOT / filename
+    def _serve_file(self, path: Path) -> None:
         if not path.is_file():
             self.send_error(404)
             return
@@ -275,20 +306,86 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
                 },
             )
             return
+        if route == "/api/backend-health":
+            self._backend_health()
+            return
         files = {
-            "/": "index.html",
-            "/index.html": "index.html",
-            "/styles.css": "styles.css",
-            "/app.js": "app.js",
-            "/assets/spinq-logo.png": "assets/spinq-logo.png",
-            "/assets/origin-quantum-logo.svg": "assets/origin-quantum-logo.svg",
-            "/assets/aws-logo.svg": "assets/aws-logo.svg",
+            "/": UI_ROOT / "index.html",
+            "/index.html": UI_ROOT / "index.html",
+            "/styles.css": UI_ROOT / "styles.css",
+            "/app.js": UI_ROOT / "app.js",
+            "/assets/spinq-logo.png": UI_ROOT / "assets/spinq-logo.png",
+            "/assets/origin-quantum-logo.svg": UI_ROOT / "assets/origin-quantum-logo.svg",
+            "/assets/aws-logo.svg": UI_ROOT / "assets/aws-logo.svg",
+            "/evidence/originq-bell-task.png": EVIDENCE_ROOT / "originq-bell/originq-bell-task.png",
+            "/evidence/originq-bell-task.json": EVIDENCE_ROOT / "originq-bell/originq-bell-task.json",
+            "/evidence/originq-bell-program.originir": EVIDENCE_ROOT / "originq-bell/originq-bell-executed.originir",
+            "/evidence/originq-bell-raw.json": EVIDENCE_ROOT / "originq-bell/originq-bell-sdk-result.json",
+            "/evidence/originq-bell-normalized.json": EVIDENCE_ROOT / "originq-bell/originq-bell-normalized-result.json",
+            "/evidence/originq-ghz3-task.png": EVIDENCE_ROOT / "originq-ghz3/originq-ghz3-task.png",
+            "/evidence/spinq-bell-task.png": EVIDENCE_ROOT / "spinq-bell/spinq-bell-task.png",
+            "/evidence/spinq-bell-task.json": EVIDENCE_ROOT / "spinq-bell/spinq-bell-task.json",
+            "/evidence/spinq-bell-program.qasm": EVIDENCE_ROOT / "spinq-bell/spinq-bell-executed.qasm",
+            "/evidence/spinq-bell-raw.json": EVIDENCE_ROOT / "spinq-bell/spinq-bell-sdk-result.json",
+            "/evidence/spinq-bell-normalized.json": EVIDENCE_ROOT / "spinq-bell/spinq-bell-normalized-result.json",
+            "/evidence/spinq-diagnostics.json": EVIDENCE_ROOT / "spinq-diagnostics/spinq-diagnostics-report.json",
         }
-        filename = files.get(route)
-        if filename is None:
+        path = files.get(route)
+        if path is None:
             self.send_error(404)
             return
-        self._serve_file(filename)
+        self._serve_file(path)
+
+    def _backend_health(self) -> None:
+        handler_type = type(self)
+        now = time.monotonic()
+        if (
+            handler_type.backend_health_cache
+            and now - handler_type.backend_health_checked_at
+            < BACKEND_HEALTH_CACHE_SECONDS
+        ):
+            self._json(
+                200,
+                {
+                    "scope": "local_simulators",
+                    "backends": handler_type.backend_health_cache,
+                },
+            )
+            return
+        with handler_type.backend_health_lock:
+            now = time.monotonic()
+            if (
+                not handler_type.backend_health_cache
+                or now - handler_type.backend_health_checked_at
+                >= BACKEND_HEALTH_CACHE_SECONDS
+            ):
+                statuses: Dict[str, Dict[str, Any]] = {}
+                for target in SIMULATOR_TARGETS:
+                    if not _backend_runtime_available(target):
+                        statuses[target] = {"ok": False, "state": "missing"}
+                        continue
+                    try:
+                        run_circuit(BACKEND_HEALTH_QASM, target, 1)
+                    except Exception as exc:
+                        statuses[target] = {
+                            "ok": False,
+                            "state": (
+                                "missing"
+                                if "ModuleNotFoundError" in str(exc)
+                                else "unavailable"
+                            ),
+                        }
+                    else:
+                        statuses[target] = {"ok": True}
+                handler_type.backend_health_cache = statuses
+                handler_type.backend_health_checked_at = time.monotonic()
+        self._json(
+            200,
+            {
+                "scope": "local_simulators",
+                "backends": handler_type.backend_health_cache,
+            },
+        )
 
     def do_POST(self) -> None:
         route = urlparse(self.path).path
