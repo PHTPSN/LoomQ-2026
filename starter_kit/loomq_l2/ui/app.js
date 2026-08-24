@@ -19,6 +19,30 @@ let sessionToken = "";
 let history = [];
 let busy = false;
 
+function gateProgram(qubits, instructions) {
+  return `OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[${qubits}];
+creg c[${qubits}];
+${instructions.join("\n")}
+measure q -> c;`;
+}
+
+const gateExamples = {
+  h: gateProgram(1, ["h q[0];"]),
+  x: gateProgram(1, ["x q[0];"]),
+  s: gateProgram(1, ["h q[0];", "s q[0];", "h q[0];"]),
+  sdg: gateProgram(1, ["h q[0];", "sdg q[0];", "h q[0];"]),
+  t: gateProgram(1, ["h q[0];", "t q[0];", "h q[0];"]),
+  tdg: gateProgram(1, ["h q[0];", "tdg q[0];", "h q[0];"]),
+  rz: gateProgram(1, ["h q[0];", "rz(pi/2) q[0];", "h q[0];"]),
+  ry: gateProgram(1, ["ry(pi/2) q[0];"]),
+  cx: gateProgram(2, ["h q[0];", "cx q[0],q[1];"]),
+  cu1: gateProgram(2, ["h q[0];", "h q[1];", "cu1(pi) q[0],q[1];", "h q[0];", "h q[1];"]),
+  swap: gateProgram(2, ["x q[0];", "swap q[0],q[1];"]),
+  ccx: gateProgram(3, ["x q[0];", "x q[1];", "ccx q[0],q[1],q[2];"]),
+};
+
 function setStatus(state, text) {
   statusElement.className = `status ${state}`;
   statusText.textContent = text;
@@ -252,6 +276,16 @@ document.querySelectorAll("[data-prompt]").forEach((button) => {
   button.addEventListener("click", () => {
     input.value = button.dataset.prompt;
     input.focus();
+  });
+});
+
+document.querySelectorAll("[data-gate-example]").forEach((button) => {
+  button.addEventListener("click", () => {
+    qasmInput.value = gateExamples[button.dataset.gateExample];
+    simulationResults.replaceChildren();
+    runnerLab.open = true;
+    runnerLab.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => qasmInput.focus(), 350);
   });
 });
 

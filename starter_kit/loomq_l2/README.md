@@ -42,6 +42,12 @@ API Key。服务拒绝非回环地址绑定、跨站请求和无会话令牌的�
 能力快照选择后端。多轮对话只把最近六条消息作为上下文，并保留失败请求以便修改重试。
 命令行参数见 `python -m starter_kit.loomq_l2.ui_server --help`。
 
+页面下半部分是面向零基础用户的 **Quantum 101** 学习层：先用软件工程类比解释 qubit、
+叠加、门与线路、测量、shots 和纠缠，再用 Bell 线路串起 `|00⟩ → h → cx → counts`。
+门图谱严格来自 `knowledge/spec/gates.json`，完整覆盖比赛白名单中的 12 个门：
+`h, x, s, sdg, t, tdg, rz, ry, cx, cu1, swap, ccx`。每张门卡都说明量子比特数、
+直观用途、OpenQASM 写法，并可把一个完整示例直接载入 Local simulator lab。
+
 ### 在页面中运行线路
 
 展开页面中的 **Local simulator lab**，可以直接粘贴 OpenQASM 2.0、选择 shots，并在

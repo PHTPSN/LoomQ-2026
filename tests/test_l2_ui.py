@@ -1,6 +1,7 @@
 import http.client
 import json
 import os
+import re
 import tempfile
 import threading
 import unittest
@@ -88,6 +89,14 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertIn(b"Ask LoomQ", body)
             self.assertIn(b"Test OpenQASM directly", body)
+            gate_examples = re.findall(rb'data-gate-example="([^"]+)"', body)
+            gate_spec = json.loads(
+                (ui_server.UI_ROOT.parents[1] / "knowledge/spec/gates.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            expected_gates = [item["name"].encode() for item in gate_spec["gates"]]
+            self.assertEqual(gate_examples, expected_gates)
             self.assertIn("default-src 'self'", headers["Content-Security-Policy"])
             self.assertEqual(headers["X-Frame-Options"], "DENY")
 

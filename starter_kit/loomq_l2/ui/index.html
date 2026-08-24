@@ -20,6 +20,7 @@
         </span>
       </a>
       <div class="topbar-actions">
+        <a class="learn-link" href="#learn">Learn the basics</a>
         <span class="status" id="service-status" role="status">
           <span class="status-dot"></span>
           <span id="service-status-text">Checking local agent</span>
@@ -150,6 +151,168 @@ measure q -&gt; c;</textarea>
         <p class="local-note"><span aria-hidden="true">●</span> Runs locally. Your model credential stays in Python and is never sent to this page.</p>
       </aside>
     </main>
+
+    <section class="learn-section" id="learn" aria-labelledby="learn-title">
+      <div class="learn-shell">
+        <header class="learn-heading">
+          <div>
+            <p class="eyebrow">Quantum 101 · 新手入门</p>
+            <h2 id="learn-title">Quantum ideas,<br><em>translated into software.</em></h2>
+          </div>
+          <p>You do not need a physics degree. For LoomQ, a quantum circuit is a short program that transforms a state, then samples an answer.</p>
+        </header>
+
+        <div class="concept-grid">
+          <article class="concept-card">
+            <span>01 / DATA</span>
+            <h3>Qubit</h3>
+            <p>A quantum bit. Unlike a classical bit, its state can contain weighted <code>|0⟩</code> and <code>|1⟩</code> components before measurement.</p>
+          </article>
+          <article class="concept-card">
+            <span>02 / STATE</span>
+            <h3>Superposition</h3>
+            <p>A combination of basis states. Squaring each amplitude’s magnitude gives the probability of observing that state.</p>
+          </article>
+          <article class="concept-card">
+            <span>03 / CODE</span>
+            <h3>Gate &amp; circuit</h3>
+            <p>A gate is one reversible state transformation. A circuit is the ordered instruction list—much like a tiny assembly program.</p>
+          </article>
+          <article class="concept-card">
+            <span>04 / OUTPUT</span>
+            <h3>Measurement</h3>
+            <p>Converts quantum information into classical bits. One measurement produces one bit string such as <code>00</code> or <code>11</code>.</p>
+          </article>
+          <article class="concept-card">
+            <span>05 / SAMPLE</span>
+            <h3>Shots</h3>
+            <p>The number of times a circuit is prepared and measured. More shots make the observed histogram steadier.</p>
+          </article>
+          <article class="concept-card">
+            <span>06 / LINK</span>
+            <h3>Entanglement</h3>
+            <p>A joint state whose outcomes are correlated. A Bell pair behaves like two fair coins that always land on the same side.</p>
+          </article>
+        </div>
+
+        <div class="circuit-story" aria-label="Bell circuit walkthrough">
+          <div class="story-copy">
+            <span class="story-index">A two-gate story</span>
+            <h3>How a Bell pair is made</h3>
+            <p>Start with two zeroes. The <code>h</code> gate creates two possible paths; <code>cx</code> links them. Measurement then returns mostly <code>00</code> or <code>11</code>.</p>
+          </div>
+          <ol class="state-flow">
+            <li><span>Start</span><code>|00⟩</code><small>Known input</small></li>
+            <li class="flow-gate"><span>Gate</span><code>h q[0]</code><small>Two paths</small></li>
+            <li class="flow-gate"><span>Link</span><code>cx q[0],q[1]</code><small>Entangle</small></li>
+            <li><span>Measure</span><code>00 ≈ 11</code><small>Correlated counts</small></li>
+          </ol>
+        </div>
+
+        <section class="gate-atlas" aria-labelledby="gate-title">
+          <header class="atlas-heading">
+            <div>
+              <p class="eyebrow">The official set · 官方门集</p>
+              <h2 id="gate-title">Twelve gates.<br><em>That is the whole vocabulary.</em></h2>
+            </div>
+            <p>These are the only gates used by the competition circuits, including hidden cases. <strong>θ</strong> means a rotation angle in radians.</p>
+          </header>
+
+          <div class="gate-legend" aria-label="Gate categories">
+            <span><i class="single-dot"></i>Single-qubit</span>
+            <span><i class="phase-dot"></i>Phase &amp; rotation</span>
+            <span><i class="multi-dot"></i>Controlled &amp; multi-qubit</span>
+          </div>
+
+          <div class="gate-grid">
+            <article class="gate-card single">
+              <div class="gate-top"><span>01</span><code>h</code><small>1 qubit</small></div>
+              <h3>Hadamard</h3>
+              <p>Creates or recombines equal quantum paths—the usual doorway into superposition.</p>
+              <code class="gate-syntax">h q[0];</code>
+              <button type="button" data-gate-example="h">Try this gate <span>↗</span></button>
+            </article>
+            <article class="gate-card single">
+              <div class="gate-top"><span>02</span><code>x</code><small>1 qubit</small></div>
+              <h3>Bit flip</h3>
+              <p>Swaps <code>|0⟩</code> and <code>|1⟩</code>. It is the quantum counterpart of classical NOT.</p>
+              <code class="gate-syntax">x q[0];</code>
+              <button type="button" data-gate-example="x">Try this gate <span>↗</span></button>
+            </article>
+            <article class="gate-card phase">
+              <div class="gate-top"><span>03</span><code>s</code><small>1 qubit</small></div>
+              <h3>Quarter phase</h3>
+              <p>Adds a 90° phase to the <code>|1⟩</code> component. Interference makes that hidden phase observable.</p>
+              <code class="gate-syntax">s q[0];</code>
+              <button type="button" data-gate-example="s">Try this gate <span>↗</span></button>
+            </article>
+            <article class="gate-card phase">
+              <div class="gate-top"><span>04</span><code>sdg</code><small>1 qubit</small></div>
+              <h3>Inverse S</h3>
+              <p>Removes the S phase, applying −90° instead. “dg” means dagger, or inverse.</p>
+              <code class="gate-syntax">sdg q[0];</code>
+              <button type="button" data-gate-example="sdg">Try this gate <span>↗</span></button>
+            </article>
+            <article class="gate-card phase">
+              <div class="gate-top"><span>05</span><code>t</code><small>1 qubit</small></div>
+              <h3>Eighth phase</h3>
+              <p>Adds a finer 45° phase. T gates are important building blocks for general algorithms.</p>
+              <code class="gate-syntax">t q[0];</code>
+              <button type="button" data-gate-example="t">Try this gate <span>↗</span></button>
+            </article>
+            <article class="gate-card phase">
+              <div class="gate-top"><span>06</span><code>tdg</code><small>1 qubit</small></div>
+              <h3>Inverse T</h3>
+              <p>Applies the opposite −45° phase, undoing a T gate when placed directly after it.</p>
+              <code class="gate-syntax">tdg q[0];</code>
+              <button type="button" data-gate-example="tdg">Try this gate <span>↗</span></button>
+            </article>
+            <article class="gate-card phase">
+              <div class="gate-top"><span>07</span><code>rz(θ)</code><small>1 qubit</small></div>
+              <h3>Z rotation</h3>
+              <p>Rotates phase by any angle θ. It changes interference, although direct Z-basis probabilities may stay unchanged.</p>
+              <code class="gate-syntax">rz(pi/2) q[0];</code>
+              <button type="button" data-gate-example="rz">Try this gate <span>↗</span></button>
+            </article>
+            <article class="gate-card phase">
+              <div class="gate-top"><span>08</span><code>ry(θ)</code><small>1 qubit</small></div>
+              <h3>Y rotation</h3>
+              <p>Rotates amplitudes by any angle θ, directly changing the chance of measuring zero or one.</p>
+              <code class="gate-syntax">ry(pi/2) q[0];</code>
+              <button type="button" data-gate-example="ry">Try this gate <span>↗</span></button>
+            </article>
+            <article class="gate-card multi">
+              <div class="gate-top"><span>09</span><code>cx</code><small>2 qubits</small></div>
+              <h3>Controlled X</h3>
+              <p>Flips the target only when the control is one. With H, it is the standard recipe for entanglement.</p>
+              <code class="gate-syntax">cx q[0],q[1];</code>
+              <button type="button" data-gate-example="cx">Try this gate <span>↗</span></button>
+            </article>
+            <article class="gate-card multi">
+              <div class="gate-top"><span>10</span><code>cu1(θ)</code><small>2 qubits</small></div>
+              <h3>Controlled phase</h3>
+              <p>Adds phase θ only when both qubits are one. It is common in Fourier-style circuits.</p>
+              <code class="gate-syntax">cu1(pi/2) q[0],q[1];</code>
+              <button type="button" data-gate-example="cu1">Try this gate <span>↗</span></button>
+            </article>
+            <article class="gate-card multi">
+              <div class="gate-top"><span>11</span><code>swap</code><small>2 qubits</small></div>
+              <h3>Exchange</h3>
+              <p>Trades the complete states of two qubits without measuring either one.</p>
+              <code class="gate-syntax">swap q[0],q[1];</code>
+              <button type="button" data-gate-example="swap">Try this gate <span>↗</span></button>
+            </article>
+            <article class="gate-card multi">
+              <div class="gate-top"><span>12</span><code>ccx</code><small>3 qubits</small></div>
+              <h3>Toffoli</h3>
+              <p>Flips the target only when both controls are one—a reversible version of classical AND logic.</p>
+              <code class="gate-syntax">ccx q[0],q[1],q[2];</code>
+              <button type="button" data-gate-example="ccx">Try this gate <span>↗</span></button>
+            </article>
+          </div>
+        </section>
+      </div>
+    </section>
 
     <template id="message-template">
       <article class="message">

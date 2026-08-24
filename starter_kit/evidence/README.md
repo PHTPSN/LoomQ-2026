@@ -213,7 +213,7 @@ Braket 三个本地 SDK 模拟器间单独运行或依次对比。测量 counts 
 
 ```text
 零基础首次运行指南：starter_kit/loomq_l2/README.md 的“本地网页界面”和“在页面中运行线路”
-量子概念解释：starter_kit/QUANTUM_101.md；页面内 Understand → Build → Verify → Compare 四步引导
+量子概念解释：starter_kit/QUANTUM_101.md；页面内 Quantum 101 用六张概念卡、Bell 状态流程和完整 12 门交互图谱解释 qubit、叠加、线路、测量、shots、纠缠与门操作
 结果可视化：Local simulator lab 把三个厂商本地模拟器的测量 counts 显示为态、次数和百分比条形图
 错误恢复或无障碍引导：失败 prompt 保留在输入框；模拟器逐平台显示错误且继续其余对比；语义化 label、aria-live、键盘提交和 prefers-reduced-motion
 ```
