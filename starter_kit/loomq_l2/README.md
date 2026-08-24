@@ -8,9 +8,10 @@
   → 至少一次注入模型调用
   → 结构化任务与约束解释
   → QASM 生成/修复，或后端筛选
-  → L1 解析与无噪声语义校验
+  → L1 解析、测量检查与无噪声语义校验
   → 最多一次模型纠正
   → 必要时对模型声明的纯态执行通用确定性合成
+  → 仅修复大小写、分号、寄存器和门操作数逗号等机械语法，并再次完整校验
   → 最终文本
 ```
 
@@ -19,9 +20,14 @@
 - `agent.py`：模型提示、响应解析、时限和最多两次调用的状态流；
 - `qasm.py`：从模型文本提取 QASM，复用 L1 严格解析器规范化，并对模型声明的
   测量分布和纯态振幅执行本地校验；若两次模型候选均错误，可将不超过 10 比特的
-  稀疏目标态统一合成为 `rz`、`ry`、`cx` 门，而不是按状态名称打表；
+  稀疏目标态统一合成为 `rz`、`ry`、`cx` 门，而不是按状态名称打表；只有目标态
+  不可合成时才尝试狭窄的机械语法清理，而且清理后的线路仍必须通过同一语义校验；
 - `backend.py`：只读取归档内的 `backend_capabilities.json`，校验模型提取的约束，
   再用确定性代码筛选和排序规范后端 ID。
+
+QASM 任务必须由模型同时声明 `target_state`、`expected_distribution` 中至少一项；
+仅仅语法正确不再足以通过。响应解析会跳过无关或不符合 Schema 的 JSON 对象，选取第一
+个结构有效的对象。最终线路还必须包含测量，并分别通过目标态保真度或测量分布距离校验。
 
 后端选择不会访问 SpinQ、本源量子或 AWS，也不会读取开发期的实时观察缓存。
 这样正式答案只取决于比赛规定的能力快照，不需要云账号、Cookie、API Token 或付费任务。
@@ -64,14 +70,33 @@ API Key。服务拒绝非回环地址绑定、跨站请求和无会话令牌的�
 | Origin Quantum CPU | `pyqpanda.CPUQVM` | 否 |
 | Amazon Braket Local | `braket.devices.LocalSimulator` | 否 |
 
-运行结果使用统一的 little-endian counts Schema，并在页面中显示测量分布条形图。Agent
-生成且已验证的 QASM 也带有 **Run locally** 按钮，可直接送入同一个实验室。
+运行结果使用统一的 little-endian counts Schema，并在页面中显示测量分布条形图。页面
+还会用确定性代码指出最常见的一个或两个状态及其合计占比，中英文完整切换，不额外调用
+模型。Agent 生成且已验证的 QASM 也带有 **Run locally** 按钮，可直接送入同一个实验室。
 
 三个 SDK 的依赖互相冲突，因此必须按 `backend_requirements/*.lock.txt` 分别安装在 fork
 根目录的 `.venv-spinq`、`.venv-originq`、`.venv-braket`，Dockerfile 已自动完成这一步。
 也可以分别用 `LOOMQ_SPINQ_PYTHON`、`LOOMQ_ORIGINQ_PYTHON`、
 `LOOMQ_BRAKET_PYTHON` 指向对应解释器。模拟器 API 与模型 API 使用同一套本机同源、
 会话令牌和请求大小保护；它不会使用 `hardware/` 中的真实设备提交路径。
+
+## 36 案例鲁棒性评估
+
+仓库提供一套可选的开发期评估包，均衡覆盖 12 个生成、12 个修复和 12 个后端选择案例。
+它不是组委会未公开的 12 个隐藏案例，也不能证明官方得分；其用途是提前发现措辞、
+位序、复杂振幅、损坏语法和组合约束方面的风险。正式模型配置下运行：
+
+```powershell
+.\.venv\Scripts\python.exe -m starter_kit.loomq_l2.robustness_eval `
+  --env-file .env `
+  --json-out starter_kit\evidence\files\l2-robustness\robustness-report.json `
+  --jobs 3
+```
+
+评估器默认拒绝把其他模型冒充正式配置；只有 `LOOMQ_LLM_MODEL` 精确等于
+`deepseek-v4-flash` 才运行。`--allow-other-model` 只用于明确标记的开发测试。报告不会
+保存 API Key 或 Base URL。当前证据报告保存 36 个真实模型回答和本地评分，并明确写明
+这是本地对抗评估而非官方隐藏案例成绩。
 
 ## 合规性
 

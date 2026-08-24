@@ -1,0 +1,304 @@
+{
+  "schema": "loomq-l2-local-robustness-v1",
+  "created_at": "2026-08-24T16:03:20.589444+00:00",
+  "model": "deepseek-v4-flash",
+  "formal_model_match": true,
+  "disclaimer": "Local adversarial development pack; these are not the competition's hidden cases or an official score.",
+  "case_count": 36,
+  "passed": 36,
+  "pass_rate": 1.0,
+  "local_objective_score_estimate": 20.0,
+  "elapsed_seconds": 217.734,
+  "results": [
+    {
+      "name": "gen-bell-en",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 7.437,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[2];\ncreg c[2];\nh q[0];\ncx q[0], q[1];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\n"
+    },
+    {
+      "name": "gen-ghz3-zh",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 7.703,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[3];\ncreg c[3];\nh q[0];\ncx q[0], q[1];\ncx q[0], q[2];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\n"
+    },
+    {
+      "name": "gen-ghz4-paraphrase",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 7.531,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[4];\ncreg c[4];\nh q[0];\ncx q[0], q[1];\ncx q[0], q[2];\ncx q[0], q[3];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\nmeasure q[3] -> c[3];\n"
+    },
+    {
+      "name": "gen-w3",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 115.141,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[3];\ncreg c[3];\nrz(3.1415926535897931) q[0];\nry(1.570796326794897) q[0];\nrz(0.78539816339744828) q[0];\nrz(0) q[1];\nry(1.5707963267948966) q[1];\nrz(-5.497787143782138) q[1];\nrz(0) q[2];\nry(1.2309594173407747) q[2];\nrz(0) q[2];\ncx q[2], q[1];\nrz(-2.3561944901923448) q[1];\nry(1.5707963267948963) q[1];\nrz(1.5707963267948966) q[1];\ncx q[1], q[0];\nrz(2.3561944901923448) q[0];\nry(0.78539816339744817) q[0];\nrz(-1.5707963267948961) q[0];\ncx q[2], q[0];\nrz(-1.5707963267948966) q[0];\nry(0.78539816339744828) q[0];\nrz(-3.9269908169872414) q[0];\ncx q[1], q[0];\nrz(3.9269908169872414) q[0];\nry(1.5707963267948966) q[0];\nrz(-4.7123889803846897) q[0];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\n"
+    },
+    {
+      "name": "gen-basis-101",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 7.125,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[3];\ncreg c[3];\nx q[0];\nx q[2];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\n"
+    },
+    {
+      "name": "gen-basis-0101",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 116.578,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[4];\ncreg c[4];\nx q[0];\nx q[2];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\nmeasure q[3] -> c[3];\n"
+    },
+    {
+      "name": "gen-plus-zero",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 104.703,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[2];\ncreg c[2];\nh q[1];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\n"
+    },
+    {
+      "name": "gen-minus",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 15.828,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[1];\ncreg c[1];\nx q[0];\nh q[0];\nmeasure q[0] -> c[0];\n"
+    },
+    {
+      "name": "gen-complex-bell",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 7.875,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[2];\ncreg c[2];\nh q[0];\ncx q[0], q[1];\nrz(1.5707963267948966) q[1];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\n"
+    },
+    {
+      "name": "gen-psi-plus",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 8.047,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[2];\ncreg c[2];\nh q[0];\ncx q[0], q[1];\nx q[1];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\n"
+    },
+    {
+      "name": "gen-toffoli-result",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 16.422,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[3];\ncreg c[3];\nrz(0) q[0];\nry(1.5707963267948966) q[0];\nrz(-5.497787143782138) q[0];\nrz(3.1415926535897931) q[1];\nry(1.5707963267948966) q[1];\nrz(1.5707963267948966) q[1];\nrz(0) q[2];\nry(3.1415926535897931) q[2];\nrz(0) q[2];\ncx q[2], q[1];\nrz(1.5707963267948968) q[1];\nry(1.5707963267948966) q[1];\nrz(4.7123889803846897) q[1];\ncx q[1], q[0];\nrz(-2.3561944901923448) q[0];\nry(0.78539816339744817) q[0];\nrz(1.5707963267948966) q[0];\ncx q[2], q[0];\nrz(1.5707963267948963) q[0];\nry(0.78539816339744817) q[0];\nrz(-7.0685834705770345) q[0];\ncx q[1], q[0];\nrz(-3.9269908169872414) q[0];\nry(1.5707963267948966) q[0];\nrz(-1.5707963267948963) q[0];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\n"
+    },
+    {
+      "name": "gen-swapped-one",
+      "category": "generation",
+      "status": "PASS",
+      "elapsed_seconds": 8.703,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[2];\ncreg c[2];\nx q[0];\nswap q[0], q[1];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\n"
+    },
+    {
+      "name": "repair-bell-case-comma",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 8.094,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[2];\ncreg c[2];\nh q[0];\ncx q[0], q[1];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\n"
+    },
+    {
+      "name": "repair-ghz3-measurement",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 8.125,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[3];\ncreg c[3];\nh q[0];\ncx q[0], q[1];\ncx q[0], q[2];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\n"
+    },
+    {
+      "name": "repair-wrong-basis-101",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 15.281,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[3];\ncreg c[3];\nrz(3.1415926535897931) q[0];\nry(1.5707963267948966) q[0];\nrz(0.78539816339744828) q[0];\ncx q[1], q[0];\nrz(-0.78539816339744861) q[0];\nry(0.78539816339744828) q[0];\nrz(1.570796326794897) q[0];\nrz(0) q[2];\nry(3.1415926535897931) q[2];\nrz(0) q[2];\ncx q[2], q[0];\nrz(4.7123889803846897) q[0];\nry(2.3561944901923453) q[0];\nrz(2.3561944901923448) q[0];\ncx q[1], q[0];\nrz(3.9269908169872414) q[0];\nry(1.5707963267948966) q[0];\nrz(1.5707963267948966) q[0];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\n"
+    },
+    {
+      "name": "repair-plus",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 8.39,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[1];\ncreg c[1];\nh q[0];\nmeasure q[0] -> c[0];\n"
+    },
+    {
+      "name": "repair-complex-phase",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 7.719,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[2];\ncreg c[2];\nh q[0];\ncx q[0], q[1];\nrz(1.5707963267948966) q[1];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\n"
+    },
+    {
+      "name": "repair-w3-fragment",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 16.297,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[3];\ncreg c[3];\nrz(3.1415926535897931) q[0];\nry(1.570796326794897) q[0];\nrz(0.78539816339744828) q[0];\nrz(0) q[1];\nry(1.5707963267948966) q[1];\nrz(-5.497787143782138) q[1];\nrz(0) q[2];\nry(1.230959417340775) q[2];\nrz(0) q[2];\ncx q[2], q[1];\nrz(-2.3561944901923448) q[1];\nry(1.5707963267948966) q[1];\nrz(1.5707963267948966) q[1];\ncx q[1], q[0];\nrz(2.3561944901923448) q[0];\nry(0.78539816339744817) q[0];\nrz(-1.5707963267948961) q[0];\ncx q[2], q[0];\nrz(-1.5707963267948966) q[0];\nry(0.78539816339744828) q[0];\nrz(-3.9269908169872414) q[0];\ncx q[1], q[0];\nrz(3.9269908169872414) q[0];\nry(1.5707963267948966) q[0];\nrz(-4.7123889803846897) q[0];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\n"
+    },
+    {
+      "name": "repair-swap-direction",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 7.609,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[2];\ncreg c[2];\nx q[1];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\n"
+    },
+    {
+      "name": "repair-toffoli-controls",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 14.938,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[3];\ncreg c[3];\nx q[0];\nx q[1];\nccx q[0], q[1], q[2];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\n"
+    },
+    {
+      "name": "repair-minus-sign",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 15.266,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[1];\ncreg c[1];\nh q[0];\nrz(3.1415926535897931) q[0];\nmeasure q[0] -> c[0];\n"
+    },
+    {
+      "name": "repair-ghz4-width",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 7.985,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[4];\ncreg c[4];\nh q[0];\ncx q[0], q[1];\ncx q[0], q[2];\ncx q[0], q[3];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\nmeasure q[3] -> c[3];\n"
+    },
+    {
+      "name": "repair-psi-plus",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 8.5,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[2];\ncreg c[2];\nh q[0];\ncx q[0], q[1];\nx q[1];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\n"
+    },
+    {
+      "name": "repair-registers",
+      "category": "repair",
+      "status": "PASS",
+      "elapsed_seconds": 7.812,
+      "detail": "target-state fidelity=1.000000",
+      "answer": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[4];\ncreg c[4];\nx q[0];\nx q[2];\nmeasure q[0] -> c[0];\nmeasure q[1] -> c[1];\nmeasure q[2] -> c[2];\nmeasure q[3] -> c[3];\n"
+    },
+    {
+      "name": "backend-15-no-queue",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 7.453,
+      "detail": "expected exact backend=spinq_taurus_simulator",
+      "answer": "Recommended backend: spinq_taurus_simulator. It satisfies the requested constraints in the official LoomQ capability snapshot (kind=simulator, max_qubits=24, queue=none, cost=free, requires_account=False)."
+    },
+    {
+      "name": "backend-26-no-queue-zh",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 7.953,
+      "detail": "expected exact backend=originq_local_simulator",
+      "answer": "Recommended backend: originq_local_simulator. It satisfies the requested constraints in the official LoomQ capability snapshot (kind=simulator, max_qubits=30, queue=none, cost=free, requires_account=False)."
+    },
+    {
+      "name": "backend-real-no-pay",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 7.687,
+      "detail": "expected exact backend=spinq_cloud_qpu",
+      "answer": "Recommended backend: spinq_cloud_qpu. It satisfies the requested constraints in the official LoomQ capability snapshot (kind=qpu, max_qubits=8, queue=minutes_to_hours, cost=free_quota, requires_account=True)."
+    },
+    {
+      "name": "backend-qpu-10",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 7.594,
+      "detail": "expected exact backend=originq_wukong",
+      "answer": "Recommended backend: originq_wukong. It satisfies the requested constraints in the official LoomQ capability snapshot (kind=qpu, max_qubits=72, queue=hours, cost=free_quota, requires_account=True)."
+    },
+    {
+      "name": "backend-braket-no-account",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 8.203,
+      "detail": "expected exact backend=braket_local_simulator",
+      "answer": "Recommended backend: braket_local_simulator. It satisfies the requested constraints in the official LoomQ capability snapshot (kind=simulator, max_qubits=25, queue=none, cost=free, requires_account=False)."
+    },
+    {
+      "name": "backend-originq-local",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 7.579,
+      "detail": "expected exact backend=originq_local_simulator",
+      "answer": "Recommended backend: originq_local_simulator. It satisfies the requested constraints in the official LoomQ capability snapshot (kind=simulator, max_qubits=30, queue=none, cost=free, requires_account=False)."
+    },
+    {
+      "name": "backend-spinq-free-exact",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 7.484,
+      "detail": "expected exact backend=spinq_taurus_simulator",
+      "answer": "No backend in the official LoomQ capability snapshot satisfies all constraints. Closest alternative: spinq_taurus_simulator; at least one requested constraint must be relaxed."
+    },
+    {
+      "name": "backend-free-capacity",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 7.594,
+      "detail": "expected exact backend=originq_local_simulator",
+      "answer": "Recommended backend: originq_local_simulator. It satisfies the requested constraints in the official LoomQ capability snapshot (kind=simulator, max_qubits=30, queue=none, cost=free, requires_account=False)."
+    },
+    {
+      "name": "backend-fast-simulator",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 7.828,
+      "detail": "expected exact backend=spinq_taurus_simulator",
+      "answer": "Recommended backend: spinq_taurus_simulator. It satisfies the requested constraints in the official LoomQ capability snapshot (kind=simulator, max_qubits=24, queue=none, cost=free, requires_account=False)."
+    },
+    {
+      "name": "backend-account-required",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 8.843,
+      "detail": "expected exact backend=braket_cloud",
+      "answer": "Recommended backend: braket_cloud. It satisfies the requested constraints in the official LoomQ capability snapshot (kind=cloud, max_qubits=34, queue=minutes_to_hours, cost=paid, requires_account=True)."
+    },
+    {
+      "name": "backend-cloud-platforms",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 7.797,
+      "detail": "expected closest backend=spinq_taurus_simulator",
+      "answer": "No backend in the official LoomQ capability snapshot satisfies all constraints. Closest alternative: spinq_taurus_simulator; at least one requested constraint must be relaxed."
+    },
+    {
+      "name": "backend-impossible-qpu-no-login",
+      "category": "backend",
+      "status": "PASS",
+      "elapsed_seconds": 7.469,
+      "detail": "expected closest backend=spinq_taurus_simulator",
+      "answer": "No backend in the official LoomQ capability snapshot satisfies all constraints. Closest alternative: spinq_taurus_simulator; at least one requested constraint must be relaxed."
+    }
+  ],
+  "regraded_at": "2026-08-24T16:05:07.265518+00:00",
+  "grading_revision": "Corrected |+0> q1q0 target ordering; no model answers were changed."
+}

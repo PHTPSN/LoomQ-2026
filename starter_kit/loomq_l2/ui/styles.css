@@ -47,3 +47,4 @@ button,textarea,select,input { font:inherit; } button { color:inherit; }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 .assistant-dock .conversation{flex:1;min-height:0;align-content:start}
 .assistant-dock .composer{position:sticky;z-index:2;bottom:0}
+.result-insight{margin:0 0 11px;padding:9px 10px;border-radius:9px;color:#394055;background:rgba(91,72,181,.075);font-size:.66rem;line-height:1.55}

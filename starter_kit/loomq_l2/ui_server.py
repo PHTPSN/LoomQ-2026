@@ -130,6 +130,35 @@ def _simulation_error(target: str, exc: Exception) -> str:
     return detail
 
 
+def _simulation_insight(result: Any) -> Optional[Dict[str, Any]]:
+    """Summarize counts deterministically for a beginner-facing explanation."""
+
+    if not isinstance(result, Mapping) or not isinstance(result.get("counts"), Mapping):
+        return None
+    ranked = []
+    for state, count in result["counts"].items():
+        if (
+            not isinstance(state, str)
+            or not state
+            or isinstance(count, bool)
+            or not isinstance(count, (int, float))
+            or count < 0
+        ):
+            return None
+        ranked.append((state, float(count)))
+    total = sum(count for _state, count in ranked)
+    if not ranked or total <= 0:
+        return None
+    ranked.sort(key=lambda item: (-item[1], item[0]))
+    top = ranked[:2]
+    return {
+        "top_states": [state for state, _count in top],
+        "top_share": round(sum(count for _state, count in top) / total, 6),
+        "dominant_share": round(top[0][1] / total, 6),
+        "observed_states": len(ranked),
+    }
+
+
 class LoomQUIHandler(BaseHTTPRequestHandler):
     """Serve static UI files and a same-origin JSON agent endpoint."""
 
@@ -327,6 +356,7 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
                 "target": target,
                 "target_name": SIMULATOR_TARGETS[target],
                 "result": result,
+                "insight": _simulation_insight(result),
                 "elapsed_ms": round((time.monotonic() - started) * 1000),
             },
         )

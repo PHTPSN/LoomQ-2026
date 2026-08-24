@@ -81,6 +81,14 @@ class Level2UIHelpersTest(unittest.TestCase):
         with self.assertRaises(Exception):
             ui_server._loopback_host("0.0.0.0")
 
+    def test_simulation_insight_is_stable_and_beginner_friendly(self):
+        insight = ui_server._simulation_insight(
+            {"counts": {"11": 63, "00": 65, "01": 0}}
+        )
+        self.assertEqual(insight["top_states"], ["00", "11"])
+        self.assertEqual(insight["top_share"], 1.0)
+        self.assertEqual(insight["observed_states"], 3)
+
 
 class Level2UIServerTest(unittest.TestCase):
     def test_health_and_static_page_have_security_headers(self):
@@ -200,6 +208,8 @@ class Level2UIServerTest(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(result["target_name"], "SpinQit Basic Simulator")
         self.assertEqual(result["result"]["counts"], {"0": 65, "1": 63})
+        self.assertEqual(result["insight"]["top_states"], ["0", "1"])
+        self.assertEqual(result["insight"]["top_share"], 1.0)
         runner.assert_called_once_with(qasm.strip(), "spinq", 128)
 
     def test_run_rejects_unknown_target_and_excessive_shots(self):

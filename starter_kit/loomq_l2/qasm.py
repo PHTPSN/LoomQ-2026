@@ -27,6 +27,12 @@ class QASMAnswerError(ValueError):
 
 _QASM_START = re.compile(r"OPENQASM\s+2\.0\s*;", re.IGNORECASE)
 _FENCE_END = re.compile(r"^\s*```", re.MULTILINE)
+_ALLOWED_GATES = ("sdg", "tdg", "swap", "ccx", "cu1", "rz", "ry", "cx", "h", "x", "s", "t")
+_GATE_ARITY = {
+    "h": 1, "x": 1, "s": 1, "sdg": 1, "t": 1, "tdg": 1,
+    "rz": 1, "ry": 1, "cx": 2, "cu1": 2, "swap": 2, "ccx": 3,
+}
+_REGISTER_REFERENCE = re.compile(r"[A-Za-z_]\w*\[\d+\]")
 
 
 def extract_qasm(text: Any) -> Optional[str]:
@@ -55,6 +61,79 @@ def canonical_qasm(text: Any) -> str:
     except Exception as exc:
         raise QASMAnswerError(str(exc)) from exc
     return emit_target(circuit, "spinq")
+
+
+def require_measurements(qasm: str) -> None:
+    """Reject circuits whose pure-state checks would otherwise ignore measurement."""
+
+    circuit = parse_qasm2(qasm)
+    if not circuit.measurements:
+        raise QASMAnswerError("the proposed circuit has no measurements")
+
+
+def sanitize_qasm2(text: Any) -> Optional[str]:
+    """Repair a small set of mechanical OpenQASM mistakes without changing intent.
+
+    This deliberately does not add, remove, or reorder quantum gates. The returned
+    candidate must still pass parsing and semantic verification in ``agent.py``.
+    """
+
+    if not isinstance(text, str) or not text.strip():
+        return None
+    candidate = extract_qasm(text)
+    if candidate is None:
+        candidate = re.sub(r"^\s*```(?:qasm|openqasm)?\s*", "", text, flags=re.IGNORECASE)
+        candidate = re.sub(r"\s*```\s*$", "", candidate).strip()
+    raw_lines = [line.strip() for line in candidate.splitlines() if line.strip()]
+    if not raw_lines:
+        return None
+
+    repaired = []
+    for line in raw_lines:
+        if line.startswith("//"):
+            repaired.append(line)
+            continue
+        line = re.sub(r"^openqasm\s+2\.0", "OPENQASM 2.0", line, flags=re.IGNORECASE)
+        line = re.sub(r'^include\s+[\"\']qelib1\.inc[\"\']', 'include "qelib1.inc"', line, flags=re.IGNORECASE)
+        line = re.sub(r"^(qreg|creg|measure)\b", lambda match: match.group(1).lower(), line, flags=re.IGNORECASE)
+        gate_match = re.match(
+            r"^(%s)(\s*\([^;]*\))?\s+(.+?)\s*;?$" % "|".join(_ALLOWED_GATES),
+            line,
+            flags=re.IGNORECASE,
+        )
+        if gate_match:
+            gate = gate_match.group(1).lower()
+            parameters = gate_match.group(2) or ""
+            operands = gate_match.group(3).rstrip(";").strip()
+            references = _REGISTER_REFERENCE.findall(operands)
+            if len(references) == _GATE_ARITY[gate]:
+                operands = ",".join(references)
+            line = "%s%s %s" % (gate, parameters, operands)
+        if not line.endswith(";"):
+            line += ";"
+        repaired.append(line)
+
+    joined = "\n".join(repaired)
+    q_indices = [int(value) for value in re.findall(r"\bq\[(\d+)\]", joined)]
+    qreg_match = re.search(r"\bqreg\s+q\[(\d+)\]\s*;", joined, re.IGNORECASE)
+    if qreg_match:
+        qubits = int(qreg_match.group(1))
+    elif q_indices:
+        qubits = max(q_indices) + 1
+    else:
+        return None
+    if qubits <= 0:
+        return None
+
+    body = [line for line in repaired if not re.match(r"^(OPENQASM|include)\b", line, re.IGNORECASE)]
+    if not any(re.match(r"^qreg\s+q\[", line, re.IGNORECASE) for line in body):
+        body.insert(0, "qreg q[%d];" % qubits)
+    if not any(re.match(r"^creg\s+c\[", line, re.IGNORECASE) for line in body):
+        qreg_position = next(index for index, line in enumerate(body) if re.match(r"^qreg\s+q\[", line, re.IGNORECASE))
+        body.insert(qreg_position + 1, "creg c[%d];" % qubits)
+    if not any(re.match(r"^measure\b", line, re.IGNORECASE) for line in body):
+        body.append("measure q -> c;")
+    return "\n".join(("OPENQASM 2.0;", 'include "qelib1.inc";', *body))
 
 
 def normalize_distribution(value: Any) -> Optional[Dict[str, float]]:

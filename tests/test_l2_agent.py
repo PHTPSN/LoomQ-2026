@@ -162,6 +162,73 @@ CX q[0] q[1];
         self.assertIn("could not be accepted", correction)
         self.assertNotIn("local-test-key", correction)
 
+    def test_parser_skips_an_unrelated_json_object_before_the_valid_schema(self):
+        content = '{"note":"draft"}\n' + json.dumps(
+            qasm_document(BELL_QASM, distribution={"00": 0.5, "11": 0.5})
+        )
+        with LocalAgentEndpoint([content]):
+            answer = adapter.agent_chat("Prepare and measure a Bell state")
+
+        self.assertEqual(answer, canonical_qasm(BELL_QASM))
+        self.assertEqual(len(AgentAPIHandler.request_payloads), 1)
+
+    def test_valid_qasm_without_semantic_metadata_requires_correction(self):
+        documents = [
+            qasm_document(BELL_QASM),
+            qasm_document(BELL_QASM, distribution={"00": 0.5, "11": 0.5}),
+        ]
+        with LocalAgentEndpoint(documents):
+            answer = adapter.agent_chat("Prepare and measure a Bell state")
+
+        self.assertEqual(answer, canonical_qasm(BELL_QASM))
+        self.assertEqual(len(AgentAPIHandler.request_payloads), 2)
+        correction = AgentAPIHandler.request_payloads[1]["messages"][-1]["content"]
+        self.assertIn("semantic verification requires", correction)
+
+    def test_two_semantically_unannotated_answers_are_rejected(self):
+        with LocalAgentEndpoint([qasm_document(BELL_QASM), qasm_document(BELL_QASM)]):
+            with self.assertRaisesRegex(ValueError, "semantic verification"):
+                adapter.agent_chat("Prepare and measure a Bell state")
+        self.assertEqual(len(AgentAPIHandler.request_payloads), 2)
+
+    def test_target_state_without_measurements_requires_correction(self):
+        no_measurement = '''OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[2];
+creg c[2];
+h q[0];
+cx q[0],q[1];
+'''
+        target = {"00": 2 ** -0.5, "11": 2 ** -0.5}
+        documents = [
+            qasm_document(no_measurement, target_state=target),
+            qasm_document(BELL_QASM, target_state=target),
+        ]
+        with LocalAgentEndpoint(documents):
+            answer = adapter.agent_chat("Prepare and measure a Bell state")
+
+        self.assertEqual(answer, canonical_qasm(BELL_QASM))
+        self.assertEqual(len(AgentAPIHandler.request_payloads), 2)
+
+    def test_second_failure_can_use_semantically_valid_mechanical_sanitizer(self):
+        broken = '''OPENQASM 2.0
+include "qelib1.inc"
+qreg q[2]
+creg c[2]
+H q[0]
+CX q[0] q[1]
+measure q -> c
+'''
+        documents = [
+            qasm_document(broken, task="repair_qasm", distribution={"00": 0.5, "11": 0.5}),
+            qasm_document(broken, task="repair_qasm", distribution={"00": 0.5, "11": 0.5}),
+        ]
+        with LocalAgentEndpoint(documents):
+            answer = adapter.agent_chat("Repair this Bell circuit without changing its state")
+
+        self.assertEqual(answer, canonical_qasm(BELL_QASM))
+        self.assertEqual(len(AgentAPIHandler.request_payloads), 2)
+
     def test_semantic_distribution_mismatch_triggers_one_correction(self):
         wrong = '''OPENQASM 2.0;
 include "qelib1.inc";

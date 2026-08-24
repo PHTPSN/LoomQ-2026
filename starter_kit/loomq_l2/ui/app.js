@@ -138,12 +138,14 @@ const dynamicText = {
     checking: "Checking local agent", ready: "Local agent ready", missing: "Model configuration missing", unavailable: "Local agent unavailable",
     user: "You", assistant: "LoomQ · Verified response", verified: "✓ Parsed and verified locally", copy: "Copy QASM", copied: "Copied", selectCopy: "Select code to copy", run: "Run locally",
     couldNotRun: "Could not run", shots: "shots", showing: "Showing the 16 most frequent of {count} measured states.", simulatorFailure: "The simulator could not run this circuit.",
+    insightOne: "Most frequent result: {states}, representing {share}% of all shots.", insightTwo: "Most frequent results: {states}. Together they represent {share}% of all shots.",
     running: "Running…", comparing: "Comparing {current} of 3…", checkingAnswer: "Checking…", loading: "Interpreting, building, and checking your request", chatFailure: "The local agent could not answer.", chatHint: "Check the local model configuration, then try again. Your prompt is still in the box."
   },
   zh: {
     checking: "正在检查本地智能体", ready: "本地智能体已就绪", missing: "缺少模型配置", unavailable: "本地智能体不可用",
     user: "你", assistant: "LoomQ · 已验证回答", verified: "✓ 已在本地解析并验证", copy: "复制 QASM", copied: "已复制", selectCopy: "请选择代码后复制", run: "在本地运行",
     couldNotRun: "无法运行", shots: "次测量", showing: "正在显示 {count} 个测量状态中出现次数最多的 16 个。", simulatorFailure: "模拟器无法运行此线路，请检查量子门、参数和测量语句。",
+    insightOne: "最常见的结果是 {states}，占全部测量次数的 {share}%。", insightTwo: "最常见的结果是 {states}，两者合计占全部测量次数的 {share}%。",
     running: "正在运行…", comparing: "正在对比第 {current}/3 个…", checkingAnswer: "正在检查…", loading: "正在理解、构建并检查你的请求", chatFailure: "本地智能体暂时无法回答。", chatHint: "请检查本地模型配置后重试。你的输入仍保留在输入框中。"
   }
 };
@@ -272,6 +274,14 @@ function createResultCard(targetName, payload, error = "") {
   heading.append(title, state); card.append(heading);
   if (error) { const message = document.createElement("p"); message.className = "simulation-error"; message.textContent = language === "zh" ? tr("simulatorFailure") : error; card.append(message); return card; }
   const counts = Object.entries(payload.result.counts); const total = counts.reduce((sum, entry) => sum + entry[1], 0); const visible = counts.sort((left, right) => right[1] - left[1]).slice(0, 16);
+  if (payload.insight && payload.insight.top_states.length) {
+    const explanation = document.createElement("p"); explanation.className = "result-insight";
+    const separator = language === "zh" ? "、" : " and ";
+    const states = payload.insight.top_states.map((name) => `|${name}⟩`).join(separator);
+    const key = payload.insight.top_states.length === 1 ? "insightOne" : "insightTwo";
+    explanation.textContent = tr(key, { states, share: (payload.insight.top_share * 100).toFixed(1) });
+    card.append(explanation);
+  }
   const chart = document.createElement("div"); chart.className = "counts-chart";
   visible.forEach(([stateName, count]) => { const row = document.createElement("div"); row.className = "count-row"; const key = document.createElement("code"); key.textContent = `|${stateName}⟩`; const track = document.createElement("span"); track.className = "count-track"; const bar = document.createElement("i"); const percent = total ? (count / total) * 100 : 0; bar.style.width = `${Math.max(percent, .7)}%`; track.append(bar); const value = document.createElement("span"); value.textContent = `${count} · ${percent.toFixed(1)}%`; row.append(key, track, value); chart.append(row); });
   card.append(chart);

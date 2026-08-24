@@ -18,6 +18,8 @@ from .qasm import (
     canonical_qasm,
     distribution_comparison,
     extract_qasm,
+    require_measurements,
+    sanitize_qasm2,
     synthesize_target_state_qasm,
     target_state_fidelity,
 )
@@ -51,9 +53,12 @@ Return this schema:
 For QASM, use only OpenQASM 2.0 with exactly one include "qelib1.inc", positive qreg
 and creg declarations, lowercase gate names, and only h, x, s, sdg, t, tdg, rz, ry,
 cx, cu1, swap, ccx, and measure. Include all measurements requested by the user.
-For a stated target state, expected_distribution should describe the final classical
-measurement probabilities when that is unambiguous; otherwise use null. Also provide
-target_state for every explicit pure target state as a sparse map in q[n-1]...q[0]
+For every generate_qasm or repair_qasm response, semantic verification metadata is
+mandatory: provide target_state, expected_distribution, or both. A response with both
+fields null will be rejected even if its QASM is syntactically valid. For a stated target
+state, expected_distribution should describe the final classical measurement probabilities
+when that is unambiguous; otherwise use null. Also provide target_state for every explicit
+pure target state as a sparse map in q[n-1]...q[0]
 bitstring order. Use a decimal real amplitude or [real, imaginary] pair, include only
 nonzero amplitudes, and use null when no pure target is explicit.
 
@@ -112,20 +117,46 @@ def _json_objects(text: str):
 
 
 def _interpret(content: str) -> Dict[str, Any]:
-    document = next(_json_objects(content), None)
-    if document is None:
-        qasm = extract_qasm(content)
-        if qasm is not None:
-            return {
+    last_error: Optional[ModelResponseError] = None
+    for value in _json_objects(content):
+        try:
+            return _normalize_document(value)
+        except ModelResponseError as exc:
+            last_error = exc
+    qasm = extract_qasm(content)
+    if qasm is not None:
+        return _normalize_document(
+            {
                 "task": "generate_qasm",
                 "qasm": qasm,
                 "expected_distribution": None,
+                "target_state": None,
                 "backend_constraints": None,
             }
-        raise ModelResponseError("model did not return the requested JSON object")
+        )
+    if last_error is not None:
+        raise last_error
+    raise ModelResponseError("model did not return the requested JSON object")
+
+
+def _normalize_document(value: Mapping[str, Any]) -> Dict[str, Any]:
+    """Return the first response object that satisfies the control schema."""
+
+    document = dict(value)
     task = document.get("task")
     if task not in {"generate_qasm", "repair_qasm", "select_backend"}:
         raise ModelResponseError("model returned an unsupported task classification")
+    for field in ("qasm", "expected_distribution", "target_state", "backend_constraints"):
+        document.setdefault(field, None)
+    if document["qasm"] is not None and not isinstance(document["qasm"], str):
+        raise ModelResponseError("qasm must be a string or null")
+    for field in ("expected_distribution", "target_state", "backend_constraints"):
+        if document[field] is not None and not isinstance(document[field], Mapping):
+            raise ModelResponseError("%s must be an object or null" % field)
+    if task in {"generate_qasm", "repair_qasm"} and not document["qasm"]:
+        raise ModelResponseError("a QASM task requires a non-empty qasm string")
+    if task == "select_backend" and document["backend_constraints"] is None:
+        raise ModelResponseError("backend selection requires backend_constraints")
     return document
 
 
@@ -149,7 +180,15 @@ def _correction_message(error: Exception) -> str:
 
 
 def _qasm_answer(document: Mapping[str, Any]) -> str:
+    if (
+        document.get("expected_distribution") is None
+        and document.get("target_state") is None
+    ):
+        raise QASMAnswerError(
+            "semantic verification requires target_state or expected_distribution"
+        )
     qasm = canonical_qasm(document.get("qasm"))
+    require_measurements(qasm)
     comparison = distribution_comparison(qasm, document.get("expected_distribution"))
     if comparison is not None and comparison[0] > 0.08:
         distance, expected, observed = comparison
@@ -185,10 +224,36 @@ def _synthesized_fallback(*documents: Optional[Mapping[str, Any]]) -> Optional[s
         target_state = document.get("target_state")
         if target_state is None:
             continue
-        qasm = synthesize_target_state_qasm(target_state)
+        try:
+            qasm = synthesize_target_state_qasm(target_state)
+            candidate = dict(document)
+            candidate["qasm"] = qasm
+            return _qasm_answer(candidate)
+        except (QASMAnswerError, ValueError):
+            continue
+    return None
+
+
+def _sanitized_fallback(*documents: Optional[Mapping[str, Any]]) -> Optional[str]:
+    """Repair mechanical QASM syntax only, then run the full semantic verifier."""
+
+    for document in documents:
+        if not document or document.get("task") not in {"generate_qasm", "repair_qasm"}:
+            continue
+        if (
+            document.get("expected_distribution") is None
+            and document.get("target_state") is None
+        ):
+            continue
+        qasm = sanitize_qasm2(document.get("qasm"))
+        if qasm is None:
+            continue
         candidate = dict(document)
         candidate["qasm"] = qasm
-        return _qasm_answer(candidate)
+        try:
+            return _qasm_answer(candidate)
+        except (QASMAnswerError, ValueError):
+            continue
     return None
 
 
@@ -218,6 +283,9 @@ def agent_chat(prompt: str) -> str:
             return _answer(corrected_document)
         except (BackendConstraintError, ModelResponseError, QASMAnswerError, ValueError):
             fallback = _synthesized_fallback(corrected_document, first_document)
+            if fallback is not None:
+                return fallback
+            fallback = _sanitized_fallback(corrected_document, first_document)
             if fallback is not None:
                 return fallback
             raise

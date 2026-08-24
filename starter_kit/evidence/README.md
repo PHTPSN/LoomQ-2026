@@ -18,6 +18,10 @@
 - **SpinQ 诊断证据目录：**[`files/spinq-diagnostics/`](files/spinq-diagnostics/)。
 - **SpinQ GHZ-3 真机状态检查：**
   [`files/spinq-ghz3/spinq-ghz3-platform-status.json`](files/spinq-ghz3/spinq-ghz3-platform-status.json)。
+- **L2 本地 36 案例鲁棒性报告：**
+  [`files/l2-robustness/robustness-report.json`](files/l2-robustness/robustness-report.json)；
+  12 个生成、12 个修复、12 个后端选择，正式模型配置下 36/36。该报告明确声明它不是
+  组委会隐藏案例或官方分数。
 - **附件目录索引：**[`files/README.md`](files/README.md)；正式任务分别位于
   [`originq-bell/`](files/originq-bell/)、[`originq-ghz3/`](files/originq-ghz3/)
   和 [`spinq-bell/`](files/spinq-bell/)，跨平台结果位于
@@ -181,7 +185,8 @@ evidence/files/spinq-bell/spinq-bell-task.png
 错误会解释恢复方法并把原 prompt 留在输入框中。最近六条对话作为后续请求的上下文。
 模型 Key 不进入浏览器，服务仅监听 IPv4 回环地址并校验同源请求。
 页面还提供可直接粘贴代码的 Local simulator lab，并能在 SpinQit、pyQPanda 和 Amazon
-Braket 三个本地 SDK 模拟器间单独运行或依次对比。测量 counts 会显示为百分比条形图；
+Braket 三个本地 SDK 模拟器间单独运行或依次对比。测量 counts 会显示为百分比条形图，
+并自动用中英文解释最常见状态及前两个状态的合计占比；
 此路径不会提交真实硬件任务，也不需要任何云平台账号。
 
 工作人员会在组委会统一模型环境中运行最终代码，测试新手是否看得懂、出错后能否得到有效帮助、结果是否清楚，以及多轮回答是否一致。选手自己的对话截图只用于说明产品流程，不直接证明得分。
@@ -195,6 +200,7 @@ Braket 三个本地 SDK 模拟器间单独运行或依次对比。测量 counts 
 架构说明：starter_kit/loomq_l2/README.md；浏览器 SPA → 本机 Python HTTP 边界 → agent_chat → 模型解释与确定性本地验证
 目标用户和使用场景：不了解 OpenQASM 或云量子平台约束的初学者；生成或修复小型线路，并根据比赛能力快照选择可用后端
 完整使用流程：starter_kit/loomq_l2/README.md 的“本地网页界面”，以及页面内三个引导任务
+鲁棒性评估：starter_kit/evidence/files/l2-robustness/robustness-report.json；正式模型配置、36 个真实开发案例、36/36，本地报告而非官方隐藏案例
 ```
 
 工作人员会按最终 commit 实际构建和启动，并检查文档与代码是否一致、产品是否真的降低了量子计算的使用门槛。
@@ -216,7 +222,7 @@ Braket 三个本地 SDK 模拟器间单独运行或依次对比。测量 counts 
 ```text
 零基础首次运行指南：starter_kit/loomq_l2/README.md 的“本地网页界面”和“在页面中运行线路”；页面左栏提供完整中英文工具导航
 量子概念解释：starter_kit/QUANTUM_101.md；页面“量子基础教学”和“支持的 12 种门”视图用六张概念卡、Bell 状态流程和完整 12 门交互图谱解释 qubit、叠加、线路、测量、shots、纠缠与门操作
-结果可视化：Local simulator lab 把三个厂商本地模拟器的测量 counts 显示为态、次数和百分比条形图
+结果可视化：Local simulator lab 把三个厂商本地模拟器的测量 counts 显示为态、次数和百分比条形图，并用确定性双语文字解释最常见状态及合计占比
 错误恢复或无障碍引导：失败 prompt 保留在输入框；模拟器逐平台显示错误且继续其余对比；语义化 label、aria-live、键盘提交和 prefers-reduced-motion
 ```
 
