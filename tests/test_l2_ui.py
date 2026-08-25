@@ -216,11 +216,11 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertNotIn(b"<small>LocalSimulator</small>", body)
             self.assertEqual(
                 re.findall(rb'data-view="([^"]+)"', body),
-                [b"overview", b"learn", b"gates", b"simulator", b"hybrid", b"evidence"],
+                [b"overview", b"guide", b"learn", b"gates", b"simulator", b"hybrid", b"evidence", b"history"],
             )
             self.assertEqual(
                 re.findall(rb'data-view-panel="([^"]+)"', body),
-                [b"overview", b"learn", b"gates", b"simulator", b"hybrid", b"evidence"],
+                [b"overview", b"guide", b"learn", b"gates", b"simulator", b"hybrid", b"evidence", b"history"],
             )
             gate_examples = re.findall(rb'data-gate-example="([^"]+)"', body)
             gate_spec = json.loads(
@@ -265,15 +265,18 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertIn("height:39px;min-height:39px", styles)
             self.assertIn("padding-right:0", styles)
             self.assertIn(".workspace.rail-collapsed", styles)
-            self.assertIn(".view-nav { display:grid; gap:5px;", styles)
-            self.assertIn(".view-nav button { min-height:46px;", styles)
-            self.assertIn("padding:4px 9px;", styles)
+            self.assertIn(".view-nav { display:grid; gap:3px; margin-top:12px;", styles)
+            self.assertIn(".view-nav button { min-height:42px;", styles)
+            self.assertIn("padding:3px 9px;", styles)
             self.assertIn(".view-nav button>i{width:26px;height:26px", styles)
             self.assertIn(".view-nav button>strong{font-size:.73rem", styles)
             self.assertIn('fetch("/api/transpile"', script)
             self.assertIn('fetch("/api/compile-hybrid"', script)
             self.assertIn('fetch("/api/backend-health"', script)
             self.assertIn("function setBackendStatus", script)
+            self.assertIn("function archiveMessage", script)
+            self.assertIn("if (!options.loading) archiveMessage", script)
+            self.assertNotIn('localStorage.setItem("loomq-history"', script)
             self.assertIn("let connected = false", script)
             self.assertIn("nextBusy || !connected", script)
             self.assertIn('window.matchMedia("(max-width: 560px)")', script)

@@ -38,6 +38,8 @@ const evidenceModeButtons = Array.from(document.querySelectorAll("[data-evidence
 const evidenceModePanels = Array.from(document.querySelectorAll("[data-evidence-panel]"));
 const gpuTutorButtons = Array.from(document.querySelectorAll("[data-gpu-step]"));
 const gpuTutorPanels = Array.from(document.querySelectorAll("[data-gpu-panel]"));
+const historyList = document.querySelector("#history-list");
+const historyEmpty = document.querySelector("#history-empty");
 
 const chinese = {
   "aria.workspace": "工作区导航",
@@ -47,11 +49,13 @@ const chinese = {
   "aria.backends": "本地执行后端状态",
   "brand.tagline": "量子新手指南",
   "nav.overview": "工具介绍",
+  "nav.guide": "新手导引",
   "nav.learn": "量子基础教学",
   "nav.gates": "支持的 12 种门",
   "nav.simulator": "厂商模拟器",
   "nav.hybrid": "混合编译器",
   "nav.evidence": "执行证据",
+  "nav.history": "对话记录",
   "rail.backends": "本地后端",
   "overview.eyebrow": "01 · 工具介绍",
   "overview.title1": "从一句自然语言想法",
@@ -70,7 +74,9 @@ const chinese = {
   "overview.resultValue": "QASM + 测量 counts",
   "overview.boundaryTitle": "模拟器不等于真实量子硬件。",
   "overview.boundaryBody": "模拟器页面只在这台电脑上运行厂商 SDK，绝不会提交付费真机任务。",
-  "learn.eyebrow": "02 · 量子基础教学",
+  "guide.eyebrow": "02 · 新手导引",
+  "guide.title": "新手导引",
+  "learn.eyebrow": "03 · 量子基础教学",
   "learn.title1": "理解八个概念，",
   "learn.title2": "从向量读懂量子线路。",
   "learn.lede": "从熟悉的线性代数出发：量子线路把一个复向量依次乘以若干矩阵；测量再把向量坐标的模平方作为概率，随机返回一个比特串。",
@@ -103,7 +109,7 @@ const chinese = {
   "learn.correlated": "只会出现两个比特相同的结果",
   "learn.bitOrderTitle": "一个重要约定",
   "learn.bitOrderBody": "在结果键“10”中，最右侧字符对应 c[0]。LoomQ 会把所有后端统一成这种小端位序。",
-  "gates.eyebrow": "03 · 官方门集",
+  "gates.eyebrow": "04 · 官方门集",
   "gates.title1": "十二种门，",
   "gates.title2": "就是完整词汇表。",
   "gates.lede": "竞赛隐藏用例同样只使用这份白名单。θ 表示以弧度为单位的旋转角度；“dg”表示该门的逆操作。",
@@ -113,6 +119,7 @@ const chinese = {
   "gates.oneQubit": "1 量子比特",
   "gates.twoQubits": "2 量子比特",
   "gates.threeQubits": "3 量子比特",
+  "gates.matrix": "矩阵",
   "gates.try": "试运行这个门",
   "gate.h.title": "Hadamard 门",
   "gate.h.body": "产生或重新合并等权重量子路径，是进入叠加态最常用的入口。",
@@ -138,7 +145,7 @@ const chinese = {
   "gate.swap.body": "在不测量的情况下交换两个量子比特的完整状态。",
   "gate.ccx.title": "Toffoli 门",
   "gate.ccx.body": "仅当两个控制位都为 1 时翻转目标位，可用于构造可逆经典逻辑。",
-  "sim.eyebrow": "04 · 厂商模拟器",
+  "sim.eyebrow": "05 · 厂商模拟器",
   "sim.title": "在本地运行 OpenQASM。",
   "sim.lede": "选择一个 SDK，或依次对比三个 SDK。每次 shot 中，LoomQ 都会创建处于 |0…0⟩ 的全新量子比特，执行一遍全部量子门，并记录一个测量得到的比特串。",
   "sim.lab": "本地模拟实验室",
@@ -158,7 +165,7 @@ const chinese = {
   "l1.output": "SDK 翻译",
   "l1.awaiting": "选择此功能后即可查看线路 IR。",
   "l1.awaitingOutput": "选择目标后即可查看对应的准确语法。",
-  "hybrid.eyebrow": "05 · 混合编译器",
+  "hybrid.eyebrow": "06 · 混合编译器",
   "hybrid.title1": "量子操作保持顺序，",
   "hybrid.title2": "经典决策编译为 RISC-V。",
   "hybrid.lede": "Hybrid-QASM 在 OpenQASM 2.0 线路中加入一个 classical { … } 代码块。LoomQ 会分离两类职责：量子门与测量保持为有序操作流，整数赋值和 if/else 决策则转换成确定性的 RISC-V 指令。",
@@ -181,7 +188,7 @@ const chinese = {
   "hybrid.decodedOutput": "解码执行轨迹",
   "hybrid.awaitingMachine": "编码后的 32 位指令字将显示在这里。",
   "hybrid.awaitingDecoded": "解码后的操作将显示在这里。",
-  "evidence.eyebrow": "06 · 执行证据",
+  "evidence.eyebrow": "07 · 执行证据",
   "evidence.title1": "两条执行路径，",
   "evidence.title2": "一份可审计记录。",
   "evidence.lede": "在物理量子真机任务与带有归档 GPU 验证的自定义量子 RISC-V 路径之间切换。每项结论都会链接到支持它的证据文件。",
@@ -330,6 +337,12 @@ const chinese = {
   "evidence.collectSpinqBody": "按任务编号获取结果，保留未经修改的响应，生成统一格式结果，并保存包含实际设备、时间、shots 和完成状态的任务页截图。",
   "evidence.awsTitle": "本项目中的 AWS 仍然只有只读能力",
   "evidence.awsBody": "如果已经配置凭证，项目可以刷新 Amazon Braket 设备可用状态；但项目中没有归档的 AWS 真机任务，也没有带保护措施的提交流程。本页面不会声称已有这些内容。",
+  "history.eyebrow": "08 · 对话记录",
+  "history.title1": "每一次 LoomQ 对话，",
+  "history.title2": "都会保留到页面刷新。",
+  "history.lede": "当前页面打开后创建的所有对话都会显示在这里。新建对话不会清除这些记录。",
+  "history.emptyTitle": "还没有对话记录",
+  "history.emptyBody": "向 LoomQ 提问后，对话内容会显示在这里。",
   "assistant.eyebrow": "AI 量子线路助手",
   "assistant.title": "询问 LoomQ",
   "assistant.new": "新对话",
@@ -458,6 +471,9 @@ function applyLanguage(nextLanguage) {
     const meta = message.querySelector(".message-meta");
     meta.textContent = tr(message.dataset.role === "user" ? "user" : "assistant");
   });
+  document.querySelectorAll("[data-history-role]").forEach((message) => {
+    message.querySelector(".history-message-meta").textContent = tr(message.dataset.historyRole === "user" ? "user" : "assistant");
+  });
   document.querySelectorAll("[data-dynamic-text]").forEach((element) => { element.textContent = tr(element.dataset.dynamicText); });
   statusText.textContent = tr(statusState);
   if (!busy) sendButton.querySelector("span").textContent = language === "zh" ? chinese["assistant.ask"] : sendButton.querySelector("span").dataset.enText || "Ask LoomQ";
@@ -508,7 +524,7 @@ function activateGpuTutorStep(name, moveFocus = false) {
 }
 
 function activateView(name, updateHash = true) {
-  const allowed = new Set(["overview", "learn", "gates", "simulator", "hybrid", "evidence"]);
+  const allowed = new Set(["overview", "guide", "learn", "gates", "simulator", "hybrid", "evidence", "history"]);
   const [requestedView, requestedEvidenceMode] = String(name || "").split("/", 2);
   const view = allowed.has(requestedView) ? requestedView : "overview";
   document.querySelectorAll("[data-view]").forEach((button) => {
@@ -621,8 +637,24 @@ function addMessage(role, content, options = {}) {
     const actions = document.createElement("div"); actions.className = "answer-actions"; actions.append(copy, simulate); toolbar.append(badge, actions); message.append(toolbar);
   } else { body.textContent = content; }
   conversation.append(message);
+  if (!options.loading) archiveMessage(role, content, options);
   window.requestAnimationFrame(() => { conversation.scrollTop = conversation.scrollHeight; });
   return message;
+}
+
+function archiveMessage(role, content, options = {}) {
+  const message = document.createElement("article");
+  message.className = `history-message ${role}${options.error ? " error" : ""}`;
+  message.dataset.historyRole = role;
+  const meta = document.createElement("div");
+  meta.className = "history-message-meta";
+  meta.textContent = tr(role === "user" ? "user" : "assistant");
+  const body = document.createElement(options.kind === "qasm" ? "pre" : "div");
+  body.className = "history-message-body";
+  body.textContent = content;
+  message.append(meta, body);
+  historyList.append(message);
+  historyEmpty.hidden = true;
 }
 
 function setRunnerBusy(nextBusy, label = tr("run")) {
