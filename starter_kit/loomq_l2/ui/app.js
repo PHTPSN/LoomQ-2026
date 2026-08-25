@@ -379,6 +379,7 @@ let assistantHidden = savedAssistantState === "hidden";
 let sessionToken = "";
 let history = [];
 let busy = false;
+let connected = false;
 let statusState = "checking";
 
 function tr(key, values = {}) {
@@ -404,6 +405,10 @@ function syncRailToggle() {
 }
 
 function syncAssistantVisibility() {
+  if (!assistantHidden && window.matchMedia("(max-width: 560px)").matches && !railCollapsed) {
+    railCollapsed = true;
+    syncRailToggle();
+  }
   workspace.classList.toggle("assistant-hidden", assistantHidden);
   assistantDock.setAttribute("aria-hidden", String(assistantHidden));
   assistantLauncher.setAttribute("aria-expanded", String(!assistantHidden));
@@ -415,6 +420,11 @@ function syncAssistantVisibility() {
 
 function setAssistantHidden(nextHidden) {
   assistantHidden = nextHidden;
+  if (!assistantHidden && window.matchMedia("(max-width: 560px)").matches && !railCollapsed) {
+    railCollapsed = true;
+    syncRailToggle();
+    try { localStorage.setItem("loomq-rail", "collapsed"); } catch (_error) { /* Preference storage is optional. */ }
+  }
   syncAssistantVisibility();
   try { localStorage.setItem("loomq-assistant", assistantHidden ? "hidden" : "visible"); } catch (_error) { /* Preference storage is optional. */ }
   if (assistantHidden) assistantLauncher.focus(); else input.focus();
@@ -551,10 +561,12 @@ async function connect() {
     if (!response.ok) throw new Error();
     const health = await response.json();
     sessionToken = health.session_token;
+    connected = Boolean(health.model_available);
     const stateKeys = { missing: "missing", unreachable: "unavailable", authentication: "authentication", model_missing: "modelMissing", api_error: "apiError" };
     setStatus(health.model_available ? "ready" : "offline", health.model_available ? "ready" : (stateKeys[health.model_state] || "unavailable"));
+    sendButton.disabled = !connected;
     void compileHybridProgram();
-  } catch (_error) { setStatus("offline", "unavailable"); }
+  } catch (_error) { connected = false; sendButton.disabled = true; setStatus("offline", "unavailable"); }
 }
 
 function setBackendStatus(target, state) {
@@ -609,7 +621,7 @@ function addMessage(role, content, options = {}) {
     const actions = document.createElement("div"); actions.className = "answer-actions"; actions.append(copy, simulate); toolbar.append(badge, actions); message.append(toolbar);
   } else { body.textContent = content; }
   conversation.append(message);
-  conversation.scrollTo({ top: conversation.scrollHeight, behavior: "smooth" });
+  window.requestAnimationFrame(() => { conversation.scrollTop = conversation.scrollHeight; });
   return message;
 }
 
@@ -721,12 +733,12 @@ async function compileHybridProgram() {
 }
 
 function setBusy(nextBusy) {
-  busy = nextBusy; sendButton.disabled = nextBusy; input.disabled = nextBusy;
+  busy = nextBusy; sendButton.disabled = nextBusy || !connected; input.disabled = nextBusy;
   sendButton.querySelector("span").textContent = nextBusy ? tr("checkingAnswer") : (language === "zh" ? chinese["assistant.ask"] : "Ask LoomQ");
 }
 
 async function submitPrompt(prompt) {
-  if (busy || !prompt.trim()) return;
+  if (busy || !connected || !prompt.trim()) return;
   const cleanPrompt = prompt.trim(); starterPrompts.hidden = true; addMessage("user", cleanPrompt); const loading = addMessage("assistant", tr("loading"), { loading: true }); setBusy(true);
   try {
     const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json", "X-LoomQ-Session": sessionToken }, body: JSON.stringify({ prompt: cleanPrompt, history }) });

@@ -373,12 +373,12 @@ measure q[2] -&gt; c[2];</code></pre></article>
           <button type="button" data-prompt-en="Repair this Bell-state fragment as complete OpenQASM 2.0: H q[0]; CX q[0] q[1]." data-prompt-zh="把这个 Bell 态片段修复为完整的 OpenQASM 2.0：H q[0]; CX q[0] q[1]."><span data-i18n="assistant.repair">Repair</span><b data-i18n="assistant.fix">Fix broken QASM</b></button>
           <button type="button" data-prompt-en="I need a 26-qubit circuit with no queue and no account. Which backend should I use?" data-prompt-zh="我需要运行一个 26 量子比特线路，不能排队，也没有账号。应该使用哪个后端？"><span data-i18n="assistant.choose">Choose</span><b data-i18n="assistant.backend">Recommend a backend</b></button>
         </div>
-        <div class="conversation" id="conversation" aria-live="polite" data-i18n-aria="aria.conversation"></div>
+        <div class="conversation" id="conversation" role="log" aria-live="polite" data-i18n-aria="aria.conversation" tabindex="0"></div>
         <form class="composer" id="composer">
           <div class="composer-resize-handle" id="composer-resize-handle" role="separator" aria-orientation="horizontal" aria-label="Resize prompt input" aria-valuemin="60" aria-valuemax="220" aria-valuenow="60" tabindex="0"><span aria-hidden="true"></span></div>
           <label for="prompt-input" data-i18n="assistant.describe">Describe what you want</label>
           <textarea id="prompt-input" name="prompt" rows="3" maxlength="24000" data-i18n-placeholder="assistant.placeholder" placeholder="Create a Bell state, measure both qubits, and explain the result." required></textarea>
-          <div class="composer-footer"><span><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span><button class="send-button" id="send-button" type="submit"><span data-i18n="assistant.ask">Ask LoomQ</span><span aria-hidden="true">↗</span></button></div>
+          <div class="composer-footer"><span><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span><button class="send-button" id="send-button" type="submit" disabled><span data-i18n="assistant.ask">Ask LoomQ</span><span aria-hidden="true">↗</span></button></div>
         </form>
       </aside>
       <button class="assistant-launcher" id="assistant-launcher" type="button" aria-controls="assistant-dock" aria-expanded="false" aria-label="Open LoomQ assistant" title="Open LoomQ assistant"><span aria-hidden="true">✦</span><strong data-dynamic-text="openAssistant">Ask LoomQ</strong></button>

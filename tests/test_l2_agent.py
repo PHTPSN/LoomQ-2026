@@ -116,7 +116,37 @@ def backend_document(**constraints):
     }
 
 
+def explain_document(answer):
+    return {
+        "task": "explain",
+        "answer": answer,
+        "qasm": None,
+        "expected_distribution": None,
+        "target_state": None,
+        "backend_constraints": None,
+    }
+
+
 class L2AgentModelFlowTests(unittest.TestCase):
+    def test_conceptual_question_returns_plain_text_without_qasm_coercion(self):
+        explanation = "Bell 态是两个量子比特形成的纠缠态；测量结果彼此相关。"
+        with LocalAgentEndpoint([explain_document(explanation)]):
+            answer = adapter.agent_chat("什么是 Bell 态？请给新手解释。")
+
+        self.assertEqual(answer, explanation)
+        self.assertEqual(len(AgentAPIHandler.request_payloads), 1)
+        system_prompt = AgentAPIHandler.request_payloads[0]["messages"][0]["content"]
+        self.assertIn("conceptual, learning, capability, greeting", system_prompt)
+
+    def test_empty_explanation_requires_one_correction(self):
+        with LocalAgentEndpoint(
+            [explain_document(""), explain_document("LoomQ can explain, build, and verify circuits.")]
+        ):
+            answer = adapter.agent_chat("What can you do?")
+
+        self.assertEqual(answer, "LoomQ can explain, build, and verify circuits.")
+        self.assertEqual(len(AgentAPIHandler.request_payloads), 2)
+
     def test_generation_makes_one_genuine_call_and_returns_canonical_qasm(self):
         document = qasm_document(GHZ_QASM, distribution={"000": 0.5, "111": 0.5})
         with LocalAgentEndpoint([document]):

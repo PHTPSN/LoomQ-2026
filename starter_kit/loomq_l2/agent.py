@@ -32,10 +32,17 @@ Choose exactly one task:
 - generate_qasm: create a circuit from natural-language intent.
 - repair_qasm: repair supplied circuit text while preserving the explicitly stated target.
 - select_backend: interpret backend requirements; local code will select from official data.
+- explain: answer a conceptual, learning, capability, greeting, or follow-up question in plain text.
+
+Use explain when the user asks what/why/how, requests a beginner explanation or learning
+guidance, greets the assistant, or asks what LoomQ can do. Do not turn those requests into
+a circuit or backend recommendation. If the user explicitly asks to create or repair a
+circuit, prefer the corresponding QASM task even when they also request an explanation.
 
 Return this schema:
 {
-  "task": "generate_qasm|repair_qasm|select_backend",
+  "task": "generate_qasm|repair_qasm|select_backend|explain",
+  "answer": "plain-text answer in the user's language or null",
   "qasm": "complete OpenQASM 2.0 string or null",
   "expected_distribution": {"bitstring": probability} or null,
   "target_state": {"bitstring": amplitude} or null,
@@ -49,6 +56,11 @@ Return this schema:
     "optimize": "balanced"|"queue"|"cost"|"capacity"
   } or null
 }
+
+For explain, set answer to a concise, accurate response in the user's language and set
+qasm, expected_distribution, target_state, and backend_constraints to null. Use plain text
+without Markdown syntax, headings, bullets, or code fences. Explain technical terms briefly
+and do not claim a simulator is quantum hardware.
 
 For QASM, use only OpenQASM 2.0 with exactly one include "qelib1.inc", positive qreg
 and creg declarations, lowercase gate names, and only h, x, s, sdg, t, tdg, rz, ry,
@@ -144,10 +156,12 @@ def _normalize_document(value: Mapping[str, Any]) -> Dict[str, Any]:
 
     document = dict(value)
     task = document.get("task")
-    if task not in {"generate_qasm", "repair_qasm", "select_backend"}:
+    if task not in {"generate_qasm", "repair_qasm", "select_backend", "explain"}:
         raise ModelResponseError("model returned an unsupported task classification")
-    for field in ("qasm", "expected_distribution", "target_state", "backend_constraints"):
+    for field in ("answer", "qasm", "expected_distribution", "target_state", "backend_constraints"):
         document.setdefault(field, None)
+    if document["answer"] is not None and not isinstance(document["answer"], str):
+        raise ModelResponseError("answer must be a string or null")
     if document["qasm"] is not None and not isinstance(document["qasm"], str):
         raise ModelResponseError("qasm must be a string or null")
     for field in ("expected_distribution", "target_state", "backend_constraints"):
@@ -157,6 +171,8 @@ def _normalize_document(value: Mapping[str, Any]) -> Dict[str, Any]:
         raise ModelResponseError("a QASM task requires a non-empty qasm string")
     if task == "select_backend" and document["backend_constraints"] is None:
         raise ModelResponseError("backend selection requires backend_constraints")
+    if task == "explain" and not (document["answer"] and document["answer"].strip()):
+        raise ModelResponseError("an explanation task requires a non-empty answer")
     return document
 
 
@@ -212,6 +228,8 @@ def _qasm_answer(document: Mapping[str, Any]) -> str:
 
 
 def _answer(document: Mapping[str, Any]) -> str:
+    if document["task"] == "explain":
+        return document["answer"].strip()
     if document["task"] == "select_backend":
         return format_recommendation(document.get("backend_constraints"))
     return _qasm_answer(document)
