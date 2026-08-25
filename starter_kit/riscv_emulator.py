@@ -6,7 +6,7 @@ LoomQ 量子接入平权计划 - 轻量级 RISC-V 寄存器与控制流模拟器
 支持基础的通用寄存器操作和控制流分支跳转指令，无需选手配置重型 QEMU。
 """
 
-from typing import Dict, List, Tuple, Any
+from typing import Callable, Dict, Iterable, List, Optional, Tuple, Any
 
 class TinyRISCVEmulator:
     def __init__(self):
@@ -15,6 +15,8 @@ class TinyRISCVEmulator:
         self.pc = 0
         self.labels: Dict[str, int] = {}
         self.instructions: List[Tuple[str, List[str]]] = []
+        self.machine_code: List[int] = []
+        self.quantum_trace: List[str] = []
         self.max_steps = 1000  # 防止死循环
 
     def set_register(self, reg: str, value: int):
@@ -77,6 +79,47 @@ class TinyRISCVEmulator:
             temp_instructions.append((op, args))
             
         self.instructions = temp_instructions
+
+    def load_machine_code(self, instruction_words: Iterable[int]):
+        """Load LoomQ 32-bit custom quantum instructions.
+
+        Decoding is intentionally deferred until execution so an invalid
+        opcode or field fails in the same path that dispatches operations.
+        """
+        words = list(instruction_words)
+        for word in words:
+            if (
+                not isinstance(word, int)
+                or isinstance(word, bool)
+                or word < 0
+                or word > 0xFFFFFFFF
+            ):
+                raise ValueError("机器码必须是无符号 32 位整数")
+        self.machine_code = words
+        self.quantum_trace = []
+
+    def execute_machine_code(
+        self, dispatcher: Optional[Callable[[Any], None]] = None
+    ) -> List[str]:
+        """Decode and execute the loaded quantum instruction stream.
+
+        The CPU reference execution records the ordered semantic operation
+        trace.  A dispatcher can additionally forward each decoded operation
+        to an external simulator, including a GPU-backed implementation.
+        """
+        try:
+            from .quantum_riscv import decode_instruction
+        except ImportError:  # Support ``python riscv_emulator.py`` directly.
+            from quantum_riscv import decode_instruction
+
+        trace: List[str] = []
+        for word in self.machine_code:
+            instruction = decode_instruction(word)
+            if dispatcher is not None:
+                dispatcher(instruction)
+            trace.append(instruction.to_operation())
+        self.quantum_trace = trace
+        return list(trace)
 
     def execute(self) -> Dict[str, int]:
         """

@@ -16,16 +16,20 @@ from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional
 from urllib.parse import urlparse
 
+mimetypes.add_type("text/plain", ".log")
+
 try:
     from .agent import agent_chat
     from ..adapter import run as run_circuit
     from ..loomq_l1 import Gate, Measure, emit_target, parse_qasm2
     from ..loomq_l3 import compile_hybrid
+    from ..quantum_riscv import decode_program, encode_program, format_machine_code
 except ImportError:
     from agent import agent_chat
     from starter_kit.adapter import run as run_circuit
     from starter_kit.loomq_l1 import Gate, Measure, emit_target, parse_qasm2
     from starter_kit.loomq_l3 import compile_hybrid
+    from starter_kit.quantum_riscv import decode_program, encode_program, format_machine_code
 
 
 UI_ROOT = Path(__file__).resolve().parent / "ui"
@@ -329,6 +333,9 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
             "/evidence/spinq-bell-raw.json": EVIDENCE_ROOT / "spinq-bell/spinq-bell-sdk-result.json",
             "/evidence/spinq-bell-normalized.json": EVIDENCE_ROOT / "spinq-bell/spinq-bell-normalized-result.json",
             "/evidence/spinq-diagnostics.json": EVIDENCE_ROOT / "spinq-diagnostics/spinq-diagnostics-report.json",
+            "/evidence/quantum-riscv-gpu-result.json": EVIDENCE_ROOT / "quantum-riscv-gpu/loomq-quantum-riscv-gpu-evidence.json",
+            "/evidence/quantum-riscv-gpu.log": EVIDENCE_ROOT / "quantum-riscv-gpu/loomq-lq-q32-gpu-validation.log",
+            "/evidence/quantum-riscv-gpu.py": EVIDENCE_ROOT / "quantum-riscv-gpu/loomq_gpu_validation.py",
         }
         path = files.get(route)
         if path is None:
@@ -561,6 +568,8 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
                 raise ValueError("The Hybrid-QASM program is too long; keep it under 24,000 characters.")
             started = time.monotonic()
             quantum_operations, assembly = compile_hybrid(source)
+            machine_words = encode_program(quantum_operations)
+            decoded_trace = [instruction.to_operation() for instruction in decode_program(machine_words)]
         except Exception as exc:
             self._json(400, {"error": _safe_error(exc)})
             return
@@ -569,6 +578,9 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
             {
                 "quantum_operations": quantum_operations,
                 "assembly": assembly,
+                "machine_code": format_machine_code(machine_words),
+                "machine_words": ["0x%08x" % word for word in machine_words],
+                "decoded_trace": decoded_trace,
                 "elapsed_ms": round((time.monotonic() - started) * 1000),
             },
         )

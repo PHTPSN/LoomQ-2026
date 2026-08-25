@@ -26,7 +26,7 @@
           <button type="button" data-view="gates"><span>03</span><i aria-hidden="true">⊕</i><strong data-i18n="nav.gates">12 supported gates</strong></button>
           <button type="button" data-view="simulator"><span>04</span><i aria-hidden="true">▶</i><strong data-i18n="nav.simulator">Vendor simulators</strong></button>
           <button type="button" data-view="hybrid"><span>05</span><i aria-hidden="true">⌁</i><strong data-i18n="nav.hybrid">Hybrid compiler</strong></button>
-          <button type="button" data-view="evidence"><span>06</span><i aria-hidden="true">✓</i><strong data-i18n="nav.evidence">Hardware evidence</strong></button>
+          <button type="button" data-view="evidence"><span>06</span><i aria-hidden="true">✓</i><strong data-i18n="nav.evidence">Execution evidence</strong></button>
         </nav>
         <div class="rail-footer">
           <div class="agent-health">
@@ -192,15 +192,29 @@ cx q[0], q[1];</textarea>
               <article class="compiler-output"><header><span>01</span><strong data-i18n="hybrid.quantumOutput">Quantum operation stream</strong></header><pre id="hybrid-quantum-output"><code data-i18n="hybrid.awaitingQuantum">Compile the example to list its quantum operations.</code></pre></article>
               <article class="compiler-output"><header><span>02</span><strong data-i18n="hybrid.classicalOutput">Tiny RISC-V assembly</strong></header><pre id="hybrid-assembly-output"><code data-i18n="hybrid.awaitingAssembly">Compiled classical instructions will appear here.</code></pre></article>
             </div>
+            <section class="binary-extension" aria-labelledby="binary-extension-title">
+              <header><div><span class="binary-badge">BONUS · LQ-Q32</span><h3 id="binary-extension-title" data-i18n="hybrid.binaryTitle">Quantum operations become real 32-bit instruction words.</h3></div><p data-i18n="hybrid.binaryBody">The custom-0 opcode 0x0B enters a minimum executable loop: encode, decode, then recover the operation semantics used by the emulator.</p></header>
+              <div class="compiler-results binary-results">
+                <article class="compiler-output"><header><span>03</span><strong data-i18n="hybrid.machineOutput">LQ-Q32 machine code</strong></header><pre id="hybrid-machine-output"><code data-i18n="hybrid.awaitingMachine">Encoded 32-bit words will appear here.</code></pre></article>
+                <article class="compiler-output"><header><span>04</span><strong data-i18n="hybrid.decodedOutput">Decoded execution trace</strong></header><pre id="hybrid-decoded-output"><code data-i18n="hybrid.awaitingDecoded">Decoded operations will appear here.</code></pre></article>
+              </div>
+            </section>
           </form>
         </section>
 
         <section class="content-view" id="view-evidence" data-view-panel="evidence" aria-labelledby="evidence-title">
           <header class="view-heading compact">
-            <p class="eyebrow" data-i18n="evidence.eyebrow">06 · Real-hardware evidence</p>
-            <h2 id="evidence-title"><span data-i18n="evidence.title1">Jobs you can verify.</span><br><em data-i18n="evidence.title2">A workflow you can repeat.</em></h2>
-            <p class="view-lede" data-i18n="evidence.lede">A hardware claim needs more than a chart. Each archived run links the provider job ID, submitted circuit, unedited provider response, normalized counts, execution time, and task-page screenshot.</p>
+            <p class="eyebrow" data-i18n="evidence.eyebrow">06 · Execution evidence</p>
+            <h2 id="evidence-title"><span data-i18n="evidence.title1">Two execution paths.</span><br><em data-i18n="evidence.title2">One auditable record.</em></h2>
+            <p class="view-lede" data-i18n="evidence.lede">Switch between physical quantum-machine jobs and the custom quantum RISC-V path with its archived GPU validation. Every claim links to the artifact that supports it.</p>
           </header>
+
+          <div class="evidence-mode-tabs" role="tablist" aria-label="Execution evidence path">
+            <button class="active" id="evidence-mode-hardware" type="button" role="tab" aria-selected="true" aria-controls="evidence-panel-hardware" tabindex="0" data-evidence-mode="hardware"><span>01</span><strong data-i18n="evidence.modeHardware">Quantum machines</strong><small data-i18n="evidence.modeHardwareMeta">Origin · SpinQ · AWS guide</small></button>
+            <button id="evidence-mode-riscv-gpu" type="button" role="tab" aria-selected="false" aria-controls="evidence-panel-riscv-gpu" tabindex="-1" data-evidence-mode="riscv-gpu"><span>02</span><strong data-i18n="evidence.modeRiscv">Quantum RISC-V + GPU</strong><small data-i18n="evidence.modeRiscvMeta">LQ-Q32 · CUDA evidence</small></button>
+          </div>
+
+          <div class="evidence-mode-panel" id="evidence-panel-hardware" role="tabpanel" aria-labelledby="evidence-mode-hardware" data-evidence-panel="hardware">
 
           <div class="evidence-definition">
             <span aria-hidden="true">✓</span>
@@ -295,6 +309,60 @@ py scripts/backend_observations.py --provider aws `
               <aside class="platform-limit"><strong data-i18n="evidence.awsLimitTitle">What the project provides</strong><p data-i18n="evidence.awsLimitBody">OpenQASM 3.0 translation, a credential-free local Braket example, and read-only live device discovery. It does not automate a chargeable AWS task.</p></aside>
             </section>
           </section>
+          </div>
+
+          <div class="evidence-mode-panel riscv-gpu-view" id="evidence-panel-riscv-gpu" role="tabpanel" aria-labelledby="evidence-mode-riscv-gpu" data-evidence-panel="riscv-gpu" hidden>
+            <div class="gpu-intro">
+              <div><span class="binary-badge">BONUS · CUSTOM-0 OPCODE 0x0B</span><h3 data-i18n="gpu.title">A 32-bit quantum instruction path that actually runs.</h3><p data-i18n="gpu.lede">LoomQ converts the L3 quantum stream into LQ-Q32 words, decodes those words, and executes the recovered semantics. A separate Kaggle run validates the decoded GHZ workload on an NVIDIA GPU.</p></div>
+              <div class="gpu-intro-mark" aria-hidden="true"><span>32</span><small>BIT</small></div>
+            </div>
+
+            <section class="bonus-requirements" aria-labelledby="bonus-requirements-title">
+              <header><p class="eyebrow" data-i18n="gpu.requirementsEyebrow">Minimum closed loop</p><h3 id="bonus-requirements-title" data-i18n="gpu.requirementsTitle">The Bonus requirements, connected end to end.</h3></header>
+              <div>
+                <article><span>01</span><strong data-i18n="gpu.req1Title">Encoding specification</strong><p data-i18n="gpu.req1Body">Two validated 32-bit formats use RISC-V custom-0 opcode 0x0B, with explicit qubit, gate, angle, and measurement fields.</p></article>
+                <article><span>02</span><strong data-i18n="gpu.req2Title">Machine-code decoder</strong><p data-i18n="gpu.req2Body">The emulator accepts hexadecimal instruction words, checks reserved fields, and reconstructs executable quantum operations.</p></article>
+                <article><span>03</span><strong data-i18n="gpu.req3Title">Full whitelist coverage</strong><p data-i18n="gpu.req3Body">All 12 allowed gates plus measurement pass encode/decode tests, including parameter quantization and invalid-word rejection.</p></article>
+                <article><span>04</span><strong data-i18n="gpu.req4Title">GPU validation</strong><p data-i18n="gpu.req4Body">A private Kaggle run used CuPy NVRTC kernels on a Tesla P100 to execute the decoded GHZ subset and compare it with CPU results.</p></article>
+              </div>
+            </section>
+
+            <section class="gpu-tutor" aria-labelledby="gpu-tutor-title">
+              <header><p class="eyebrow" data-i18n="gpu.tutorEyebrow">GPU Tutor</p><h3 id="gpu-tutor-title" data-i18n="gpu.tutorTitle">Follow one GHZ program through five transformations.</h3><p data-i18n="gpu.tutorLede">Select a step to see what changes, what stays invariant, and which artifact proves it.</p></header>
+              <div class="gpu-tutor-layout">
+                <div class="gpu-tutor-steps" role="tablist" aria-label="GPU Tutor steps">
+                  <button class="active" id="gpu-step-tab-1" type="button" role="tab" aria-selected="true" aria-controls="gpu-step-panel-1" tabindex="0" data-gpu-step="1"><span>01</span><strong data-i18n="gpu.step1">Hybrid-QASM</strong><small data-i18n="gpu.step1Meta">Source semantics</small></button>
+                  <button id="gpu-step-tab-2" type="button" role="tab" aria-selected="false" aria-controls="gpu-step-panel-2" tabindex="-1" data-gpu-step="2"><span>02</span><strong data-i18n="gpu.step2">LQ-Q32 words</strong><small data-i18n="gpu.step2Meta">Binary encoding</small></button>
+                  <button id="gpu-step-tab-3" type="button" role="tab" aria-selected="false" aria-controls="gpu-step-panel-3" tabindex="-1" data-gpu-step="3"><span>03</span><strong data-i18n="gpu.step3">Decode fields</strong><small data-i18n="gpu.step3Meta">Recover meaning</small></button>
+                  <button id="gpu-step-tab-4" type="button" role="tab" aria-selected="false" aria-controls="gpu-step-panel-4" tabindex="-1" data-gpu-step="4"><span>04</span><strong data-i18n="gpu.step4">CUDA / NVRTC</strong><small data-i18n="gpu.step4Meta">GPU execution</small></button>
+                  <button id="gpu-step-tab-5" type="button" role="tab" aria-selected="false" aria-controls="gpu-step-panel-5" tabindex="-1" data-gpu-step="5"><span>05</span><strong data-i18n="gpu.step5">CPU ↔ GPU</strong><small data-i18n="gpu.step5Meta">Verify parity</small></button>
+                </div>
+                <div class="gpu-tutor-stage">
+                  <article class="gpu-tutor-panel active" id="gpu-step-panel-1" role="tabpanel" aria-labelledby="gpu-step-tab-1" data-gpu-panel="1"><span class="stage-kicker" data-i18n="gpu.sourceKicker">Input</span><h4 data-i18n="gpu.sourceTitle">Start with operations, not hardware details.</h4><p data-i18n="gpu.sourceBody">The GHZ circuit creates a three-qubit superposition with H and two CX gates, then measures every qubit. L3 preserves these operations in order.</p><pre><code>h q[0];
+cx q[0], q[1];
+cx q[1], q[2];
+measure q[0] -&gt; c[0];
+measure q[1] -&gt; c[1];
+measure q[2] -&gt; c[2];</code></pre></article>
+                  <article class="gpu-tutor-panel" id="gpu-step-panel-2" role="tabpanel" aria-labelledby="gpu-step-tab-2" data-gpu-panel="2" hidden><span class="stage-kicker" data-i18n="gpu.wordsKicker">Encode</span><h4 data-i18n="gpu.wordsTitle">Each operation becomes one unsigned 32-bit word.</h4><p data-i18n="gpu.wordsBody">The low seven bits carry custom-0 opcode 0x0B. Base gates use funct7; operands use rd, rs1, and rs2.</p><pre><code>0x0200000b  h q[0]
+0x0e00800b  cx q[0], q[1]
+0x0e01008b  cx q[1], q[2]
+0x1400000b  measure q[0] -&gt; c[0]</code></pre></article>
+                  <article class="gpu-tutor-panel" id="gpu-step-panel-3" role="tabpanel" aria-labelledby="gpu-step-tab-3" data-gpu-panel="3" hidden><span class="stage-kicker" data-i18n="gpu.decodeKicker">Decode</span><h4 data-i18n="gpu.decodeTitle">Fields are validated before semantics are recovered.</h4><p data-i18n="gpu.decodeBody">Opcode selects the extension, funct3 selects the format, and funct7 or the immediate identifies the operation. Invalid opcodes, unknown functions, repeated qubits, and nonzero reserved fields are rejected.</p><div class="instruction-field-strip" aria-label="LQ-Q32 base instruction fields"><span class="field-funct7"><b>31…25</b>funct7</span><span class="field-rs2"><b>24…20</b>rs2</span><span class="field-rs1"><b>19…15</b>rs1</span><span class="field-funct3"><b>14…12</b>funct3</span><span class="field-rd"><b>11…7</b>rd</span><span class="field-opcode"><b>6…0</b>0x0B</span></div></article>
+                  <article class="gpu-tutor-panel" id="gpu-step-panel-4" role="tabpanel" aria-labelledby="gpu-step-tab-4" data-gpu-panel="4" hidden><span class="stage-kicker" data-i18n="gpu.cudaKicker">Execute</span><h4 data-i18n="gpu.cudaTitle">Decoded gates drive raw GPU kernels.</h4><p data-i18n="gpu.cudaBody">CuPy compiles CUDA C kernels at runtime through NVRTC. The archived run applies decoded H and CX operations to a complex state vector, then derives measurement probabilities on a Tesla P100.</p><div class="gpu-runtime-facts"><span><b>GPU</b>Tesla P100-PCIE-16GB</span><span><b>CUDA</b>Compute capability 6.0</span><span><b>Runtime</b>CuPy 14.0.1 · NVRTC</span></div></article>
+                  <article class="gpu-tutor-panel" id="gpu-step-panel-5" role="tabpanel" aria-labelledby="gpu-step-tab-5" data-gpu-panel="5" hidden><span class="stage-kicker" data-i18n="gpu.verifyKicker">Verify</span><h4 data-i18n="gpu.verifyTitle">Independent CPU and GPU paths agree.</h4><p data-i18n="gpu.verifyBody">Both paths return the ideal GHZ distribution at 4,096 shots. The maximum probability difference is near floating-point roundoff.</p><div class="cpu-gpu-compare"><div><strong>CPU</strong><code>{ "000": 2048, "111": 2048 }</code></div><div><strong>GPU</strong><code>{ "000": 2048, "111": 2048 }</code></div></div><p class="delta"><span>MAX |Δ|</span><code>2.220446049250313e-16</code></p></article>
+                </div>
+              </div>
+            </section>
+
+            <section class="gpu-proof-card" aria-labelledby="gpu-proof-title">
+              <header><div><span class="evidence-status verified" data-i18n="gpu.archived">Archived · passed</span><h3 id="gpu-proof-title" data-i18n="gpu.proofTitle">Private Kaggle GPU validation</h3></div><time datetime="2026-08-25">2026-08-25</time></header>
+              <dl class="gpu-facts"><div><dt data-i18n="gpu.device">Device</dt><dd>Tesla P100-PCIE-16GB</dd></div><div><dt data-i18n="gpu.memory">GPU memory</dt><dd>16 GB</dd></div><div><dt data-i18n="gpu.coverage">Encoding coverage</dt><dd data-i18n="gpu.coverageValue">12 gates + measurement</dd></div><div><dt data-i18n="gpu.executed">GPU-executed subset</dt><dd>H · CX · measure</dd></div></dl>
+              <nav class="artifact-links" aria-label="Quantum RISC-V GPU evidence files"><a href="/evidence/quantum-riscv-gpu-result.json" target="_blank" rel="noopener" data-i18n="gpu.resultJson">Evidence JSON</a><a href="/evidence/quantum-riscv-gpu.log" target="_blank" rel="noopener" data-i18n="gpu.runLog">Complete run log</a><a href="/evidence/quantum-riscv-gpu.py" target="_blank" rel="noopener" data-i18n="gpu.validationScript">Validation script</a></nav>
+            </section>
+
+            <aside class="claim-boundary"><strong data-i18n="gpu.boundaryTitle">What this result proves—and what it does not</strong><p data-i18n="gpu.boundaryBody">The full instruction set is encoded and decoded on CPU. The archived GPU run executes only the GHZ operations H, CX, and measurement; it does not claim that every gate has a dedicated CUDA kernel, and a GPU is not presented as quantum hardware.</p></aside>
+          </div>
         </section>
       </main>
 

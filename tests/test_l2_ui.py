@@ -128,7 +128,7 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertIn(b'id="l1-translation-output"', body)
             self.assertIn(b'id="hybrid-form"', body)
             self.assertIn(b'id="hybrid-assembly-output"', body)
-            self.assertIn(b"Hardware evidence", body)
+            self.assertIn(b"Execution evidence", body)
             self.assertIn(b'id="view-evidence"', body)
             self.assertIn(b"FF2950", body)
             self.assertIn(b"G-260823-0014", body)
@@ -142,8 +142,14 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertIn(b"starter_kit/circuits/bell.qasm", body)
             self.assertEqual(body.count(b'data-hardware-tab="'), 3)
             self.assertEqual(body.count(b'data-hardware-panel="'), 3)
-            self.assertEqual(body.count(b'role="tab"'), 3)
-            self.assertEqual(body.count(b'role="tabpanel"'), 3)
+            self.assertEqual(body.count(b'role="tab"'), 10)
+            self.assertEqual(body.count(b'role="tabpanel"'), 10)
+            self.assertEqual(body.count(b'data-evidence-mode="'), 2)
+            self.assertEqual(body.count(b'data-evidence-panel="'), 2)
+            self.assertEqual(body.count(b'data-gpu-step="'), 5)
+            self.assertEqual(body.count(b'data-gpu-panel="'), 5)
+            self.assertIn(b'id="hybrid-machine-output"', body)
+            self.assertIn(b'id="hybrid-decoded-output"', body)
             self.assertIn(b'id="hardware-tab-origin"', body)
             self.assertIn(b'id="hardware-tab-spinq"', body)
             self.assertIn(b'id="hardware-tab-aws"', body)
@@ -252,6 +258,9 @@ class Level2UIServerTest(unittest.TestCase):
                 "/evidence/spinq-bell-task.png": "image/png",
                 "/evidence/spinq-bell-normalized.json": "application/json",
                 "/evidence/spinq-diagnostics.json": "application/json",
+                "/evidence/quantum-riscv-gpu-result.json": "application/json",
+                "/evidence/quantum-riscv-gpu.log": "text/plain; charset=utf-8",
+                "/evidence/quantum-riscv-gpu.py": "text/x-python; charset=utf-8",
             }
             for route, content_type in evidence_routes.items():
                 evidence_status, evidence_headers, evidence_body = local.request(
@@ -474,6 +483,12 @@ cx q[0], q[1];
         )
         self.assertIn("li x1, 7", result["assembly"])
         self.assertIn("li x1, 3", result["assembly"])
+        self.assertEqual(
+            result["machine_words"],
+            ["0x0200000b", "0x1400000b", "0x0e00800b"],
+        )
+        self.assertEqual(result["decoded_trace"], result["quantum_operations"])
+        self.assertEqual(result["machine_code"].splitlines(), result["machine_words"])
 
 
 if __name__ == "__main__":

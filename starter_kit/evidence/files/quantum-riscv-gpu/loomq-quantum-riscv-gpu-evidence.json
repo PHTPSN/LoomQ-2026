@@ -1,0 +1,79 @@
+{
+  "execution": {
+    "counts_method": "deterministic rounding of GPU/CPU statevector probabilities",
+    "cpu_counts": {
+      "000": 2048,
+      "111": 2048
+    },
+    "expected_states": [
+      "000",
+      "111"
+    ],
+    "gpu_counts": {
+      "000": 2048,
+      "111": 2048
+    },
+    "max_probability_delta": 2.220446049250313e-16,
+    "shots": 4096
+  },
+  "gpu": [
+    {
+      "compute_capability": "6.0",
+      "driver_version": "580.159.04",
+      "memory_mib": 16384,
+      "name": "Tesla P100-PCIE-16GB",
+      "uuid": "GPU-456f1313-f983-12fc-9907-681a4484d3c5"
+    }
+  ],
+  "instruction_encoding": {
+    "decoded_ghz_trace": [
+      "h q[0];",
+      "cx q[0], q[1];",
+      "cx q[1], q[2];",
+      "measure q[0] -> c[0];",
+      "measure q[1] -> c[1];",
+      "measure q[2] -> c[2];"
+    ],
+    "ghz_machine_code": [
+      "0x0200000b",
+      "0x0e00800b",
+      "0x0e01008b",
+      "0x1400000b",
+      "0x1400808b",
+      "0x1401010b"
+    ],
+    "name": "LQ-Q32",
+    "opcode": "0x0b",
+    "whitelist_instruction_count": 13,
+    "whitelist_machine_code": [
+      "0x0200000b",
+      "0x0400008b",
+      "0x0600010b",
+      "0x0800000b",
+      "0x0a00008b",
+      "0x0c00010b",
+      "0x0e60100b",
+      "0xde80208b",
+      "0x0e00800b",
+      "0x1801308b",
+      "0x1001000b",
+      "0x1220800b",
+      "0x1400000b"
+    ]
+  },
+  "platform": "Kaggle Notebooks",
+  "schema": "loomq.quantum-riscv-gpu-evidence.v1",
+  "software": {
+    "cuda_runtime_version": 12090,
+    "cupy": "14.0.1",
+    "gpu_kernel": "CuPy RawKernel (NVRTC runtime compilation)",
+    "numpy": "2.0.2",
+    "python": "3.12.13"
+  },
+  "source_sha256": {
+    "quantum_riscv.py": "aa39b5461fe0750b40041998e41de3d55078b419512bc10a24c55611581ca468",
+    "riscv_emulator.py": "66ee2163c96bcf71d0f27c0cd3a641de96ab28a5a89cbbb433666d321c7959b8"
+  },
+  "status": "PASS",
+  "timestamp": "2026-08-25T00:10:26.679779+00:00"
+}

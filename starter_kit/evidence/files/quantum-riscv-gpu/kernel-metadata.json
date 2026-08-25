@@ -1,0 +1,15 @@
+{
+  "id": "phtpsn/loomq-lq-q32-gpu-validation",
+  "title": "LoomQ LQ-Q32 GPU Validation",
+  "code_file": "loomq_gpu_validation.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "phtpsn/loomq-quantum-riscv-source"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

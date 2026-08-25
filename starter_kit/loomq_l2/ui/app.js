@@ -24,6 +24,8 @@ const hybridInput = document.querySelector("#hybrid-input");
 const hybridButton = document.querySelector("#hybrid-button");
 const hybridQuantumOutput = document.querySelector("#hybrid-quantum-output");
 const hybridAssemblyOutput = document.querySelector("#hybrid-assembly-output");
+const hybridMachineOutput = document.querySelector("#hybrid-machine-output");
+const hybridDecodedOutput = document.querySelector("#hybrid-decoded-output");
 const workspace = document.querySelector(".workspace");
 const railToggle = document.querySelector("#rail-toggle");
 const promptResizeHandle = document.querySelector("#composer-resize-handle");
@@ -32,6 +34,10 @@ const assistantHideButton = document.querySelector("#assistant-hide-button");
 const assistantLauncher = document.querySelector("#assistant-launcher");
 const hardwareTabButtons = Array.from(document.querySelectorAll("[data-hardware-tab]"));
 const hardwareTabPanels = Array.from(document.querySelectorAll("[data-hardware-panel]"));
+const evidenceModeButtons = Array.from(document.querySelectorAll("[data-evidence-mode]"));
+const evidenceModePanels = Array.from(document.querySelectorAll("[data-evidence-panel]"));
+const gpuTutorButtons = Array.from(document.querySelectorAll("[data-gpu-step]"));
+const gpuTutorPanels = Array.from(document.querySelectorAll("[data-gpu-panel]"));
 
 const chinese = {
   "aria.workspace": "工作区导航",
@@ -45,7 +51,7 @@ const chinese = {
   "nav.gates": "支持的 12 种门",
   "nav.simulator": "厂商模拟器",
   "nav.hybrid": "混合编译器",
-  "nav.evidence": "真机证据",
+  "nav.evidence": "执行证据",
   "rail.backends": "本地后端",
   "overview.eyebrow": "01 · 工具介绍",
   "overview.title1": "从一句自然语言想法",
@@ -169,10 +175,72 @@ const chinese = {
   "hybrid.classicalOutput": "精简 RISC-V 汇编",
   "hybrid.awaitingQuantum": "编译示例后即可列出量子操作。",
   "hybrid.awaitingAssembly": "编译后的经典指令将显示在这里。",
-  "evidence.eyebrow": "06 · 真机证据",
-  "evidence.title1": "可以逐项核验的任务，",
-  "evidence.title2": "可以安全复现的流程。",
-  "evidence.lede": "真机结论不能只靠一张结果图。每次归档运行都关联厂商任务编号、实际提交的线路、未经修改的厂商响应、统一格式的 counts、执行时间和任务页截图。",
+  "hybrid.binaryTitle": "量子操作会成为真正的 32 位指令字。",
+  "hybrid.binaryBody": "custom-0 操作码 0x0B 进入最小可执行闭环：编码、解码，再恢复模拟器执行的操作语义。",
+  "hybrid.machineOutput": "LQ-Q32 机器码",
+  "hybrid.decodedOutput": "解码执行轨迹",
+  "hybrid.awaitingMachine": "编码后的 32 位指令字将显示在这里。",
+  "hybrid.awaitingDecoded": "解码后的操作将显示在这里。",
+  "evidence.eyebrow": "06 · 执行证据",
+  "evidence.title1": "两条执行路径，",
+  "evidence.title2": "一份可审计记录。",
+  "evidence.lede": "在物理量子真机任务与带有归档 GPU 验证的自定义量子 RISC-V 路径之间切换。每项结论都会链接到支持它的证据文件。",
+  "evidence.modeHardware": "量子真机",
+  "evidence.modeHardwareMeta": "本源 · SpinQ · AWS 指南",
+  "evidence.modeRiscv": "量子 RISC-V + GPU",
+  "evidence.modeRiscvMeta": "LQ-Q32 · CUDA 证据",
+  "gpu.title": "一条真正可运行的 32 位量子指令路径。",
+  "gpu.lede": "LoomQ 将 L3 量子操作流转换为 LQ-Q32 指令字，再解码并执行恢复出的语义。另一次 Kaggle 运行在 NVIDIA GPU 上验证了解码后的 GHZ 工作负载。",
+  "gpu.requirementsEyebrow": "最小闭环",
+  "gpu.requirementsTitle": "Bonus 基础要求已端到端连接。",
+  "gpu.req1Title": "编码规范",
+  "gpu.req1Body": "两种经过验证的 32 位格式使用 RISC-V custom-0 操作码 0x0B，并明确表示量子比特、量子门、角度和测量字段。",
+  "gpu.req2Title": "机器码解码器",
+  "gpu.req2Body": "模拟器接收十六进制指令字、检查保留字段，并重建可执行的量子操作。",
+  "gpu.req3Title": "完整白名单覆盖",
+  "gpu.req3Body": "全部 12 种允许的门和测量均通过编码/解码测试，包括参数量化和非法指令拒绝。",
+  "gpu.req4Title": "GPU 验证",
+  "gpu.req4Body": "一次私有 Kaggle 运行在 Tesla P100 上使用 CuPy NVRTC 内核运行解码后的 GHZ 子集，并与 CPU 结果比较。",
+  "gpu.tutorEyebrow": "GPU 教程",
+  "gpu.tutorTitle": "跟随一个 GHZ 程序经历五次转换。",
+  "gpu.tutorLede": "选择一个步骤，查看发生了什么变化、什么保持不变，以及哪份文件提供证明。",
+  "gpu.step1": "Hybrid-QASM",
+  "gpu.step1Meta": "源程序语义",
+  "gpu.step2": "LQ-Q32 指令字",
+  "gpu.step2Meta": "二进制编码",
+  "gpu.step3": "解码字段",
+  "gpu.step3Meta": "恢复含义",
+  "gpu.step4": "CUDA / NVRTC",
+  "gpu.step4Meta": "GPU 执行",
+  "gpu.step5": "CPU ↔ GPU",
+  "gpu.step5Meta": "验证一致性",
+  "gpu.sourceKicker": "输入",
+  "gpu.sourceTitle": "从操作语义开始，而不是硬件细节。",
+  "gpu.sourceBody": "GHZ 线路使用 H 和两个 CX 门创建三量子比特叠加态，然后测量所有量子比特。L3 按原顺序保留这些操作。",
+  "gpu.wordsKicker": "编码",
+  "gpu.wordsTitle": "每个操作变成一个无符号 32 位指令字。",
+  "gpu.wordsBody": "最低七位承载 custom-0 操作码 0x0B。基础门使用 funct7，操作数使用 rd、rs1 和 rs2。",
+  "gpu.decodeKicker": "解码",
+  "gpu.decodeTitle": "恢复语义前先验证所有字段。",
+  "gpu.decodeBody": "opcode 选择扩展，funct3 选择格式，funct7 或立即数识别操作。非法操作码、未知功能、重复量子比特和非零保留字段都会被拒绝。",
+  "gpu.cudaKicker": "执行",
+  "gpu.cudaTitle": "解码后的门驱动原生 GPU 内核。",
+  "gpu.cudaBody": "CuPy 通过 NVRTC 在运行时编译 CUDA C 内核。归档运行把解码后的 H 和 CX 应用于复数状态向量，并在 Tesla P100 上计算测量概率。",
+  "gpu.verifyKicker": "核验",
+  "gpu.verifyTitle": "独立的 CPU 和 GPU 路径结果一致。",
+  "gpu.verifyBody": "两条路径在 4,096 shots 下都返回理想 GHZ 分布。最大概率差异接近浮点舍入误差。",
+  "gpu.archived": "已归档 · 通过",
+  "gpu.proofTitle": "私有 Kaggle GPU 验证",
+  "gpu.device": "设备",
+  "gpu.memory": "GPU 显存",
+  "gpu.coverage": "编码覆盖范围",
+  "gpu.coverageValue": "12 种门 + 测量",
+  "gpu.executed": "GPU 执行子集",
+  "gpu.resultJson": "证据 JSON",
+  "gpu.runLog": "完整运行日志",
+  "gpu.validationScript": "验证脚本",
+  "gpu.boundaryTitle": "这项结果证明什么，以及不证明什么",
+  "gpu.boundaryBody": "完整指令集在 CPU 上完成编码和解码。归档 GPU 运行只执行 GHZ 所需的 H、CX 和测量；它不声称每个门都有专用 CUDA 内核，也不会把 GPU 描述成量子真机。",
   "evidence.definitionTitle": "这里的“真机证据”是什么意思",
   "evidence.definitionBody": "厂商记录显示：一个任务已在指定的物理量子机器上完成。“统一格式”表示 LoomQ 把厂商结果转换为共同的 counts 格式；原始响应仍与转换结果一同保留。",
   "evidence.originBell": "Bell 对 · 本源悟空 180",
@@ -393,17 +461,55 @@ function applyLanguage(nextLanguage) {
   try { localStorage.setItem("loomq-language", language); } catch (_error) { /* Preference storage is optional. */ }
 }
 
-function activateView(name) {
+function activateEvidenceMode(name, moveFocus = false, updateHash = true) {
+  const selected = evidenceModeButtons.some((button) => button.dataset.evidenceMode === name) ? name : "hardware";
+  evidenceModeButtons.forEach((button) => {
+    const active = button.dataset.evidenceMode === selected;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+    button.tabIndex = active ? 0 : -1;
+    if (active && moveFocus) button.focus();
+  });
+  evidenceModePanels.forEach((panel) => {
+    const active = panel.dataset.evidencePanel === selected;
+    panel.classList.toggle("active", active);
+    panel.hidden = !active;
+  });
+  if (updateHash && document.querySelector('[data-view-panel="evidence"]').classList.contains("active")) {
+    window.history.replaceState(null, "", `#evidence/${selected}`);
+  }
+  return selected;
+}
+
+function activateGpuTutorStep(name, moveFocus = false) {
+  const selected = gpuTutorButtons.some((button) => button.dataset.gpuStep === String(name)) ? String(name) : "1";
+  gpuTutorButtons.forEach((button) => {
+    const active = button.dataset.gpuStep === selected;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+    button.tabIndex = active ? 0 : -1;
+    if (active && moveFocus) button.focus();
+  });
+  gpuTutorPanels.forEach((panel) => {
+    const active = panel.dataset.gpuPanel === selected;
+    panel.classList.toggle("active", active);
+    panel.hidden = !active;
+  });
+}
+
+function activateView(name, updateHash = true) {
   const allowed = new Set(["overview", "learn", "gates", "simulator", "hybrid", "evidence"]);
-  const view = allowed.has(name) ? name : "overview";
+  const [requestedView, requestedEvidenceMode] = String(name || "").split("/", 2);
+  const view = allowed.has(requestedView) ? requestedView : "overview";
   document.querySelectorAll("[data-view]").forEach((button) => {
     const active = button.dataset.view === view;
     button.classList.toggle("active", active);
     if (active) button.setAttribute("aria-current", "page"); else button.removeAttribute("aria-current");
   });
   document.querySelectorAll("[data-view-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.viewPanel === view));
+  const evidenceMode = view === "evidence" ? activateEvidenceMode(requestedEvidenceMode || "hardware", false, false) : "hardware";
   contentStage.scrollTop = 0;
-  window.history.replaceState(null, "", `#${view}`);
+  if (updateHash) window.history.replaceState(null, "", view === "evidence" ? `#evidence/${evidenceMode}` : `#${view}`);
 }
 
 function activateHardwareTutorial(name, moveFocus = false) {
@@ -594,16 +700,22 @@ async function compileHybridProgram() {
   setHybridBusy(true);
   setCompilerOutput(hybridQuantumOutput, tr("compiling"));
   setCompilerOutput(hybridAssemblyOutput, tr("compiling"));
+  setCompilerOutput(hybridMachineOutput, tr("compiling"));
+  setCompilerOutput(hybridDecodedOutput, tr("compiling"));
   try {
     const response = await fetch("/api/compile-hybrid", { method: "POST", headers: { "Content-Type": "application/json", "X-LoomQ-Session": sessionToken }, body: JSON.stringify({ source }) });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || tr("hybridFailure"));
     setCompilerOutput(hybridQuantumOutput, payload.quantum_operations.join("\n"));
     setCompilerOutput(hybridAssemblyOutput, payload.assembly);
+    setCompilerOutput(hybridMachineOutput, payload.machine_code);
+    setCompilerOutput(hybridDecodedOutput, payload.decoded_trace.join("\n"));
   } catch (error) {
     const message = `${tr("hybridFailure")}\n\n${error.message}`;
     setCompilerOutput(hybridQuantumOutput, message, true);
     setCompilerOutput(hybridAssemblyOutput, message, true);
+    setCompilerOutput(hybridMachineOutput, message, true);
+    setCompilerOutput(hybridDecodedOutput, message, true);
   } finally { setHybridBusy(false); }
 }
 
@@ -642,6 +754,32 @@ hardwareTabButtons.forEach((button, index) => {
     else return;
     event.preventDefault();
     activateHardwareTutorial(hardwareTabButtons[nextIndex].dataset.hardwareTab, true);
+  });
+});
+evidenceModeButtons.forEach((button, index) => {
+  button.addEventListener("click", () => activateEvidenceMode(button.dataset.evidenceMode));
+  button.addEventListener("keydown", (event) => {
+    let nextIndex = index;
+    if (event.key === "ArrowRight") nextIndex = (index + 1) % evidenceModeButtons.length;
+    else if (event.key === "ArrowLeft") nextIndex = (index - 1 + evidenceModeButtons.length) % evidenceModeButtons.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = evidenceModeButtons.length - 1;
+    else return;
+    event.preventDefault();
+    activateEvidenceMode(evidenceModeButtons[nextIndex].dataset.evidenceMode, true);
+  });
+});
+gpuTutorButtons.forEach((button, index) => {
+  button.addEventListener("click", () => activateGpuTutorStep(button.dataset.gpuStep));
+  button.addEventListener("keydown", (event) => {
+    let nextIndex = index;
+    if (event.key === "ArrowDown" || event.key === "ArrowRight") nextIndex = (index + 1) % gpuTutorButtons.length;
+    else if (event.key === "ArrowUp" || event.key === "ArrowLeft") nextIndex = (index - 1 + gpuTutorButtons.length) % gpuTutorButtons.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = gpuTutorButtons.length - 1;
+    else return;
+    event.preventDefault();
+    activateGpuTutorStep(gpuTutorButtons[nextIndex].dataset.gpuStep, true);
   });
 });
 document.querySelectorAll("[data-language]").forEach((button) => button.addEventListener("click", () => applyLanguage(button.dataset.language)));
@@ -684,5 +822,7 @@ promptResizeHandle.addEventListener("keydown", (event) => {
 
 applyLanguage(language);
 activateView(location.hash.slice(1));
+activateGpuTutorStep("1");
+window.addEventListener("hashchange", () => activateView(location.hash.slice(1), false));
 connect();
 checkBackendHealth();

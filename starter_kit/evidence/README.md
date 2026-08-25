@@ -22,6 +22,14 @@
   [`files/l2-robustness/robustness-report.json`](files/l2-robustness/robustness-report.json)；
   12 个生成、12 个修复、12 个后端选择，正式模型配置下 36/36。该报告明确声明它不是
   组委会隐藏案例或官方分数。
+- **L2 公网演示：**[https://loomq-demo.onrender.com](https://loomq-demo.onrender.com)。
+  公网版本为演示模式，不启用本地量子模拟；翻译器后端、交互界面及第 6 页真机证据保留。
+- **自定义量子 RISC-V Bonus：**[`../QUANTUM_RISCV_EXTENSION.md`](../QUANTUM_RISCV_EXTENSION.md)。
+  使用 `custom-0` 操作码的真实 32 位编码，覆盖 12 门与测量，并由模拟器在执行路径中解码。
+- **量子 RISC-V GPU 闭环证据：**
+  [`files/quantum-riscv-gpu/`](files/quantum-riscv-gpu/)。Kaggle Tesla P100-PCIE-16GB
+  上使用开源 CuPy NVRTC Kernel 执行解码后的 GHZ 指令流，CPU/GPU 最大概率差为
+  `2.22044604925031e-16`。
 - **附件目录索引：**[`files/README.md`](files/README.md)；正式任务分别位于
   [`originq-bell/`](files/originq-bell/)、[`originq-ghz3/`](files/originq-ghz3/)
   和 [`spinq-bell/`](files/spinq-bell/)，跨平台结果位于
@@ -37,7 +45,7 @@
 - [x] L1 真机
 - [x] L2 交互体验
 - [x] 工程与产品化
-- [ ] 自定义量子 RISC-V Bonus
+- [x] 自定义量子 RISC-V Bonus
 - [x] 新手引导与视觉叙事 Bonus
 
 ## L1 真机
@@ -171,7 +179,8 @@ evidence/files/spinq-bell/spinq-bell-task.png
 
 ```text
 启动界面或 CLI 的命令：python -m starter_kit.loomq_l2.ui_server
-测试入口或页面地址：http://127.0.0.1:8765
+公网演示地址：https://loomq-demo.onrender.com
+完整本地测试入口：http://127.0.0.1:8765
 用于交互体验评测的 3 个用户任务：
 1. Create a three-qubit GHZ state and measure every qubit.
 2. I intended to prepare and measure a Bell state, but this is broken: H q[0]; CX q[0] q[1]. Repair the complete OpenQASM 2.0 program.
@@ -210,10 +219,34 @@ Braket 三个本地 SDK 模拟器间单独运行或依次对比。测量 counts 
 以下三项必须齐全且测试通过，才获得 8 分：
 
 ```text
-指令编码规格：[填写文档路径]
-模拟器扩展实现：[填写代码路径]
-端到端测试命令：[填写命令或文档路径]
+指令编码规格：starter_kit/QUANTUM_RISCV_EXTENSION.md
+模拟器扩展实现：starter_kit/quantum_riscv.py 和 starter_kit/riscv_emulator.py
+端到端测试命令：python -m starter_kit.quantum_riscv_e2e
+完整边界测试：python -m unittest tests.test_quantum_riscv_extension -v
 ```
+
+`LQ-Q32` 使用 RISC-V `custom-0` 主操作码 `0x0B`。无参数门和测量使用 QR 格式，
+参数门使用带有有符号 Q3.9 弧度立即数的 QI 格式。编码器输出无符号 32 位指令字；
+`TinyRISCVEmulator.load_machine_code()` 载入这些指令字，
+`execute_machine_code()` 在执行路径中检查 opcode、funct3、funct7、保留字段和操作数，
+随后产生有序量子语义轨迹或调用外部执行分派器。它不是只存在于文档中的助记符约定。
+
+测试固定核对代表性十六进制机器码，覆盖白名单全部 12 门及测量、编码/解码往返、
+角度定点量化、非法机器码拒绝，以及
+`Hybrid-QASM → canonical operations → 32-bit words → decode → execution` 完整闭环。
+当前 CPU 参考实现不需要专用硬件；GPU 适配是独立的可选增强，不影响本地复现。
+
+GPU 补充证据位于 [`files/quantum-riscv-gpu/`](files/quantum-riscv-gpu/)：
+
+- [机器可读成功结果](files/quantum-riscv-gpu/loomq-quantum-riscv-gpu-evidence.json)
+- [Kaggle 完整执行日志](files/quantum-riscv-gpu/loomq-lq-q32-gpu-validation.log)
+- [可复现 GPU 脚本](files/quantum-riscv-gpu/loomq_gpu_validation.py)
+
+该私有 Kaggle 运行使用 Tesla P100-PCIE-16GB（Compute Capability 6.0）和 CuPy 14.0.1；
+NVRTC 针对实际设备即时编译 CUDA Kernel。上传模块的 SHA-256 与本提交中的
+`quantum_riscv.py`、`riscv_emulator.py` 完全一致。解码后的 GHZ 指令在 GPU 和独立
+NumPy CPU 状态向量上均得到 `{"000": 2048, "111": 2048}`，最大概率差为
+`2.22044604925031e-16`。
 
 ## 新手引导与视觉叙事 Bonus
 
