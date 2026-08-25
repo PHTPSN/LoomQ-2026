@@ -13,6 +13,17 @@
 | `LoomQ-选手提交流程图.png` | 最终提交流程信息图，适合单独转发给选手 |
 | `starter_kit/` | 选手工具包 v1.1.0：提交清单、人工评分证据模板、L2 环境协议、公开自测、容器基线、RISC-V 模拟器、公开电路与上手资料 |
 
+## 本项目的完整解法
+
+本 fork 已实现 L1、L2、L3 与自定义量子 RISC-V Bonus。完整设计、数据流、隐藏评测
+应对方式和代码地图见 [`starter_kit/SOLUTION_ARCHITECTURE.md`](starter_kit/SOLUTION_ARCHITECTURE.md)。
+
+核心思路不是为三个平台分别硬编码电路，而是先把 OpenQASM 2.0 严格解析为统一的
+`LoomQCircuit`，再发射为 SpinQ OpenQASM 2、本源 OriginIR 和 Braket OpenQASM 3；
+Agent 负责把自然语言解释为结构化意图，最终正确性仍由本地解析、状态/分布验证和固定
+能力快照决定；Hybrid-QASM 则被真正解析为有序量子流与可执行 RISC-V 汇编，并可进一步
+编码为 `LQ-Q32` 32 位自定义指令。
+
 ## 克隆后启动 LoomQ 网站
 
 Windows 与官方 Python 3.10 基线下，从仓库根目录运行一个命令：

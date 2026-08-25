@@ -6,6 +6,9 @@
 
 ## 评委快速入口
 
+- **完整参赛解法与系统架构：**[`../SOLUTION_ARCHITECTURE.md`](../SOLUTION_ARCHITECTURE.md)。
+  统一说明 L1 翻译与执行、L2 Agent 验证闭环、L3 汇编降级、自定义量子 RISC-V、
+  真机边界和隐藏评测应对方式。
 - **L1 真机申报：**本文件的[“L1 真机”](#l1-真机)部分；正式申报平台为本源量子
   和 SpinQ Cloud。
 - **SpinQ 异常的可读诊断报告：**

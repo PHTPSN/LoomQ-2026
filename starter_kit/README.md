@@ -2,6 +2,10 @@
 
 本工具包定义参赛提交协议，并提供公开自测。它不包含正式评分器、隐藏答案、Mock 得分路径或任何 Level 的参考解答。
 
+本 fork 的完整参赛设计见 [`SOLUTION_ARCHITECTURE.md`](SOLUTION_ARCHITECTURE.md)：该文档从
+统一线路 IR 开始，串联三平台翻译与隔离执行、经过本地验证的 Agent、Hybrid-QASM 到
+RISC-V 汇编、自定义 `LQ-Q32` 量子指令，以及真机证据与实时状态的边界。
+
 ## 提交结构
 
 ```text

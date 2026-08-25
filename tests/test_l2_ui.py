@@ -250,7 +250,9 @@ class Level2UIServerTest(unittest.TestCase):
                 styles,
             )
             self.assertIn(".assistant-dock{overflow:hidden}", styles)
-            self.assertIn("overflow-y:auto;overscroll-behavior:contain", styles)
+            self.assertIn("overflow-y:scroll;overscroll-behavior:contain", styles)
+            self.assertIn("scrollbar-width:thin", styles)
+            self.assertIn(".assistant-dock .conversation::-webkit-scrollbar-thumb", styles)
             self.assertIn("margin-bottom:14px", styles)
             self.assertIn("margin:clamp(42px,5vw,70px) 0 8px", styles)
             self.assertIn(".workspace.assistant-hidden .assistant-dock{display:none}", styles)

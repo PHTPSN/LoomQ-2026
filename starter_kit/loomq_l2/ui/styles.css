@@ -84,7 +84,11 @@ button,textarea,select,input { font:inherit; } button { color:inherit; }
 .composer textarea{height:60px;min-height:60px;max-height:220px;resize:none}
 .assistant-dock{overflow:hidden}
 .assistant-heading,.starter-prompts{flex:0 0 auto}
-.assistant-dock .conversation{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding-right:4px}
+.assistant-dock .conversation{flex:1 1 auto;min-height:0;overflow-y:scroll;overscroll-behavior:contain;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:rgba(101,88,232,.55) rgba(21,23,36,.06);padding-right:4px}
+.assistant-dock .conversation::-webkit-scrollbar{width:9px}
+.assistant-dock .conversation::-webkit-scrollbar-track{border-radius:999px;background:rgba(21,23,36,.06)}
+.assistant-dock .conversation::-webkit-scrollbar-thumb{min-height:32px;border:2px solid transparent;border-radius:999px;background:rgba(101,88,232,.55);background-clip:padding-box}
+.assistant-dock .conversation::-webkit-scrollbar-thumb:hover{background:var(--violet);background-clip:padding-box}
 .assistant-dock .composer{position:relative;flex:0 0 auto;bottom:auto}
 .assistant-launcher{position:fixed;z-index:5;right:16px;bottom:16px;display:inline-flex;align-items:center;gap:9px;padding:12px 17px;border:1px solid rgba(101,88,232,.3);border-radius:999px;color:white;background:var(--violet);box-shadow:0 16px 45px rgba(37,34,75,.22);cursor:pointer;font-size:.72rem}.assistant-launcher>span{font-size:.9rem}.workspace:not(.assistant-hidden) .assistant-launcher{display:none}.workspace.assistant-hidden .assistant-dock{display:none}.workspace.assistant-hidden .content-stage{padding-bottom:60px}
 
