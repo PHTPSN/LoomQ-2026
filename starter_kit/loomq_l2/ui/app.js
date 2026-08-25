@@ -346,7 +346,7 @@ const chinese = {
 
 const dynamicText = {
   en: {
-    checking: "Checking local agent", ready: "Local agent ready", missing: "Model configuration missing", unavailable: "Local agent unavailable",
+    checking: "Checking model endpoint", ready: "Local agent ready", missing: "Model configuration missing", unavailable: "Model endpoint unreachable", authentication: "Model credentials rejected", modelMissing: "Configured model unavailable", apiError: "Model API error",
     user: "You", assistant: "LoomQ · Verified response", verified: "✓ Parsed and verified locally", copy: "Copy QASM", copied: "Copied", selectCopy: "Select code to copy", run: "Run locally",
     couldNotRun: "Could not run", shots: "shots", showing: "Showing the 16 most frequent of {count} measured states.", simulatorFailure: "The simulator could not run this circuit.",
     insightOne: "Most frequent result: {states}, representing {share}% of all shots.", insightTwo: "Most frequent results: {states}. Together they represent {share}% of all shots.",
@@ -356,7 +356,7 @@ const dynamicText = {
     running: "Running…", comparing: "Comparing {current} of 3…", translating: "Translating…", compiling: "Compiling…", translationFailure: "The circuit translator could not process this program.", hybridFailure: "The hybrid compiler could not process this program.", checkingAnswer: "Checking…", loading: "Interpreting, building, and checking your request", chatFailure: "The local agent could not answer.", chatHint: "Check the local model configuration, then try again. Your prompt is still in the box."
   },
   zh: {
-    checking: "正在检查本地智能体", ready: "本地智能体已就绪", missing: "缺少模型配置", unavailable: "本地智能体不可用",
+    checking: "正在检查模型端点", ready: "本地智能体已就绪", missing: "缺少模型配置", unavailable: "模型端点无法连接", authentication: "模型凭证被拒绝", modelMissing: "配置的模型不可用", apiError: "模型 API 错误",
     user: "你", assistant: "LoomQ · 已验证回答", verified: "✓ 已在本地解析并验证", copy: "复制 QASM", copied: "已复制", selectCopy: "请选择代码后复制", run: "在本地运行",
     couldNotRun: "无法运行", shots: "次测量", showing: "正在显示 {count} 个测量状态中出现次数最多的 16 个。", simulatorFailure: "模拟器无法运行此线路，请检查量子门、参数和测量语句。",
     insightOne: "最常见的结果是 {states}，占全部测量次数的 {share}%。", insightTwo: "最常见的结果是 {states}，两者合计占全部测量次数的 {share}%。",
@@ -551,7 +551,8 @@ async function connect() {
     if (!response.ok) throw new Error();
     const health = await response.json();
     sessionToken = health.session_token;
-    setStatus(health.model_configured ? "ready" : "offline", health.model_configured ? "ready" : "missing");
+    const stateKeys = { missing: "missing", unreachable: "unavailable", authentication: "authentication", model_missing: "modelMissing", api_error: "apiError" };
+    setStatus(health.model_available ? "ready" : "offline", health.model_available ? "ready" : (stateKeys[health.model_state] || "unavailable"));
     void compileHybridProgram();
   } catch (_error) { setStatus("offline", "unavailable"); }
 }

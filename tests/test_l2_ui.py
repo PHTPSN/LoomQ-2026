@@ -20,6 +20,9 @@ class LocalUIServer:
         ui_server.LoomQUIHandler.backend_health_lock = threading.Lock()
         ui_server.LoomQUIHandler.backend_health_checked_at = 0.0
         ui_server.LoomQUIHandler.backend_health_cache = {}
+        ui_server.LoomQUIHandler.model_health_lock = threading.Lock()
+        ui_server.LoomQUIHandler.model_health_checked_at = 0.0
+        ui_server.LoomQUIHandler.model_health_cache = {}
         self.server = ThreadingHTTPServer(
             ("127.0.0.1", 0), ui_server.LoomQUIHandler
         )
@@ -79,6 +82,41 @@ class Level2UIHelpersTest(unittest.TestCase):
         ):
             message = ui_server._safe_error(RuntimeError("bad private-test-key"))
         self.assertEqual(message, "bad [redacted]")
+
+    def test_model_probe_validates_the_configured_model(self):
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = json.dumps(
+            {"data": [{"id": "deepseek-v4-flash"}]}
+        ).encode()
+        environment = {
+            "LOOMQ_LLM_BASE_URL": "https://api.deepseek.com",
+            "LOOMQ_LLM_API_KEY": "test-key",
+            "LOOMQ_LLM_MODEL": "deepseek-v4-flash",
+        }
+        with mock.patch.dict(os.environ, environment, clear=True), mock.patch.object(
+            ui_server.urllib.request, "urlopen", return_value=response
+        ) as opener:
+            result = ui_server._probe_model_endpoint()
+        self.assertEqual(result, {"configured": True, "available": True, "state": "ready"})
+        self.assertEqual(opener.call_count, 1)
+        self.assertNotIn("test-key", repr(result))
+
+    def test_model_probe_reports_an_unreachable_endpoint(self):
+        environment = {
+            "LOOMQ_LLM_BASE_URL": "https://api.deepseek.com",
+            "LOOMQ_LLM_API_KEY": "test-key",
+            "LOOMQ_LLM_MODEL": "deepseek-v4-flash",
+        }
+        with mock.patch.dict(os.environ, environment, clear=True), mock.patch.object(
+            ui_server.urllib.request,
+            "urlopen",
+            side_effect=ui_server.urllib.error.URLError("blocked"),
+        ):
+            result = ui_server._probe_model_endpoint()
+        self.assertEqual(
+            result,
+            {"configured": True, "available": False, "state": "unreachable"},
+        )
 
     def test_non_loopback_bind_is_rejected(self):
         with self.assertRaises(Exception):
@@ -293,6 +331,8 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertEqual(status, 200)
             self.assertTrue(health["ok"])
             self.assertEqual(health["session_token"], "test-session")
+            self.assertFalse(health["model_available"])
+            self.assertEqual(health["model_state"], "missing")
 
     def test_backend_health_checks_three_local_simulators_and_caches_result(self):
         result = {

@@ -14,6 +14,8 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional
+import urllib.error
+import urllib.request
 from urllib.parse import urlparse
 
 mimetypes.add_type("text/plain", ".log")
@@ -55,6 +57,7 @@ qreg q[1];
 creg c[1];
 measure q[0] -> c[0];'''
 BACKEND_HEALTH_CACHE_SECONDS = 60.0
+MODEL_HEALTH_CACHE_SECONDS = 30.0
 BACKEND_PYTHON_ENV = {
     "spinq": "LOOMQ_SPINQ_PYTHON",
     "originq": "LOOMQ_ORIGINQ_PYTHON",
@@ -106,6 +109,36 @@ def _model_configured() -> bool:
         os.environ.get(name)
         for name in ("LOOMQ_LLM_BASE_URL", "LOOMQ_LLM_API_KEY", "LOOMQ_LLM_MODEL")
     )
+
+
+def _probe_model_endpoint() -> Dict[str, Any]:
+    """Check the configured model through the provider's read-only model list."""
+
+    if not _model_configured():
+        return {"configured": False, "available": False, "state": "missing"}
+    base_url = os.environ["LOOMQ_LLM_BASE_URL"].rstrip("/")
+    model = os.environ["LOOMQ_LLM_MODEL"]
+    request = urllib.request.Request(
+        base_url + "/models",
+        headers={"Authorization": "Bearer " + os.environ["LOOMQ_LLM_API_KEY"]},
+        method="GET",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=4.0) as response:
+            payload = json.loads(response.read())
+    except urllib.error.HTTPError as exc:
+        state = "authentication" if exc.code in {401, 403} else "api_error"
+        return {"configured": True, "available": False, "state": state}
+    except (urllib.error.URLError, OSError, ValueError, json.JSONDecodeError):
+        return {"configured": True, "available": False, "state": "unreachable"}
+    models = {
+        item.get("id")
+        for item in payload.get("data", [])
+        if isinstance(item, Mapping) and isinstance(item.get("id"), str)
+    } if isinstance(payload, Mapping) else set()
+    if models and model not in models:
+        return {"configured": True, "available": False, "state": "model_missing"}
+    return {"configured": True, "available": True, "state": "ready"}
 
 
 def _safe_error(exc: Exception) -> str:
@@ -242,6 +275,9 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
     backend_health_lock = threading.Lock()
     backend_health_checked_at = 0.0
     backend_health_cache: Dict[str, Dict[str, Any]] = {}
+    model_health_lock = threading.Lock()
+    model_health_checked_at = 0.0
+    model_health_cache: Dict[str, Any] = {}
 
     def log_message(self, format_string: str, *args: Any) -> None:
         print("[%s] %s" % (self.log_date_time_string(), format_string % args))
@@ -301,11 +337,23 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
             return
         route = urlparse(self.path).path
         if route == "/api/health":
+            handler_type = type(self)
+            now = time.monotonic()
+            with handler_type.model_health_lock:
+                if (
+                    not handler_type.model_health_cache
+                    or now - handler_type.model_health_checked_at >= MODEL_HEALTH_CACHE_SECONDS
+                ):
+                    handler_type.model_health_cache = _probe_model_endpoint()
+                    handler_type.model_health_checked_at = now
+                model_health = dict(handler_type.model_health_cache)
             self._json(
                 200,
                 {
                     "ok": True,
-                    "model_configured": _model_configured(),
+                    "model_configured": model_health["configured"],
+                    "model_available": model_health["available"],
+                    "model_state": model_health["state"],
                     "session_token": type(self).session_token,
                 },
             )
