@@ -19,6 +19,7 @@ const translationTarget = document.querySelector("#translation-target");
 const translationButton = document.querySelector("#translation-button");
 const irOutput = document.querySelector("#l1-ir-output");
 const translationOutput = document.querySelector("#l1-translation-output");
+const circuitDiagram = document.querySelector("#l1-circuit-diagram");
 const hybridForm = document.querySelector("#hybrid-form");
 const hybridInput = document.querySelector("#hybrid-input");
 const hybridButton = document.querySelector("#hybrid-button");
@@ -75,7 +76,49 @@ const chinese = {
   "overview.boundaryTitle": "模拟器不等于真实量子硬件。",
   "overview.boundaryBody": "模拟器页面只在这台电脑上运行厂商 SDK，绝不会提交付费真机任务。",
   "guide.eyebrow": "02 · 新手导引",
-  "guide.title": "新手导引",
+  "guide.title1": "只用三步，",
+  "guide.title2": "从零态走到量子纠缠。",
+  "guide.lede": "沿着同一个状态前进：H 门创造两条可能路径，CX 把两个量子比特连接起来，最后由测量把 Bell 态转换为普通比特。",
+  "guide.routeAria": "课程路线",
+  "guide.routeH": "量子叠加",
+  "guide.routeCx": "条件翻转",
+  "guide.routeBell": "Bell 态",
+  "guide.h.title": "从最简单的 H 门开始",
+  "guide.h.basisTitle": "两个基态",
+  "guide.h.basisBody": "先把量子比特看成一个二能级系统。这两个标签就是测量可能报告的结果。",
+  "guide.h.initialTitle": "从零态开始",
+  "guide.h.initialBody": "还没有应用任何量子门时，测量这个状态必定返回 0。",
+  "guide.h.applyTitle": "创造两条路径",
+  "guide.h.applyBody": "H 门让两个基态获得相同大小的振幅：",
+  "guide.h.measureTitle": "读取一个比特",
+  "guide.h.measureBody": "每次运行会返回 0 或 1。重复运行线路就能看到各占一半的分布。",
+  "guide.h.note": "二能级图景可以帮助建立直觉；在线路模型中，|0⟩ 和 |1⟩ 首先是两个固定的基向量。",
+  "guide.cx.title": "增加第二个量子比特，认识 CX",
+  "guide.cx.registerTitle": "一起描述两个比特",
+  "guide.cx.registerBody": "两个量子比特有四个计算基态。LoomQ 按 |q₁q₀⟩ 的顺序书写标签。",
+  "guide.cx.gateTitle": "读懂 CX 符号",
+  "guide.cx.diagramAria": "以 q 零为控制位、q 一为目标位的 CX 门",
+  "guide.cx.control": "控制",
+  "guide.cx.target": "目标",
+  "guide.cx.gateBody": "实心圆点是控制位。当它为 1 时，带圆圈的加号会翻转目标量子比特。",
+  "guide.cx.ruleTitle": "条件翻转",
+  "guide.cx.ruleBody": "以 q₀ 为控制位时，只有在 q₀ 等于 1 的分支上，目标位 q₁ 才会变化。",
+  "guide.bell.title": "把 H 和 CX 连起来，得到 Bell 态",
+  "guide.bell.startTitle": "初始化",
+  "guide.bell.startLabel": "一个确定的联合状态",
+  "guide.bell.startBody": "两个量子比特都从零开始，因此最初只有一条振幅不为零的路径。",
+  "guide.bell.splitTitle": "分开路径",
+  "guide.bell.splitBody": "H 门作用于 q₀，在 q₁ 保持为零的同时，创造两个等振幅分支。",
+  "guide.bell.finishTitle": "关联两个结果",
+  "guide.bell.finishBody": "CX 把第二条分支变为 |11⟩。这个联合状态无法拆成两个独立的量子比特状态，因此它是纠缠态。",
+  "guide.nextEyebrow": "继续探索",
+  "guide.nextTitle": "选择下一步。",
+  "guide.nextLearnTitle": "更多内容见量子基础教学",
+  "guide.nextLearnBody": "进一步理解振幅、相位、测量、shots 与量子纠缠。",
+  "guide.nextGatesTitle": "查看支持的十二种门",
+  "guide.nextGatesBody": "了解每个门的含义、矩阵、语法和可运行示例。",
+  "guide.nextHardwareTitle": "打开实机演示",
+  "guide.nextHardwareBody": "查看经过验证的 SpinQ、本源量子和 Amazon Braket 真机操作与证据。",
   "learn.eyebrow": "03 · 量子基础教学",
   "learn.title1": "理解八个概念，",
   "learn.title2": "从向量读懂量子线路。",
@@ -112,7 +155,7 @@ const chinese = {
   "gates.eyebrow": "04 · 官方门集",
   "gates.title1": "十二种门，",
   "gates.title2": "就是完整词汇表。",
-  "gates.lede": "竞赛隐藏用例同样只使用这份白名单。θ 表示以弧度为单位的旋转角度；“dg”表示该门的逆操作。",
+  "gates.lede": "θ 表示以弧度为单位的旋转角度；“dg”表示该门的逆操作。",
   "gates.single": "单量子比特门",
   "gates.phase": "相位与旋转门",
   "gates.multi": "受控与多量子比特门",
@@ -161,6 +204,9 @@ const chinese = {
   "l1.optional": "查看 IR 与 SDK 翻译",
   "l1.translate": "显示 IR 与 SDK 翻译",
   "l1.note": "IR 会去除源程序中的寄存器名称，同时保留量子比特索引、经典比特写入位置、参数和指令顺序。",
+  "l1.circuit": "线路示意图",
+  "l1.circuitHint": "量子门从左向右执行",
+  "l1.awaitingCircuit": "选择此功能后即可绘制线路。",
   "l1.ir": "规范化 IR",
   "l1.output": "SDK 翻译",
   "l1.awaiting": "选择此功能后即可查看线路 IR。",
@@ -366,7 +412,8 @@ const dynamicText = {
     collapseRail: "Collapse sidebar", expandRail: "Expand sidebar",
     backendChecking: "Checking", backendReady: "Ready", backendMissing: "Not ready", backendUnavailable: "Unavailable",
     resizePrompt: "Resize prompt input from its top edge", hideAssistant: "Hide LoomQ assistant", showAssistant: "Open LoomQ assistant", openAssistant: "Ask LoomQ",
-    running: "Running…", comparing: "Comparing {current} of 3…", translating: "Translating…", compiling: "Compiling…", translationFailure: "The circuit translator could not process this program.", hybridFailure: "The hybrid compiler could not process this program.", checkingAnswer: "Checking…", loading: "Interpreting, building, and checking your request", chatFailure: "The local agent could not answer.", chatHint: "Check the local model configuration, then try again. Your prompt is still in the box."
+    running: "Running…", comparing: "Comparing {current} of 3…", translating: "Translating…", compiling: "Compiling…", translationFailure: "The circuit translator could not process this program.", hybridFailure: "The hybrid compiler could not process this program.", checkingAnswer: "Checking…", loading: "Interpreting, building, and checking your request", chatFailure: "The local agent could not answer.", chatHint: "Check the local model configuration, then try again. Your prompt is still in the box.",
+    circuitAria: "{qubits}-qubit circuit with {count} instructions", circuitEmpty: "This program has no drawable circuit instructions."
   },
   zh: {
     checking: "正在检查模型端点", ready: "本地智能体已就绪", missing: "缺少模型配置", unavailable: "模型端点无法连接", authentication: "模型凭证被拒绝", modelMissing: "配置的模型不可用", apiError: "模型 API 错误",
@@ -376,7 +423,8 @@ const dynamicText = {
     collapseRail: "折叠侧边栏", expandRail: "展开侧边栏",
     backendChecking: "检查中", backendReady: "可用", backendMissing: "未就绪", backendUnavailable: "不可用",
     resizePrompt: "从顶部边缘调整提示词输入框高度", hideAssistant: "隐藏 LoomQ 助手", showAssistant: "打开 LoomQ 助手", openAssistant: "询问 LoomQ",
-    running: "正在运行…", comparing: "正在对比第 {current}/3 个…", translating: "正在翻译…", compiling: "正在编译…", translationFailure: "线路翻译器无法处理这份程序。", hybridFailure: "混合编译器无法处理这份程序。", checkingAnswer: "正在检查…", loading: "正在理解、构建并检查你的请求", chatFailure: "本地智能体暂时无法回答。", chatHint: "请检查本地模型配置后重试。你的输入仍保留在输入框中。"
+    running: "正在运行…", comparing: "正在对比第 {current}/3 个…", translating: "正在翻译…", compiling: "正在编译…", translationFailure: "线路翻译器无法处理这份程序。", hybridFailure: "混合编译器无法处理这份程序。", checkingAnswer: "正在检查…", loading: "正在理解、构建并检查你的请求", chatFailure: "本地智能体暂时无法回答。", chatHint: "请检查本地模型配置后重试。你的输入仍保留在输入框中。",
+    circuitAria: "包含 {count} 条指令的 {qubits} 量子比特线路", circuitEmpty: "这份程序没有可以绘制的线路指令。"
   }
 };
 
@@ -392,6 +440,7 @@ let assistantHidden = savedAssistantState === "hidden";
 let sessionToken = "";
 let history = [];
 let busy = false;
+let currentCircuitIR = null;
 let connected = false;
 let statusState = "checking";
 
@@ -399,6 +448,18 @@ function tr(key, values = {}) {
   let value = dynamicText[language][key] || key;
   Object.entries(values).forEach(([name, replacement]) => { value = value.replace(`{${name}}`, replacement); });
   return value;
+}
+
+function renderGuideMath() {
+  if (!window.katex) return;
+  document.querySelectorAll("[data-latex]").forEach((element) => {
+    window.katex.render(element.dataset.latex, element, {
+      output: "mathml",
+      throwOnError: false,
+      strict: "ignore",
+      trust: false
+    });
+  });
 }
 
 function syncRailToggle() {
@@ -481,6 +542,7 @@ function applyLanguage(nextLanguage) {
   if (!translationButton.disabled) translationButton.querySelector("span").textContent = language === "zh" ? chinese["l1.translate"] : "Show IR + SDK translation";
   if (!hybridButton.disabled) hybridButton.querySelector("span").textContent = language === "zh" ? chinese["hybrid.compile"] : "Compile Hybrid-QASM";
   if (simulationResults.children.length) simulationResults.replaceChildren();
+  if (currentCircuitIR) renderCircuitDiagram(currentCircuitIR);
   backendStatusRows.forEach((row) => setBackendStatus(row.dataset.backendStatus, row.dataset.state || "checking"));
   syncRailToggle();
   syncAssistantVisibility();
@@ -708,6 +770,129 @@ function setCompilerOutput(element, content, isError = false) {
   element.textContent = content;
 }
 
+const circuitSvgNamespace = "http://www.w3.org/2000/svg";
+
+function circuitSvgElement(name, attributes = {}, textContent = "") {
+  const element = document.createElementNS(circuitSvgNamespace, name);
+  Object.entries(attributes).forEach(([attribute, value]) => element.setAttribute(attribute, String(value)));
+  if (textContent) element.textContent = textContent;
+  return element;
+}
+
+function setCircuitMessage(message, isError = false) {
+  circuitDiagram.replaceChildren();
+  circuitDiagram.classList.toggle("error", isError);
+  const paragraph = document.createElement("p");
+  paragraph.textContent = message;
+  circuitDiagram.append(paragraph);
+}
+
+function appendCircuitLine(parent, x1, y1, x2, y2, className) {
+  parent.append(circuitSvgElement("line", { x1, y1, x2, y2, class: className }));
+}
+
+function appendCircuitGate(parent, x, y, label, description, className = "circuit-gate-label") {
+  const group = circuitSvgElement("g");
+  group.append(circuitSvgElement("title", {}, description));
+  group.append(circuitSvgElement("rect", { x: x - 18, y: y - 18, width: 36, height: 36, rx: 8, class: "circuit-gate-box" }));
+  group.append(circuitSvgElement("text", { x, y: y + 1, class: className }, label));
+  parent.append(group);
+}
+
+function appendCircuitControl(parent, x, y) {
+  parent.append(circuitSvgElement("circle", { cx: x, cy: y, r: 5, class: "circuit-control" }));
+}
+
+function appendCircuitTarget(parent, x, y) {
+  parent.append(circuitSvgElement("circle", { cx: x, cy: y, r: 11, class: "circuit-target" }));
+  appendCircuitLine(parent, x - 7, y, x + 7, y, "circuit-link");
+  appendCircuitLine(parent, x, y - 7, x, y + 7, "circuit-link");
+}
+
+function appendCircuitSwap(parent, x, y) {
+  appendCircuitLine(parent, x - 7, y - 7, x + 7, y + 7, "circuit-swap");
+  appendCircuitLine(parent, x - 7, y + 7, x + 7, y - 7, "circuit-swap");
+}
+
+function renderCircuitDiagram(ir) {
+  const qubitCount = Number(ir && ir.qubits);
+  const instructions = Array.isArray(ir && ir.instructions) ? ir.instructions : [];
+  currentCircuitIR = ir;
+  circuitDiagram.replaceChildren();
+  circuitDiagram.classList.remove("error");
+  if (!Number.isInteger(qubitCount) || qubitCount < 1 || !instructions.length) {
+    setCircuitMessage(tr("circuitEmpty"));
+    return;
+  }
+
+  const left = 58;
+  const firstColumn = 92;
+  const columnWidth = 64;
+  const rowHeight = 58;
+  const top = 35;
+  const width = Math.max(520, firstColumn + instructions.length * columnWidth + 26);
+  const height = Math.max(150, top + (qubitCount - 1) * rowHeight + 48);
+  const svg = circuitSvgElement("svg", {
+    width,
+    height,
+    viewBox: `0 0 ${width} ${height}`,
+    role: "img",
+    "aria-label": tr("circuitAria", { qubits: qubitCount, count: instructions.length }),
+    focusable: "false"
+  });
+  const yFor = (qubit) => top + Number(qubit) * rowHeight;
+
+  for (let qubit = 0; qubit < qubitCount; qubit += 1) {
+    const y = yFor(qubit);
+    svg.append(circuitSvgElement("text", { x: 12, y: y + 4, class: "circuit-register" }, `q${qubit}`));
+    appendCircuitLine(svg, left, y, width - 18, y, "circuit-wire");
+  }
+
+  instructions.forEach((instruction, index) => {
+    if (!instruction || typeof instruction !== "object") return;
+    const x = firstColumn + index * columnWidth;
+    if (instruction.kind === "measure") {
+      const qubit = Number(instruction.qubit);
+      if (!Number.isInteger(qubit) || qubit < 0 || qubit >= qubitCount) return;
+      const y = yFor(qubit);
+      appendCircuitGate(svg, x, y, "M", `measure q${qubit}`, "circuit-measure-label");
+      svg.append(circuitSvgElement("text", { x, y: y + 29, class: "circuit-classical" }, `c${instruction.classical_bit}`));
+      return;
+    }
+    if (instruction.kind !== "gate") return;
+
+    const gateName = String(instruction.name || "?").toLowerCase();
+    const qubits = (Array.isArray(instruction.qubits) ? instruction.qubits : [])
+      .map(Number)
+      .filter((qubit) => Number.isInteger(qubit) && qubit >= 0 && qubit < qubitCount);
+    if (!qubits.length) return;
+    const parameters = Array.isArray(instruction.parameters) && instruction.parameters.length
+      ? `(${instruction.parameters.join(", ")})`
+      : "";
+    const description = `${gateName}${parameters} q[${qubits.join("], q[")}]`;
+
+    if (qubits.length === 1) {
+      appendCircuitGate(svg, x, yFor(qubits[0]), gateName.toUpperCase(), description);
+      return;
+    }
+
+    const ys = qubits.map(yFor);
+    appendCircuitLine(svg, x, Math.min(...ys), x, Math.max(...ys), "circuit-link");
+    if (gateName === "cx" || gateName === "ccx") {
+      qubits.slice(0, -1).forEach((qubit) => appendCircuitControl(svg, x, yFor(qubit)));
+      appendCircuitTarget(svg, x, yFor(qubits[qubits.length - 1]));
+    } else if (gateName === "swap") {
+      qubits.forEach((qubit) => appendCircuitSwap(svg, x, yFor(qubit)));
+    } else if (gateName === "cu1") {
+      qubits.slice(0, -1).forEach((qubit) => appendCircuitControl(svg, x, yFor(qubit)));
+      appendCircuitGate(svg, x, yFor(qubits[qubits.length - 1]), "P", description);
+    } else {
+      qubits.forEach((qubit) => appendCircuitGate(svg, x, yFor(qubit), gateName.toUpperCase(), description));
+    }
+  });
+  circuitDiagram.append(svg);
+}
+
 function setTranslationBusy(nextBusy) {
   translationButton.disabled = nextBusy;
   translationTarget.disabled = nextBusy;
@@ -717,19 +902,23 @@ function setTranslationBusy(nextBusy) {
 async function translateProgram() {
   const qasm = qasmInput.value.trim();
   if (!qasm || translationButton.disabled) return;
+  currentCircuitIR = null;
   setTranslationBusy(true);
   setCompilerOutput(irOutput, tr("translating"));
   setCompilerOutput(translationOutput, tr("translating"));
+  setCircuitMessage(tr("translating"));
   try {
     const response = await fetch("/api/transpile", { method: "POST", headers: { "Content-Type": "application/json", "X-LoomQ-Session": sessionToken }, body: JSON.stringify({ qasm, target: translationTarget.value }) });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || tr("translationFailure"));
     setCompilerOutput(irOutput, JSON.stringify(payload.ir, null, 2));
     setCompilerOutput(translationOutput, payload.translated);
+    renderCircuitDiagram(payload.ir);
   } catch (error) {
     const message = `${tr("translationFailure")}\n\n${error.message}`;
     setCompilerOutput(irOutput, message, true);
     setCompilerOutput(translationOutput, message, true);
+    setCircuitMessage(message, true);
   } finally { setTranslationBusy(false); }
 }
 
@@ -787,6 +976,7 @@ hybridForm.addEventListener("submit", (event) => { event.preventDefault(); compi
 input.addEventListener("keydown", (event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); composer.requestSubmit(); } });
 document.querySelectorAll("[data-prompt-en]").forEach((button) => button.addEventListener("click", () => { input.value = language === "zh" ? button.dataset.promptZh : button.dataset.promptEn; input.focus(); }));
 document.querySelectorAll("[data-gate-example]").forEach((button) => button.addEventListener("click", () => { qasmInput.value = gateExamples[button.dataset.gateExample]; simulationResults.replaceChildren(); activateView("simulator"); window.setTimeout(() => qasmInput.focus(), 200); }));
+document.querySelectorAll("[data-guide-destination]").forEach((button) => button.addEventListener("click", () => activateView(button.dataset.guideDestination)));
 document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => activateView(button.dataset.view)));
 hardwareTabButtons.forEach((button, index) => {
   button.addEventListener("click", () => activateHardwareTutorial(button.dataset.hardwareTab));
@@ -866,6 +1056,7 @@ promptResizeHandle.addEventListener("keydown", (event) => {
 });
 
 applyLanguage(language);
+renderGuideMath();
 activateView(location.hash.slice(1));
 activateGpuTutorStep("1");
 window.addEventListener("hashchange", () => activateView(location.hash.slice(1), false));

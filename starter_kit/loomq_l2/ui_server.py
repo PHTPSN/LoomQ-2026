@@ -366,6 +366,7 @@ class LoomQUIHandler(BaseHTTPRequestHandler):
             "/index.html": UI_ROOT / "index.html",
             "/styles.css": UI_ROOT / "styles.css",
             "/app.js": UI_ROOT / "app.js",
+            "/vendor/katex.min.js": UI_ROOT / "vendor/katex.min.js",
             "/assets/spinq-logo.png": UI_ROOT / "assets/spinq-logo.png",
             "/assets/origin-quantum-logo.svg": UI_ROOT / "assets/origin-quantum-logo.svg",
             "/assets/aws-logo.svg": UI_ROOT / "assets/aws-logo.svg",

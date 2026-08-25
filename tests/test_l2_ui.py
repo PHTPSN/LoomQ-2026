@@ -165,6 +165,14 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertNotIn(b'<details class="translation-disclosure"', body)
             self.assertIn(b'id="l1-ir-output"', body)
             self.assertIn(b'id="l1-translation-output"', body)
+            self.assertIn(b'id="l1-circuit-diagram"', body)
+            self.assertEqual(body.count(b'class="guide-module"'), 3)
+            self.assertEqual(body.count(b'data-latex="'), 16)
+            self.assertEqual(
+                re.findall(rb'data-guide-destination="([^"]+)"', body),
+                [b"learn", b"gates", b"simulator"],
+            )
+            self.assertNotIn(b"Hidden competition cases", body)
             self.assertIn(b'id="hybrid-form"', body)
             self.assertIn(b'id="hybrid-assembly-output"', body)
             self.assertIn(b"Execution evidence", body)
@@ -271,6 +279,10 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertIn(".view-nav button>i{width:26px;height:26px", styles)
             self.assertIn(".view-nav button>strong{font-size:.73rem", styles)
             self.assertIn('fetch("/api/transpile"', script)
+            self.assertIn("function renderGuideMath", script)
+            self.assertIn("function renderCircuitDiagram", script)
+            self.assertIn('output: "mathml"', script)
+            self.assertNotIn("竞赛隐藏用例同样只使用这份白名单", script)
             self.assertIn('fetch("/api/compile-hybrid"', script)
             self.assertIn('fetch("/api/backend-health"', script)
             self.assertIn("function setBackendStatus", script)
@@ -285,6 +297,10 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertIn(".evidence-grid", styles)
             self.assertIn(".hardware-tabs", styles)
             self.assertIn(".hardware-tab-panel", styles)
+            self.assertNotIn(
+                ".workspace:not(.assistant-hidden) .content-stage{padding-right",
+                styles,
+            )
             self.assertIn(
                 ".workspace.rail-collapsed .rail-footer{display:block", styles
             )
@@ -300,6 +316,15 @@ class Level2UIServerTest(unittest.TestCase):
             self.assertEqual(body.count(b"data-prompt-en="), 3)
             self.assertEqual(body.count(b"data-prompt-zh="), 3)
             self.assertIn("default-src 'self'", headers["Content-Security-Policy"])
+
+            katex_status, katex_headers, katex_body = local.request(
+                "GET", "/vendor/katex.min.js"
+            )
+            self.assertEqual(katex_status, 200)
+            self.assertEqual(
+                katex_headers["Content-Type"], "application/javascript; charset=utf-8"
+            )
+            self.assertGreater(len(katex_body), 200_000)
 
             evidence_routes = {
                 "/evidence/originq-bell-task.png": "image/png",

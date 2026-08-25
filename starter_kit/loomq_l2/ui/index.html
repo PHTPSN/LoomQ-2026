@@ -65,11 +65,105 @@
           <div class="boundary-note"><span aria-hidden="true">!</span><div><strong data-i18n="overview.boundaryTitle">Simulation is not real hardware.</strong><p data-i18n="overview.boundaryBody">The simulator view uses vendor SDKs on this computer. It never submits a paid quantum-machine job.</p></div></div>
         </section>
 
-        <section class="content-view placeholder-view" id="view-guide" data-view-panel="guide" aria-labelledby="guide-title">
-          <header class="view-heading compact">
+        <section class="content-view" id="view-guide" data-view-panel="guide" aria-labelledby="guide-title">
+          <header class="view-heading compact guide-heading">
             <p class="eyebrow" data-i18n="guide.eyebrow">02 · Beginner guide</p>
-            <h2 id="guide-title" data-i18n="guide.title">Beginner guide</h2>
+            <h2 id="guide-title"><span data-i18n="guide.title1">Three moves take you</span><br><em data-i18n="guide.title2">from zero to entanglement.</em></h2>
+            <p class="view-lede" data-i18n="guide.lede">Follow one state as H creates two possible paths, CX links two qubits, and measurement turns the final Bell state into ordinary bits.</p>
+            <ol class="guide-route" aria-label="Lesson route" data-i18n-aria="guide.routeAria">
+              <li><span>01</span><strong>H</strong><small data-i18n="guide.routeH">Superposition</small></li>
+              <li><span>02</span><strong>CX</strong><small data-i18n="guide.routeCx">Conditional flip</small></li>
+              <li><span>03</span><strong>H + CX</strong><small data-i18n="guide.routeBell">Bell state</small></li>
+            </ol>
           </header>
+
+          <section class="guide-module" aria-labelledby="guide-h-title">
+            <header><span>01</span><h3 id="guide-h-title" data-i18n="guide.h.title">Start with the H gate</h3><small>1 QUBIT</small></header>
+            <div class="guide-frames guide-frames-four">
+              <article class="guide-frame">
+                <span class="guide-frame-number">01 · BASIS</span>
+                <h4 data-i18n="guide.h.basisTitle">Two basis states</h4>
+                <div class="guide-visual guide-energy" aria-hidden="true"><div><span data-latex="\lvert 1\rangle">|1⟩</span></div><div><i></i><span data-latex="\lvert 0\rangle">|0⟩</span></div></div>
+                <p data-i18n="guide.h.basisBody">Treat a qubit as a two-level system. These two labels are the outcomes a measurement can report.</p>
+              </article>
+              <article class="guide-frame">
+                <span class="guide-frame-number">02 · INITIALIZE</span>
+                <h4 data-i18n="guide.h.initialTitle">Begin at zero</h4>
+                <div class="guide-visual"><div class="guide-state"><span data-latex="\lvert\psi\rangle=\lvert 0\rangle">|ψ⟩ = |0⟩</span><small data-latex="\begin{bmatrix}1\\0\end{bmatrix}">[1, 0]ᵀ</small></div></div>
+                <p data-i18n="guide.h.initialBody">Before any gate is applied, measuring this state returns 0 with certainty.</p>
+              </article>
+              <article class="guide-frame">
+                <span class="guide-frame-number">03 · APPLY H</span>
+                <h4 data-i18n="guide.h.applyTitle">Create two paths</h4>
+                <div class="guide-visual"><div class="guide-wave-pair"><div><b data-latex="\lvert 0\rangle/\sqrt{2}">|0⟩ / √2</b><svg viewBox="0 0 140 30" role="img" aria-label="First equal amplitude"><path d="M0 15 C14 2 28 2 42 15 S70 28 84 15 S112 2 126 15 S140 28 140 15"/></svg></div><div><b data-latex="\lvert 1\rangle/\sqrt{2}">|1⟩ / √2</b><svg viewBox="0 0 140 30" role="img" aria-label="Second equal amplitude"><path d="M0 15 C14 2 28 2 42 15 S70 28 84 15 S112 2 126 15 S140 28 140 15"/></svg></div></div></div>
+                <p><span data-i18n="guide.h.applyBody">H gives the two basis states equal amplitudes:</span> <span class="guide-inline-math" data-latex="H\lvert0\rangle=\frac{\lvert0\rangle+\lvert1\rangle}{\sqrt2}">H|0⟩ = (|0⟩ + |1⟩)/√2</span></p>
+              </article>
+              <article class="guide-frame">
+                <span class="guide-frame-number">04 · MEASURE</span>
+                <h4 data-i18n="guide.h.measureTitle">Read one bit</h4>
+                <div class="guide-visual"><div class="guide-probabilities"><div><code>0</code><i><b></b></i><span>50%</span></div><div><code>1</code><i><b></b></i><span>50%</span></div></div></div>
+                <p data-i18n="guide.h.measureBody">Each run returns either 0 or 1. Repeating the circuit reveals the fifty-fifty distribution.</p>
+              </article>
+            </div>
+            <p class="guide-note"><span aria-hidden="true">i</span><span data-i18n="guide.h.note">The two-level picture is intuition. In the circuit model, |0⟩ and |1⟩ are first of all two fixed basis vectors.</span></p>
+          </section>
+
+          <section class="guide-module" aria-labelledby="guide-cx-title">
+            <header><span>02</span><h3 id="guide-cx-title" data-i18n="guide.cx.title">Add a second qubit and meet CX</h3><small>2 QUBITS</small></header>
+            <div class="guide-frames guide-frames-three">
+              <article class="guide-frame">
+                <span class="guide-frame-number">01 · REGISTER</span>
+                <h4 data-i18n="guide.cx.registerTitle">Describe both together</h4>
+                <div class="guide-visual"><div class="guide-state"><span data-latex="\lvert q_1q_0\rangle=\lvert00\rangle">|q₁q₀⟩ = |00⟩</span><small data-latex="\{\lvert00\rangle,\lvert01\rangle,\lvert10\rangle,\lvert11\rangle\}">{|00⟩, |01⟩, |10⟩, |11⟩}</small></div></div>
+                <p data-i18n="guide.cx.registerBody">Two qubits have four computational-basis states. LoomQ writes labels in |q₁q₀⟩ order.</p>
+              </article>
+              <article class="guide-frame">
+                <span class="guide-frame-number">02 · CONTROL</span>
+                <h4 data-i18n="guide.cx.gateTitle">Read the CX symbol</h4>
+                <div class="guide-visual"><div class="guide-cx-diagram" role="img" data-i18n-aria="guide.cx.diagramAria" aria-label="CX gate with q zero as control and q one as target"><div><code>q₀</code><i><b></b><em></em></i><span data-i18n="guide.cx.control">control</span></div><div><code>q₁</code><i><b></b></i><span data-i18n="guide.cx.target">target</span></div></div></div>
+                <p data-i18n="guide.cx.gateBody">The filled dot is the control. If it is 1, the circled plus flips the target qubit.</p>
+              </article>
+              <article class="guide-frame">
+                <span class="guide-frame-number">03 · RULE</span>
+                <h4 data-i18n="guide.cx.ruleTitle">A conditional flip</h4>
+                <div class="guide-visual"><div class="guide-state guide-state-stack"><span data-latex="\operatorname{CX}\lvert00\rangle=\lvert00\rangle">CX|00⟩ = |00⟩</span><span data-latex="\operatorname{CX}\lvert01\rangle=\lvert11\rangle">CX|01⟩ = |11⟩</span></div></div>
+                <p data-i18n="guide.cx.ruleBody">With q₀ as control, the target q₁ changes only on the branch where q₀ equals 1.</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="guide-module" aria-labelledby="guide-bell-title">
+            <header><span>03</span><h3 id="guide-bell-title" data-i18n="guide.bell.title">Connect H and CX to make a Bell state</h3><small>ENTANGLEMENT</small></header>
+            <div class="guide-frames guide-frames-three">
+              <article class="guide-frame">
+                <span class="guide-frame-number">01 · START</span>
+                <h4 data-i18n="guide.bell.startTitle">Initialize</h4>
+                <div class="guide-visual"><div class="guide-state"><span data-latex="\lvert00\rangle">|00⟩</span><small data-i18n="guide.bell.startLabel">one known joint state</small></div></div>
+                <p data-i18n="guide.bell.startBody">Both qubits begin at zero, so there is initially only one nonzero path.</p>
+              </article>
+              <article class="guide-frame">
+                <span class="guide-frame-number">02 · H ON q₀</span>
+                <h4 data-i18n="guide.bell.splitTitle">Split the path</h4>
+                <div class="guide-visual"><div class="guide-transform"><span data-latex="\lvert00\rangle">|00⟩</span><i>→</i><span data-latex="\frac{\lvert00\rangle+\lvert01\rangle}{\sqrt2}">(|00⟩ + |01⟩)/√2</span></div></div>
+                <p data-i18n="guide.bell.splitBody">H acts on q₀, creating two equal-amplitude branches while q₁ remains zero.</p>
+              </article>
+              <article class="guide-frame guide-frame-accent">
+                <span class="guide-frame-number">03 · CX</span>
+                <h4 data-i18n="guide.bell.finishTitle">Link the outcomes</h4>
+                <div class="guide-visual"><div class="guide-state guide-bell-state"><span data-latex="\lvert\Phi^+\rangle=\frac{\lvert00\rangle+\lvert11\rangle}{\sqrt2}">|Φ⁺⟩ = (|00⟩ + |11⟩)/√2</span><small data-latex="P(00)=P(11)=\frac12">P(00) = P(11) = 1/2</small></div></div>
+                <p data-i18n="guide.bell.finishBody">CX turns the second branch into |11⟩. The joint state cannot be split into two independent qubit states: it is entangled.</p>
+              </article>
+            </div>
+          </section>
+
+          <nav class="guide-next" aria-labelledby="guide-next-title">
+            <header><p class="eyebrow" data-i18n="guide.nextEyebrow">Continue exploring</p><h3 id="guide-next-title" data-i18n="guide.nextTitle">Choose your next step.</h3></header>
+            <div>
+              <button type="button" data-guide-destination="learn"><span>01</span><strong data-i18n="guide.nextLearnTitle">More in Quantum basics</strong><small data-i18n="guide.nextLearnBody">Understand amplitudes, phase, measurement, shots, and entanglement in more depth.</small><i>↗</i></button>
+              <button type="button" data-guide-destination="gates"><span>02</span><strong data-i18n="guide.nextGatesTitle">Explore the twelve supported gates</strong><small data-i18n="guide.nextGatesBody">See every gate’s meaning, matrix, syntax, and runnable example.</small><i>↗</i></button>
+              <button type="button" data-guide-destination="simulator"><span>03</span><strong data-i18n="guide.nextHardwareTitle">Open real-hardware demos</strong><small data-i18n="guide.nextHardwareBody">Follow the verified SpinQ, Origin Quantum, and Amazon Braket hardware walkthroughs.</small><i>↗</i></button>
+            </div>
+          </nav>
         </section>
 
         <section class="content-view" id="view-learn" data-view-panel="learn" aria-labelledby="learn-title">
@@ -104,7 +198,7 @@
           <header class="view-heading compact">
             <p class="eyebrow" data-i18n="gates.eyebrow">04 · Official gate set</p>
             <h2 id="gates-title"><span data-i18n="gates.title1">Twelve gates.</span><br><em data-i18n="gates.title2">The complete vocabulary.</em></h2>
-            <p class="view-lede" data-i18n="gates.lede">Hidden competition cases use this same whitelist. θ is a rotation angle measured in radians; “dg” means the inverse gate.</p>
+            <p class="view-lede" data-i18n="gates.lede">θ is a rotation angle measured in radians; “dg” means the inverse gate.</p>
           </header>
           <div class="gate-legend"><span><i class="single-dot"></i><b data-i18n="gates.single">Single-qubit</b></span><span><i class="phase-dot"></i><b data-i18n="gates.phase">Phase and rotation</b></span><span><i class="multi-dot"></i><b data-i18n="gates.multi">Controlled and multi-qubit</b></span></div>
           <div class="gate-grid">
@@ -162,8 +256,9 @@ measure q -&gt; c;</textarea>
               </div>
               <p class="runner-privacy" data-i18n="l1.note">The IR removes source register names while preserving qubit indices, classical-bit destinations, parameters, and instruction order.</p>
               <div class="compiler-results" id="l1-results" aria-live="polite">
-                <article class="compiler-output"><header><span>01</span><strong id="translation-tool-title" data-i18n="l1.ir">Canonical IR</strong></header><pre id="l1-ir-output"><code data-i18n="l1.awaiting">Choose this option to inspect the circuit IR.</code></pre></article>
-                <article class="compiler-output"><header><span>02</span><strong id="l1-output-title" data-i18n="l1.output">SDK translation</strong></header><pre id="l1-translation-output"><code data-i18n="l1.awaitingOutput">Choose a target to see its exact syntax.</code></pre></article>
+                <article class="circuit-preview"><header><span>01</span><strong data-i18n="l1.circuit">Circuit diagram</strong><small data-i18n="l1.circuitHint">gates flow from left to right</small></header><div class="circuit-diagram" id="l1-circuit-diagram"><p data-i18n="l1.awaitingCircuit">Choose this option to draw the circuit.</p></div></article>
+                <article class="compiler-output"><header><span>02</span><strong id="translation-tool-title" data-i18n="l1.ir">Canonical IR</strong></header><pre id="l1-ir-output"><code data-i18n="l1.awaiting">Choose this option to inspect the circuit IR.</code></pre></article>
+                <article class="compiler-output"><header><span>03</span><strong id="l1-output-title" data-i18n="l1.output">SDK translation</strong></header><pre id="l1-translation-output"><code data-i18n="l1.awaitingOutput">Choose a target to see its exact syntax.</code></pre></article>
               </div>
             </div>
           </section>
@@ -407,6 +502,7 @@ measure q[2] -&gt; c[2];</code></pre></article>
       <button class="assistant-launcher" id="assistant-launcher" type="button" aria-controls="assistant-dock" aria-expanded="false" aria-label="Open LoomQ assistant" title="Open LoomQ assistant"><span aria-hidden="true">✦</span><strong data-dynamic-text="openAssistant">Ask LoomQ</strong></button>
     </div>
     <template id="message-template"><article class="message"><div class="message-meta"></div><div class="message-body"></div></article></template>
+    <script src="/vendor/katex.min.js" defer></script>
     <script src="/app.js" defer></script>
   </body>
 </html>
